@@ -1,41 +1,30 @@
 "use server";
 
-import { dbConnect, collections } from "../lib/dbConnect";
+import { connectDB } from "@/lib/mongoose";
+import HeroBanner from "@/models/HeroBanner";
 
-// Fetch the existing Hero Banner details. Returns null if not found.
 export async function getHeroBanner() {
   try {
-    const collection = await dbConnect(collections.HERO_BANNER);
-    const banner = await collection.findOne({ type: "main_banner" });
+    await connectDB();
+    const banner = await HeroBanner.findOne({ type: "main_banner" }).lean();
     if (banner) {
       return { title: banner.title, description: banner.description, imageUrl: banner.imageUrl };
     }
-    return null; // Return null to indicate no configured banner found
+    return null;
   } catch (error) {
     console.error("Failed to fetch hero banner data:", error);
     return null;
   }
 }
 
-// Update or insert the Hero Banner details
 export async function updateHeroBanner(title, description, imageUrl) {
   try {
-    const collection = await dbConnect(collections.HERO_BANNER);
-    
-    // We update the single 'main_banner' document, upserting if it doesn't exist
-    const result = await collection.updateOne(
+    await connectDB();
+    await HeroBanner.findOneAndUpdate(
       { type: "main_banner" },
-      {
-        $set: {
-          title: title,
-          description: description,
-          imageUrl: imageUrl,
-          updatedAt: new Date(),
-        },
-      },
+      { $set: { title, description, imageUrl } },
       { upsert: true }
     );
-    
     return { success: true, message: "Hero banner updated successfully." };
   } catch (error) {
     console.error("Failed to update hero banner data:", error);

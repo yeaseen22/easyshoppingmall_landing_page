@@ -3,8 +3,8 @@ import OrdersComponent from '@/components/Dashboard/OrdersComponent/OrdersCompon
 import { getOrders } from '@/action/order';
 
 const OrdersPage = async () => {
-const data = await getOrders();
- const orders = data?.map((order) => ({
+  const data = await getOrders();
+  const orders = data?.map((order) => ({
     ...order,
     _id: order._id.toString(),
   }));

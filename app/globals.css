@@ -1,24 +1,22 @@
 @import "tailwindcss";
 
-
 /* color set up  */
 /* @theme {
-  --color-primary-color: #135E4B; 
-  --color-secondary: #4CB572; 
-  --color-btn-color: #478c1f;  
+  --color-primary-color: #135E4B;
+  --color-secondary: #4CB572;
+  --color-btn-color: #478c1f;
   --color-bg: #CADCAE;
   --color-accent: black;
   --color--accent-content: white;
 } */
 @theme {
-  --color-primary-color: #FFC900;
-  --color-secondary: #f87171CC;
+  --color-primary-color: #ffc900;
+  --color-secondary: #f87171cc;
   --color-btn-color: #478c1f;
-  --color-bg: #FFFDE1;
+  --color-bg: #fffde1;
   --color-accent: black;
   --color-accent-content: white;
 }
-
 
 /* #135E4B */
 /* #4CB572 */
@@ -34,7 +32,6 @@
   @apply bg-primary-color;
 }
 
-
 .container {
   @apply w-[98%] lg:w-[97%] mx-auto md:py-5 lg:py-3 py-4;
 }
@@ -42,7 +39,6 @@
 .MuiInputBase-root {
   @apply border-2 border-primary-color outline-none rounded-lg shadow-sm w-full h-13;
 }
-
 
 /* Custom Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
@@ -134,4 +130,13 @@
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+label[data-invalid="true"] {
+  @apply text-red-600;
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  @apply border-red-500 focus:ring-red-500;
 }

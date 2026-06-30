@@ -1,107 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getProducts, addProduct, deleteProduct, updateProduct } from "@/action/product";
-import Swal from "sweetalert2";
+import { useProductStore } from "@/store/productStoreProvider";
+import { removeProduct } from "@/store/productStore";
+import ProductForm from "@/components/Dashboard/FeaturedProducts/ProductForm";
+import DataTable from "@/components/Shared/DataTable";
+import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { Trash2, Pencil } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function FeaturedProductsDashboard() {
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Form state
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [oldPrice, setOldPrice] = useState("");
-  const [discount, setDiscount] = useState("");
-  const [image, setImage] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  async function loadProducts() {
-    setIsLoading(true);
-    const data = await getProducts();
-    if (data) {
-      setProducts(data);
-    }
-    setIsLoading(false);
-  }
-
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-
-    const productData = {
-      name,
-      description,
-      price: Number(price),
-      oldPrice: Number(oldPrice),
-      discount: Number(discount),
-      image
-    };
-
-    let result;
-    if (editingId) {
-      result = await updateProduct(editingId, productData);
-    } else {
-      result = await addProduct(productData);
-    }
-
-    if (result.success) {
-      Swal.fire({
-        icon: "success",
-        title: editingId ? "Updated" : "Added",
-        text: result.message,
-        background: "#11151c",
-        color: "#fff",
-      });
-      // Reset form
-      setEditingId(null);
-      setName("");
-      setDescription("");
-      setPrice("");
-      setOldPrice("");
-      setDiscount("");
-      setImage("");
-      // Reload products
-      await loadProducts();
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: result.message,
-        background: "#11151c",
-        color: "#fff",
-      });
-    }
-    setIsSaving(false);
-  };
+  const products = useProductStore((s) => s.products);
+  const isLoading = useProductStore((s) => s.isLoading);
+  const editingProduct = useProductStore((s) => s.editingProduct);
+  const setEditingProduct = useProductStore((s) => s.setEditingProduct);
+  const refetch = useProductStore((s) => s.refetch);
 
   const handleEdit = (product) => {
-    setEditingId(product._id);
-    setName(product.name || "");
-    setDescription(product.description || "");
-    setPrice(product.price || "");
-    setOldPrice(product.oldPrice || "");
-    setDiscount(product.discount || "");
-    setImage(product.image || "");
+    setEditingProduct(product);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setName("");
-    setDescription("");
-    setPrice("");
-    setOldPrice("");
-    setDiscount("");
-    setImage("");
   };
 
   const handleDelete = async (id) => {
@@ -118,8 +34,9 @@ export default function FeaturedProductsDashboard() {
     });
 
     if (confirm.isConfirmed) {
-      const result = await deleteProduct(id);
+      const result = await removeProduct(id);
       if (result.success) {
+        await refetch();
         Swal.fire({
           title: "Deleted!",
           text: "Product has been deleted.",
@@ -127,12 +44,11 @@ export default function FeaturedProductsDashboard() {
           background: "#11151c",
           color: "#fff",
         });
-        await loadProducts();
       } else {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to delete product.",
+          text: result.message,
           background: "#11151c",
           color: "#fff",
         });
@@ -140,159 +56,155 @@ export default function FeaturedProductsDashboard() {
     }
   };
 
+  const headers = [
+    { label: "Product" },
+    { label: "Price" },
+    { label: "Discount" },
+    { label: "Stock" },
+    { label: "Status" },
+    { label: "Action", align: "right" },
+  ];
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-12">
-      {/* ADD/EDIT PRODUCT FORM */}
       <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
         <h1 className="text-2xl font-bold text-accent-content mb-6">
-          {editingId ? "Edit Featured Product" : "Add Featured Product"}
+          {editingProduct ? "Edit Featured Product" : "Add Featured Product"}
         </h1>
-
-        <form onSubmit={handleAddSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Product Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color"
-              placeholder="E.g. Royal Oxford Timepiece"
-              required
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-              className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color"
-              placeholder="Short description of the product..."
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Current Price (৳)</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color"
-              placeholder="E.g. 15000"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Old Price (৳)</label>
-            <input
-              type="number"
-              value={oldPrice}
-              onChange={(e) => setOldPrice(e.target.value)}
-              className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color"
-              placeholder="E.g. 25000"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Discount (%)</label>
-            <input
-              type="number"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-              className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color"
-              placeholder="E.g. 40"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Image URL</label>
-            <input
-              type="url"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color"
-              placeholder="https://example.com/watch.jpg"
-              required
-            />
-          </div>
-
-          <div className="md:col-span-2 flex justify-end mt-2 gap-4">
-            {editingId && (
-              <button
-                type="button"
-                onClick={cancelEdit}
-                disabled={isSaving}
-                className={`px-8 py-3 bg-gray-600 hover:bg-gray-500 text-accent-content font-bold rounded-xl transition-all shadow-lg ${isSaving ? 'opacity-70 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
-              >
-                Cancel
-              </button>
-            )}
-            <button
-              type="submit"
-              disabled={isSaving}
-              className={`px-8 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${isSaving ? 'opacity-70 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
-            >
-              {isSaving ? "Saving..." : (editingId ? "Update Product" : "Add Product")}
-            </button>
-          </div>
-        </form>
+        <ProductForm />
       </div>
 
-      {/* EXISTING PRODUCTS LIST */}
       <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
-        <h2 className="text-2xl font-bold text-accent-content mb-6">Manage Existing Products</h2>
+        <h2 className="text-2xl font-bold text-accent-content mb-6">
+          Manage Existing Products
+        </h2>
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-color"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-color" />
           </div>
-        ) : products.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No featured products found.</p>
         ) : (
-          <div className="space-y-4">
-            {products?.map((product) => (
-              <div key={product._id} className="flex flex-col sm:flex-row items-center justify-between p-4 bg-[#080808] border border-accent-content/5 rounded-xl gap-4">
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  {/* Tiny Image Preview */}
-                  <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+          <DataTable
+            headers={headers}
+            data={products}
+            emptyMessage="No featured products found."
+            renderRow={(product) => (
+              <tr key={product._id} className="hover:bg-accent-content/5">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-accent-content font-semibold text-sm">
+                        {product.name}
+                      </p>
+                      <p className="text-gray-500 text-xs">{product.description?.slice(0, 60)}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <p className="text-accent-content font-bold text-sm">
+                    ৳{product.discountedPrice || product.price}
+                  </p>
+                  {product.discount > 0 && (
+                    <p className="text-gray-500 text-xs line-through">৳{product.price}</p>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-sm text-primary-color font-bold">
+                  {product.discount > 0 ? `${product.discount}%` : "—"}
+                </td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`text-xs font-bold px-2 py-1 rounded ${product.stock > 0 ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}
+                  >
+                    {product.stock}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex gap-1">
+                    {product.productStatus?.map((s) => (
+                      <span
+                        key={s}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s === "hot" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}
+                      >
+                        {s.toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
+                      title="Edit Product"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                      title="Delete Product"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
+            renderMobileCard={(product) => (
+              <div
+                key={product._id}
+                className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-2"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
                     <Image
                       src={product.image}
                       alt={product.name}
                       fill
                       className="object-cover"
-                      sizes="64px"
+                      sizes="48px"
                     />
                   </div>
-                  <div>
-                    <h3 className="text-accent-content font-bold">{product.name}</h3>
-                    <p className="text-gray-500 text-sm">৳{product.price} <span className="line-through ml-2 text-gray-600">৳{product.oldPrice}</span></p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-accent-content font-semibold text-sm truncate">
+                      {product.name}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-accent-content font-bold">৳{product.discountedPrice || product.price}</span>
+                      {product.discount > 0 && (
+                        <span className="text-gray-500 line-through">৳{product.price}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="p-3 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
-                    title="Edit Product"
-                  >
-                    <Pencil size={20} />
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <span>Stock: {product.stock}</span>
+                  {product.productStatus?.map((s) => (
+                    <span key={s} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s === "hot" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
+                      {s.toUpperCase()}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button onClick={() => handleEdit(product)} className="p-2 text-gray-400 hover:text-blue-500 bg-accent-content/5 rounded-lg">
+                    <Pencil size={14} />
                   </button>
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
-                    title="Delete Product"
-                  >
-                    <Trash2 size={20} />
+                  <button onClick={() => handleDelete(product._id)} className="p-2 text-gray-400 hover:text-red-500 bg-accent-content/5 rounded-lg">
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          />
         )}
       </div>
     </div>

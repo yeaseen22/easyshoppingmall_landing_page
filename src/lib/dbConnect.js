@@ -1,10 +1,13 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import dns from "node:dns"
+
+dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.DB_NAME;
 
 export const collections = {
-    PRODUCT: "products",    
+    PRODUCT: "products",
     ORDER: "order",
     HERO_BANNER: "hero_banner",
     SALE_COUNTDOWN: "sale_countdown",

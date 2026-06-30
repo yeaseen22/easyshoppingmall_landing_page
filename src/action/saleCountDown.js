@@ -1,17 +1,17 @@
 "use server";
 
-import { dbConnect, collections } from "../lib/dbConnect";
+import { connectDB } from "@/lib/mongoose";
+import SaleCountdown from "@/models/SaleCountdown";
 
-// Fetch existing Sale Countdown details
 export async function getSaleCountDown() {
   try {
-    const collection = await dbConnect(collections.SALE_COUNTDOWN);
-    const data = await collection.findOne({ type: "sale_countdown" });
+    await connectDB();
+    const data = await SaleCountdown.findOne({ type: "sale_countdown" }).lean();
     if (data) {
-      return { 
-        title: data.title, 
-        description: data.description, 
-        targetDate: data.targetDate 
+      return {
+        title: data.title,
+        description: data.description,
+        targetDate: data.targetDate
       };
     }
     return null;
@@ -21,24 +21,14 @@ export async function getSaleCountDown() {
   }
 }
 
-// Update or insert Sale Countdown details
 export async function updateSaleCountDown(title, description, targetDate) {
   try {
-    const collection = await dbConnect(collections.SALE_COUNTDOWN);
-    
-    await collection.updateOne(
+    await connectDB();
+    await SaleCountdown.findOneAndUpdate(
       { type: "sale_countdown" },
-      {
-        $set: {
-          title: title,
-          description: description,
-          targetDate: targetDate,
-          updatedAt: new Date(),
-        },
-      },
+      { $set: { title, description, targetDate } },
       { upsert: true }
     );
-    
     return { success: true, message: "Sale countdown updated successfully." };
   } catch (error) {
     console.error("Failed to update sale countdown data:", error);

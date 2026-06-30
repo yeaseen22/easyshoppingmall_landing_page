@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 export default function OrderForm({ products }) {
   const [quantity, setQuantity] = useState(1);
   const [form, setForm] = useState({
-    name: "",
+    customerName: "",
     phone: "",
     district: "",
     city: "",
@@ -22,6 +22,10 @@ export default function OrderForm({ products }) {
   let initalProduct = productObj ? JSON.stringify(productObj) : null
   const [selectedProduct, setSelectedProduct] = useState(initalProduct);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+
+  const parsedProduct = selectedProduct ? JSON.parse(selectedProduct) : null;
 
   useEffect(() => {
     if (id) {
@@ -31,13 +35,21 @@ export default function OrderForm({ products }) {
       }
     }
   }, [id]);
-  // delevery charge claculation 
+
+  useEffect(() => {
+    setSelectedSize("");
+    setSelectedColor("");
+  }, [selectedProduct]);
+
   let deliveryCharge;
   if (form.district.toLocaleLowerCase() === "dhaka") {
     deliveryCharge = 60;
   } else {
     deliveryCharge = 120;
   }
+
+  const pricePerUnit = parsedProduct?.discountedPrice || parsedProduct?.price || 0;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.district === "" || form.email === "" || form.city === "" || form.address === "" || form.customerName === "" || form.phone === "" || selectedProduct == null) {
@@ -50,23 +62,23 @@ export default function OrderForm({ products }) {
       });
     }
 
-    const productObj = JSON.parse(selectedProduct)
-    const product =
-    {
-      name: productObj.name,
-      discount: productObj.discount,
+    const product = {
+      name: parsedProduct?.name,
+      discount: parsedProduct?.discount,
       deliveryCharge,
-      image: productObj.image,
-      sellerPrice: productObj.oldPrice,
-      totalPrice: productObj.price,
-      productId: productObj._id
+      image: parsedProduct?.image,
+      sellerPrice: parsedProduct?.price,
+      totalPrice: pricePerUnit,
+      productId: parsedProduct?._id,
     }
 
     const orderData = {
       ...form,
       ...product,
       quantity,
-      paymentMethod
+      paymentMethod,
+      selectedSize: parsedProduct?.productSizes?.length > 0 ? selectedSize : undefined,
+      selectedColor: parsedProduct?.productColors?.length > 0 ? selectedColor : undefined,
     };
 
     const result = await placeOrder(orderData);
@@ -78,9 +90,11 @@ export default function OrderForm({ products }) {
         background: "#11151c",
         color: "#fff",
       });
-      setForm({ name: "", phone: "", district: "", city: "", address: "", transactionId: "", email: "" });
+      setForm({ customerName: "", phone: "", district: "", city: "", address: "", transactionId: "", email: "" });
       setQuantity(1);
       setPaymentMethod("cod");
+      setSelectedSize("");
+      setSelectedColor("");
     } else {
       Swal.fire({
         icon: "error",
@@ -91,6 +105,7 @@ export default function OrderForm({ products }) {
       });
     }
   };
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -102,7 +117,6 @@ export default function OrderForm({ products }) {
     <>
       <section id={`order`} className="w-full min-h-screen bg-[#0a0c12] text-accent-content py-12 px-4 md:px-10 lg:px-20">
 
-        {/* Header */}
         <div className="w-full text-center mb-12">
           <span className="border border-primary-color text-primary-color px-6 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em]">
             Premium Checkout
@@ -117,7 +131,6 @@ export default function OrderForm({ products }) {
 
         <form onSubmit={handleSubmit} className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 max-w-400 mx-auto">
 
-          {/* Left Side: Product Configuration & Details */}
           <div className="lg:col-span-7 space-y-8">
             <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
               <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
@@ -125,40 +138,94 @@ export default function OrderForm({ products }) {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Product Image Link */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-gray-500">Product Image URL</label>
                   <input
                     type="text"
                     name='image'
                     disabled={true}
-                    value={JSON.parse(selectedProduct)?.image || ''}
+                    value={parsedProduct?.image || ''}
                     className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none"
                   />
                 </div>
 
-                {/* Set Price */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-gray-500">Unit Price (৳)</label>
                   <input
                     type="number"
                     disabled
-                    value={JSON.parse(selectedProduct)?.price}
+                    value={pricePerUnit || ''}
                     className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none text-primary-color font-bold"
                   />
                 </div>
+
+                {parsedProduct?.productSizes?.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-gray-500">Available Sizes</label>
+                    <div className="flex flex-wrap gap-2">
+                      {parsedProduct.productSizes.map((size) => (
+                        <button
+                          type="button"
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`text-xs font-bold px-3 py-1.5 rounded-md border transition-all ${selectedSize === size ? "border-primary-color bg-primary-color/20 text-primary-color" : "border-gray-700 bg-[#1c2128] text-gray-300 hover:border-gray-500"}`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {parsedProduct?.productColors?.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-gray-500">Available Colors</label>
+                    <div className="flex flex-wrap gap-2">
+                      {parsedProduct.productColors.map((c) => (
+                        <button
+                          type="button"
+                          key={c}
+                          onClick={() => setSelectedColor(c)}
+                          className={`w-7 h-7 rounded-full border-2 transition-all ${selectedColor === c ? "border-primary-color scale-110" : "border-gray-600 hover:border-gray-400"}`}
+                          style={{ backgroundColor: c.toLowerCase() }}
+                          title={c}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {parsedProduct?.productStatus?.length > 0 && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-gray-500">Status</label>
+                    <div className="flex gap-2">
+                      {parsedProduct.productStatus.map((s) => (
+                        <span key={s} className={`text-[10px] font-bold px-3 py-1 rounded-full ${s === "hot" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
+                          {s.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {parsedProduct && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-gray-500">Stock</label>
+                    <p className={`text-sm font-bold ${parsedProduct.stock > 0 ? "text-green-400" : "text-red-400"}`}>
+                      {parsedProduct.stock > 0 ? `✓ ${parsedProduct.stock} in stock` : "✕ Out of stock"}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                {/* Image Preview */}
                 <div className="aspect-square w-full max-w-50 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-                  {JSON.parse(selectedProduct)?.image ? (
-                    <img src={JSON.parse(selectedProduct)?.image} alt="Preview" className="w-full h-full object-cover" />
+                  {parsedProduct?.image ? (
+                    <img src={parsedProduct?.image} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
                     <div className="text-gray-600 text-xs text-center p-4">Image Preview</div>
                   )}
                 </div>
-                {/* product Dropdwon  */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-gray-500">Select Product</label>
                   <select
@@ -175,7 +242,6 @@ export default function OrderForm({ products }) {
                   </select>
                 </div>
 
-                {/* Quantity Selector */}
                 <div className="space-y-3">
                   <label className="text-xs font-bold uppercase text-gray-500">Select Quantity</label>
                   <div className="flex items-center gap-4">
@@ -187,32 +253,25 @@ export default function OrderForm({ products }) {
               </div>
             </div>
 
-            {/* Delivery Information */}
             <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
               <h3 className="text-xl font-semibold mb-6">Delivery Details</h3>
               <div className="space-y-4">
                 <div className='flex justify-between'>
-                  {/* name */}
                   <label className="text-xs font-bold uppercase text-accent-content">Full Name
                     <input required type="text" value={form.customerName} onChange={handleChange} name="customerName" placeholder="Full Name" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
                   </label>
-                  {/* phone */}
                   <label className="text-xs font-bold uppercase text-accent-content">Phone Number
                     <input required type="tel" value={form.phone} onChange={handleChange} name="phone" placeholder="Phone Number" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
                   </label>
-
                 </div>
                 <div className='flex justify-between'>
-                  {/* district */}
                   <label className="text-xs font-bold uppercase text-accent-content">District
                     <input required type="text" value={form.district} onChange={handleChange} name="district" placeholder="District" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
                   </label>
-                  {/* city */}
                   <label className="text-xs font-bold uppercase text-accent-content">City
                     <input required type="text" value={form.city} onChange={handleChange} name="city" placeholder="City" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
                   </label>
                 </div>
-                {/* Email */}
                 <label className="text-xs font-bold uppercase text-accent-content">Email
                   <input required type="email" value={form.email} onChange={handleChange} name="email" placeholder="Email" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
                 </label>
@@ -233,14 +292,12 @@ export default function OrderForm({ products }) {
             </div>
           </div>
 
-          {/* Right Side: Payment & Order Summary */}
           <div className="lg:col-span-5 space-y-8">
             <div className="bg-[#11151c] border border-primary-color/30 rounded-2xl p-6 md:p-8 shadow-2xl sticky top-8">
               <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
                 <CreditCard className="text-primary-color w-5 h-5" /> Payment Method
               </h3>
 
-              {/* Payment Options */}
               <div className="grid grid-cols-1 gap-3 mb-8">
                 {[
                   { id: 'cod', label: 'Cash on Delivery', sub: 'পণ্য হাতে পেয়ে টাকা দিন' },
@@ -269,7 +326,6 @@ export default function OrderForm({ products }) {
                 ))}
               </div>
 
-              {/* Transaction ID Field (Only shows for bkash/nagad) */}
               {paymentMethod !== 'cod' && (
                 <div className="mb-6 animate-in fade-in slide-in-from-top-2">
                   <label className="text-xs font-bold uppercase text-primary-color block mb-2">Transaction ID *</label>
@@ -284,11 +340,10 @@ export default function OrderForm({ products }) {
                 </div>
               )}
 
-              {/* Price Summary */}
               <div className="border-t border-gray-800 pt-6 mt-6 space-y-4">
                 <div className="flex justify-between text-gray-400">
                   <span>Subtotal</span>
-                  <span>৳{JSON.parse(selectedProduct) ? JSON.parse(selectedProduct)?.price * quantity : 0}</span>
+                  <span>৳{pricePerUnit * quantity}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Delivery Fee</span>
@@ -296,7 +351,7 @@ export default function OrderForm({ products }) {
                 </div>
                 <div className="flex justify-between text-2xl font-bold border-t border-gray-800 pt-4">
                   <span>Total</span>
-                  <span className="text-primary-color">৳{JSON.parse(selectedProduct) ? JSON.parse(selectedProduct)?.price * quantity + deliveryCharge : 0}</span>
+                  <span className="text-primary-color">৳{pricePerUnit * quantity + deliveryCharge}</span>
                 </div>
               </div>
 
