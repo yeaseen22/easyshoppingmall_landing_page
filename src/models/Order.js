@@ -1,17 +1,5 @@
+import { OrderStatus, PaymentMethod } from "@/lib/validations/order";
 import mongoose from "mongoose";
-
-export const OrderStatus = {
-  PENDING: "Pending",
-  PROCESSING: "Processing",
-  DELIVERED: "Delivered",
-  CANCELLED: "Cancelled",
-};
-
-export const PaymentMethod = {
-  COD: "cod",
-  BKASH: "bkash",
-  NAGAD: "nagad",
-};
 
 const orderSchema = new mongoose.Schema(
   {
@@ -55,18 +43,6 @@ const orderSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    image: {
-      type: String,
-      trim: true,
-    },
-    discount: {
-      type: Number,
-      default: 0,
-    },
-    sellerPrice: {
-      type: Number,
-      default: 0,
-    },
     deliveryCharge: {
       type: Number,
       required: [true, "Delivery charge is required"],
@@ -97,6 +73,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    selectedStatus: {
+      type: String,
+      trim: true,
+    },
     status: {
       type: String,
       default: OrderStatus.PENDING,
@@ -104,9 +84,6 @@ const orderSchema = new mongoose.Schema(
         values: Object.values(OrderStatus),
         message: `Status must be ${Object.values(OrderStatus).join(", ")}`,
       },
-    },
-    date: {
-      type: String,
     },
   },
   {

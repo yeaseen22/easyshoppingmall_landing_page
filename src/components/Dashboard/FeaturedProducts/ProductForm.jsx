@@ -73,6 +73,7 @@ export default function ProductForm() {
   const editingProduct = useProductStore((s) => s.editingProduct);
   const clearEditing = useProductStore((s) => s.clearEditing);
   const refetch = useProductStore((s) => s.refetch);
+  const setEditingProduct = useProductStore((s) => s.setEditingProduct);
 
   const {
     handleSubmit,
@@ -133,6 +134,7 @@ export default function ProductForm() {
 
     if (result.success) {
       await refetch();
+      setEditingProduct(null);
       Swal.fire({
         icon: "success",
         title: editingProduct ? "Updated" : "Added",
@@ -140,6 +142,7 @@ export default function ProductForm() {
         background: "#11151c",
         color: "#fff",
       });
+      
       if (!editingProduct) reset();
     } else {
       Swal.fire({
@@ -158,131 +161,140 @@ export default function ProductForm() {
   const errorClass = "text-red-400 text-xs mt-1";
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-1 md:grid-cols-2 gap-6"
-    >
-      {/* Reusable Fields */}
-      {formFields.map((field) => {
-        const isRequired = field.required;
+    <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
+      <h1 className="text-2xl font-bold text-accent-content mb-6">
+        {editingProduct ? "Edit Featured Product" : "Add Featured Product"}
+      </h1>
 
-        return (
-          <Controller
-            key={field.name}
-            name={field.name}
-            control={control}
-            render={({ field: rhfField, fieldState }) => (
-              <div
-                className={cn(
-                  "md:col-span-1",
-                  field.colSpan && "md:col-span-2",
-                )}
-              >
-                <label
-                  htmlFor={rhfField.name}
-                  data-invalid={fieldState.invalid}
-                  className={cn(labelClass)}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        {/* Reusable Fields */}
+        {formFields.map((field) => {
+          const isRequired = field.required;
+
+          return (
+            <Controller
+              key={field.name}
+              name={field.name}
+              control={control}
+              render={({ field: rhfField, fieldState }) => (
+                <div
+                  className={cn(
+                    "md:col-span-1",
+                    field.colSpan && "md:col-span-2",
+                  )}
                 >
-                  {field.label}{" "}
-                  {isRequired && <span className="text-red-400">*</span>}
-                </label>
+                  <label
+                    htmlFor={rhfField.name}
+                    data-invalid={fieldState.invalid}
+                    className={cn(labelClass)}
+                  >
+                    {field.label}{" "}
+                    {isRequired && <span className="text-red-400">*</span>}
+                  </label>
 
-                {field.type === "textarea" ? (
-                  <textarea
-                    {...rhfField}
-                    id={rhfField.name}
-                    aria-invalid={fieldState.invalid}
-                    rows={field.rows || 2}
-                    className={cn(inputClass)}
-                    placeholder={field.placeholder}
-                  />
-                ) : (
-                  <input
-                    {...rhfField}
-                    type={field.type}
-                    id={rhfField.name}
-                    aria-invalid={fieldState.invalid}
-                    className={cn(inputClass)}
-                    placeholder={field.placeholder}
-                  />
-                )}
+                  {field.type === "textarea" ? (
+                    <textarea
+                      {...rhfField}
+                      id={rhfField.name}
+                      aria-invalid={fieldState.invalid}
+                      rows={field.rows || 2}
+                      className={cn(inputClass)}
+                      placeholder={field.placeholder}
+                    />
+                  ) : (
+                    <input
+                      {...rhfField}
+                      type={field.type}
+                      id={rhfField.name}
+                      aria-invalid={fieldState.invalid}
+                      className={cn(inputClass)}
+                      placeholder={field.placeholder}
+                    />
+                  )}
 
-                {fieldState.error && (
-                  <p className={errorClass}>{fieldState.error.message}</p>
-                )}
+                  {fieldState.error && (
+                    <p className={errorClass}>{fieldState.error.message}</p>
+                  )}
+                </div>
+              )}
+            />
+          );
+        })}
+
+        {/* Product Status */}
+        <Controller
+          name="productStatus"
+          control={control}
+          render={({ field: rhfField, fieldState }) => (
+            <div>
+              <label className={labelClass} data-invalid={fieldState.invalid}>
+                Product Status
+              </label>
+
+              <div className="flex gap-4 mt-2">
+                {["hot", "cold"].map((status) => (
+                  <label
+                    key={status}
+                    htmlFor={status}
+                    className="flex items-center gap-2 text-gray-300 cursor-pointer"
+                  >
+                    <input
+                      id={status}
+                      type="checkbox"
+                      checked={rhfField.value?.includes(status)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          rhfField.onChange([
+                            ...(rhfField.value || []),
+                            status,
+                          ]);
+                        } else {
+                          rhfField.onChange(
+                            (rhfField.value || []).filter((s) => s !== status),
+                          );
+                        }
+                      }}
+                      className="w-4 h-4 accent-primary-color"
+                    />
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </label>
+                ))}
               </div>
-            )}
-          />
-        );
-      })}
 
-      {/* Product Status */}
-      <Controller
-        name="productStatus"
-        control={control}
-        render={({ field: rhfField, fieldState }) => (
-          <div>
-            <label className={labelClass} data-invalid={fieldState.invalid}>
-              Product Status
-            </label>
-
-            <div className="flex gap-4 mt-2">
-              {["hot", "cold"].map((status) => (
-                <label
-                  key={status}
-                  htmlFor={status}
-                  className="flex items-center gap-2 text-gray-300 cursor-pointer"
-                >
-                  <input
-                    id={status}
-                    type="checkbox"
-                    checked={rhfField.value?.includes(status)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        rhfField.onChange([...(rhfField.value || []), status]);
-                      } else {
-                        rhfField.onChange(
-                          (rhfField.value || []).filter((s) => s !== status),
-                        );
-                      }
-                    }}
-                    className="w-4 h-4 accent-primary-color"
-                  />
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </label>
-              ))}
+              {fieldState.error && (
+                <p className={errorClass}>{fieldState.error.message}</p>
+              )}
             </div>
+          )}
+        />
 
-            {fieldState.error && (
-              <p className={errorClass}>{fieldState.error.message}</p>
-            )}
-          </div>
-        )}
-      />
-
-      <div className="md:col-span-2 flex justify-end mt-2 gap-4">
-        {editingProduct && (
+        <div className="md:col-span-2 flex justify-end mt-2 gap-4">
+          {editingProduct && (
+            <button
+              type="button"
+              onClick={clearEditing}
+              disabled={isSubmitting}
+              className="px-8 py-3 bg-gray-600 hover:bg-gray-500 text-accent-content font-bold rounded-xl transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
+            >
+              Cancel
+            </button>
+          )}
           <button
-            type="button"
-            onClick={clearEditing}
+            type="submit"
             disabled={isSubmitting}
-            className="px-8 py-3 bg-gray-600 hover:bg-gray-500 text-accent-content font-bold rounded-xl transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
+            className="px-8 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
           >
-            Cancel
+            {isSubmitting
+              ? "Saving..."
+              : editingProduct
+                ? "Update Product"
+                : "Add Product"}
           </button>
-        )}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-8 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
-        >
-          {isSubmitting
-            ? "Saving..."
-            : editingProduct
-              ? "Update Product"
-              : "Add Product"}
-        </button>
-      </div>
-    </form>
+        </div>
+      </form>
+    </div>
   );
 }

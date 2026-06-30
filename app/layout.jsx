@@ -1,6 +1,7 @@
+import { getProducts } from "@/action/product";
+import { ProductStoreProvider } from "@/store/productStoreProvider";
+import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
-import { Roboto } from "next/font/google";
-import { Poppins } from "next/font/google";
 const roboto = Roboto({
   subsets: ["latin"],
   variable: "--font-roboto",
@@ -16,10 +17,20 @@ const poppins = Poppins({
 export const metadata = {
   title: {
     default: "EasyShoppingMallBD - Best Online Shopping in Bangladesh",
-    template: "%s | EasyShoppingMallBD"
+    template: "%s | EasyShoppingMallBD",
   },
-  description: "EasyShoppingMallBD is your premier destination for online shopping in Bangladesh. Find the best products at unbeatable prices with fast delivery.",
-  keywords: ["e-commerce", "online shopping", "bangladesh e-commerce","fashion", "EasyShoppingMallBD","easy shopping mall ","shopping mall","Online Shopping"],
+  description:
+    "EasyShoppingMallBD is your premier destination for online shopping in Bangladesh. Find the best products at unbeatable prices with fast delivery.",
+  keywords: [
+    "e-commerce",
+    "online shopping",
+    "bangladesh e-commerce",
+    "fashion",
+    "EasyShoppingMallBD",
+    "easy shopping mall ",
+    "shopping mall",
+    "Online Shopping",
+  ],
   authors: [{ name: "EasyShoppingMallBD Team" }],
   creator: "EasyShoppingMallBD",
   publisher: "EasyShoppingMallBD",
@@ -34,7 +45,8 @@ export const metadata = {
   },
   openGraph: {
     title: "EasyShoppingMallBD - Best Online Shopping in Bangladesh",
-    description: "Shop the latest electronics, fashion, and home goods at EasyShoppingMallBD. quality products, competitive prices, and fast shipping.",
+    description:
+      "Shop the latest electronics, fashion, and home goods at EasyShoppingMallBD. quality products, competitive prices, and fast shipping.",
     url: "https://easyshoppingmallbd.com",
     siteName: "EasyShoppingMallBD",
     images: [
@@ -51,7 +63,8 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "EasyShoppingMallBD - Best Online Shopping in Bangladesh",
-    description: "Your one-stop shop for everything you need. Quality products and fast delivery across Bangladesh.",
+    description:
+      "Your one-stop shop for everything you need. Quality products and fast delivery across Bangladesh.",
     images: ["/icon.png"],
   },
   robots: {
@@ -67,10 +80,18 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const products = await getProducts();
+
   return (
     <html lang="en">
-      <body className={`${poppins.variable} ${roboto.variable} antialiased`}>{children}</body>
+      <body
+        className={`${poppins.variable} ${roboto.variable} antialiased scroll-smooth`}
+      >
+        <ProductStoreProvider products={products}>
+          {children}
+        </ProductStoreProvider>
+      </body>
     </html>
   );
 }

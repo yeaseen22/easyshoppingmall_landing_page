@@ -21,7 +21,7 @@ export const productSchema = z.object({
             : "Price is required";
       },
     })
-    .transform((value) => Number(value.toFixed(2))),
+    .transform((value) => parseFloat(value.toFixed(2))),
 
   discount: z.coerce
     .number()

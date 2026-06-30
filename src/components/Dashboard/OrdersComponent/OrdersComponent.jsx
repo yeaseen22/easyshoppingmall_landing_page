@@ -85,7 +85,7 @@ export default function OrdersComponent({ orders }) {
               {order.customerName}
             </td>
             <td className="px-6 py-4 text-sm text-gray-400">
-              {order.date ? new Date(order.date).toLocaleDateString() : new Date(order.createdAt).toLocaleDateString()}
+              {new Date(order.createdAt).toLocaleDateString()}
             </td>
             <td className="px-6 py-4 text-sm text-accent-content font-bold">
               ৳{order.totalPrice}
@@ -128,7 +128,7 @@ export default function OrdersComponent({ orders }) {
             </div>
             <p className="text-accent-content font-semibold text-sm">{order.customerName}</p>
             <p className="text-xs text-gray-400">📞 {order.phone}</p>
-            <p className="text-xs text-gray-400">📅 {order.date ? new Date(order.date).toLocaleDateString() : new Date(order.createdAt).toLocaleDateString()}</p>
+            <p className="text-xs text-gray-400">📅 {new Date(order.createdAt).toLocaleDateString()}</p>
             <p className="text-sm text-accent-content font-bold">৳{order.totalPrice}</p>
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setSelectedOrder(order)} className="p-2 bg-accent-content/5 rounded-lg"><Eye size={14} /></button>
@@ -180,11 +180,11 @@ export default function OrdersComponent({ orders }) {
               <div>
                 <h4 className="text-xs sm:text-sm font-bold text-accent-content mb-3 uppercase">Ordered Item</h4>
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-center bg-[#080808] p-4 rounded-xl border border-accent-content/5">
-                  {selectedOrder.image && (
-                    <img src={selectedOrder.image} alt={selectedOrder.name} className="w-full sm:w-16 h-40 sm:h-16 object-cover rounded-lg" />
+                  {selectedOrder.productId?.image && (
+                    <img src={selectedOrder.productId.image} alt={selectedOrder.productId.name} className="w-full sm:w-16 h-40 sm:h-16 object-cover rounded-lg" />
                   )}
                   <div className="flex-1">
-                    <p className="text-accent-content font-semibold text-sm">{selectedOrder.name || "Unknown Product"}</p>
+                    <p className="text-accent-content font-semibold text-sm">{selectedOrder.productId?.name || "Unknown Product"}</p>
                     <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-400">
                       <p>Qty: <span className="text-accent-content">{selectedOrder.quantity}</span></p>
                       <p>Price: <span className="text-[#d4af37]">৳{selectedOrder.totalPrice}</span></p>

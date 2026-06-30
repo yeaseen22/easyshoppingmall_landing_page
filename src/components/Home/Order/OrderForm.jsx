@@ -1,88 +1,108 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { Minus, Plus, CreditCard, ImageIcon } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import { placeOrder } from '@/action/order';
-import Swal from 'sweetalert2';
+
+import { createOrderSchema } from "@/lib/validations/order";
+import { placeNewOrder } from "@/store/orderStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreditCard, ImageIcon, Minus, Plus } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import Swal from "sweetalert2";
+import PaymentSelector from "./PaymentSelector";
+import PriceSummary from "./PriceSummary";
+import ProductSelector from "./ProductSelector";
+import VariantSelector from "./VariantSelector";
+
+const inputClass =
+  "w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none text-sm";
 
 export default function OrderForm({ products }) {
-  const [quantity, setQuantity] = useState(1);
-  const [form, setForm] = useState({
-    customerName: "",
-    phone: "",
-    district: "",
-    city: "",
-    address: "",
-    transactionId: "",
-    email: ""
-  })
-  const params = useSearchParams()
-  const id = params.get("productId")
-  const productObj = products?.find((product) => product._id === id)
-  let initalProduct = productObj ? JSON.stringify(productObj) : null
-  const [selectedProduct, setSelectedProduct] = useState(initalProduct);
+  const params = useSearchParams();
+  const id = params.get("productId");
+  const [selectedProductId, setSelectedProductId] = useState(id || "");
   const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
 
-  const parsedProduct = selectedProduct ? JSON.parse(selectedProduct) : null;
+  const product = products?.find((p) => p._id === selectedProductId);
+  const schema = useMemo(
+    () => createOrderSchema({ product, paymentMethod }),
+    [product, paymentMethod],
+  );
+
+  const {
+    handleSubmit,
+    reset,
+    control,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      customerName: "",
+      phone: "",
+      district: "",
+      city: "",
+      address: "",
+      email: "",
+      transactionId: "",
+      paymentMethod: "cod",
+      quantity: 1,
+      selectedSize: "",
+      selectedColor: "",
+      selectedStatus: "",
+    },
+  });
+
+  const watchedQuantity = useWatch({ control, name: "quantity" });
+  const watchedDistrict = useWatch({ control, name: "district" });
+  const watchedPaymentMethod = useWatch({ control, name: "paymentMethod" });
 
   useEffect(() => {
-    if (id) {
-      const pObj = products.find((p) => p._id === id);
-      if (pObj) {
-        setSelectedProduct(JSON.stringify(pObj));
-      }
-    }
-  }, [id]);
+    setPaymentMethod(watchedPaymentMethod);
+  }, [watchedPaymentMethod]);
 
   useEffect(() => {
-    setSelectedSize("");
-    setSelectedColor("");
-  }, [selectedProduct]);
-
-  let deliveryCharge;
-  if (form.district.toLocaleLowerCase() === "dhaka") {
-    deliveryCharge = 60;
-  } else {
-    deliveryCharge = 120;
-  }
-
-  const pricePerUnit = parsedProduct?.discountedPrice || parsedProduct?.price || 0;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.district === "" || form.email === "" || form.city === "" || form.address === "" || form.customerName === "" || form.phone === "" || selectedProduct == null) {
-      return Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Please fill all the fields",
-        background: "#11151c",
-        color: "#fff",
+    if (selectedProductId) {
+      reset({
+        customerName: "",
+        phone: "",
+        district: "",
+        city: "",
+        address: "",
+        email: "",
+        transactionId: "",
+        paymentMethod: "cod",
+        quantity: 1,
+        selectedSize: "",
+        selectedColor: "",
+        selectedStatus: "",
       });
     }
+  }, [selectedProductId, reset]);
 
-    const product = {
-      name: parsedProduct?.name,
-      discount: parsedProduct?.discount,
-      deliveryCharge,
-      image: parsedProduct?.image,
-      sellerPrice: parsedProduct?.price,
-      totalPrice: pricePerUnit,
-      productId: parsedProduct?._id,
+  useEffect(() => {
+    if (id && products?.length) {
+      const found = products.find((p) => p._id === id);
+
+      if (found) setSelectedProductId(id);
     }
+  }, [id, products]);
 
+  const deliveryCharge = watchedDistrict?.toLowerCase() === "dhaka" ? 60 : 120;
+  const unitPrice =
+    product?.discount > 0
+      ? product.discountedPrice || product.price
+      : product?.price || 0;
+
+  const onSubmit = async (data) => {
     const orderData = {
-      ...form,
-      ...product,
-      quantity,
-      paymentMethod,
-      selectedSize: parsedProduct?.productSizes?.length > 0 ? selectedSize : undefined,
-      selectedColor: parsedProduct?.productColors?.length > 0 ? selectedColor : undefined,
+      ...data,
+      productId: product._id,
+      deliveryCharge,
+      totalPrice: unitPrice * (data.quantity || 1) + deliveryCharge,
     };
 
-    const result = await placeOrder(orderData);
-    if (result.success) {
+    const res = await placeNewOrder(orderData);
+    if (res.success) {
       Swal.fire({
         icon: "success",
         title: "Success",
@@ -90,278 +110,430 @@ export default function OrderForm({ products }) {
         background: "#11151c",
         color: "#fff",
       });
-      setForm({ customerName: "", phone: "", district: "", city: "", address: "", transactionId: "", email: "" });
-      setQuantity(1);
-      setPaymentMethod("cod");
-      setSelectedSize("");
-      setSelectedColor("");
+      reset();
+      setSelectedProductId("");
     } else {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "অর্ডার করতে সমস্যা হয়েছে।",
+        text: res.message,
         background: "#11151c",
         color: "#fff",
       });
     }
   };
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    })
-  }
-
   return (
-    <>
-      <section id={`order`} className="w-full min-h-screen bg-[#0a0c12] text-accent-content py-12 px-4 md:px-10 lg:px-20">
+    <section
+      id="order"
+      className="w-full min-h-screen bg-[#0a0c12] text-accent-content py-12 px-4 md:px-10 lg:px-20"
+    >
+      <div className="w-full text-center mb-12">
+        <span className="border border-primary-color text-primary-color px-6 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em]">
+          Premium Checkout
+        </span>
+        <h1 className="text-4xl md:text-6xl font-serif font-bold mt-6 mb-4">
+          Complete Your <span className="text-primary-color">Purchase</span>
+        </h1>
+        <p className="text-gray-400 max-w-2xl mx-auto italic">
+          আপনার পছন্দের ঘড়িটি অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন।
+        </p>
+      </div>
 
-        <div className="w-full text-center mb-12">
-          <span className="border border-primary-color text-primary-color px-6 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em]">
-            Premium Checkout
-          </span>
-          <h1 className="text-4xl md:text-6xl font-serif font-bold mt-6 mb-4">
-            Complete Your <span className="text-primary-color">Purchase</span>
-          </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto italic">
-            আপনার পছন্দের ঘড়িটি অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন।
-          </p>
-        </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 max-w-400 mx-auto"
+        noValidate
+      >
+        <div className="lg:col-span-7 space-y-8">
+          <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <ImageIcon className="text-primary-color w-5 h-5" /> Product
+              Settings
+            </h3>
 
-        <form onSubmit={handleSubmit} className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 max-w-400 mx-auto">
+            <ProductSelector
+              products={products}
+              selectedProductId={selectedProductId}
+              onChange={setSelectedProductId}
+            />
 
-          <div className="lg:col-span-7 space-y-8">
-            <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
-              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <ImageIcon className="text-primary-color w-5 h-5" /> Product Settings
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">Product Image URL</label>
-                  <input
-                    type="text"
-                    name='image'
-                    disabled={true}
-                    value={parsedProduct?.image || ''}
-                    className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">Unit Price (৳)</label>
-                  <input
-                    type="number"
-                    disabled
-                    value={pricePerUnit || ''}
-                    className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none text-primary-color font-bold"
-                  />
-                </div>
-
-                {parsedProduct?.productSizes?.length > 0 && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase text-gray-500">Available Sizes</label>
-                    <div className="flex flex-wrap gap-2">
-                      {parsedProduct.productSizes.map((size) => (
-                        <button
-                          type="button"
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
-                          className={`text-xs font-bold px-3 py-1.5 rounded-md border transition-all ${selectedSize === size ? "border-primary-color bg-primary-color/20 text-primary-color" : "border-gray-700 bg-[#1c2128] text-gray-300 hover:border-gray-500"}`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {parsedProduct?.productColors?.length > 0 && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase text-gray-500">Available Colors</label>
-                    <div className="flex flex-wrap gap-2">
-                      {parsedProduct.productColors.map((c) => (
-                        <button
-                          type="button"
-                          key={c}
-                          onClick={() => setSelectedColor(c)}
-                          className={`w-7 h-7 rounded-full border-2 transition-all ${selectedColor === c ? "border-primary-color scale-110" : "border-gray-600 hover:border-gray-400"}`}
-                          style={{ backgroundColor: c.toLowerCase() }}
-                          title={c}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {parsedProduct?.productStatus?.length > 0 && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase text-gray-500">Status</label>
-                    <div className="flex gap-2">
-                      {parsedProduct.productStatus.map((s) => (
-                        <span key={s} className={`text-[10px] font-bold px-3 py-1 rounded-full ${s === "hot" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
-                          {s.toUpperCase()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {parsedProduct && (
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase text-gray-500">Stock</label>
-                    <p className={`text-sm font-bold ${parsedProduct.stock > 0 ? "text-green-400" : "text-red-400"}`}>
-                      {parsedProduct.stock > 0 ? `✓ ${parsedProduct.stock} in stock` : "✕ Out of stock"}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div className="aspect-square w-full max-w-50 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-                  {parsedProduct?.image ? (
-                    <img src={parsedProduct?.image} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="text-gray-600 text-xs text-center p-4">Image Preview</div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">Select Product</label>
-                  <select
-                    value={selectedProduct || ""}
-                    onChange={(e) => setSelectedProduct(e.target.value)}
-                    className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none"
-                  >
-                    <option disabled value="">Select Product</option>
-                    {products?.map((product) => (
-                      <option key={product._id} value={JSON.stringify(product)}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase text-gray-500">Select Quantity</label>
-                  <div className="flex items-center gap-4">
-                    <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition"><Minus size={18} /></button>
-                    <span className="text-3xl font-bold w-12 text-center">{quantity}</span>
-                    <button type="button" onClick={() => setQuantity(quantity + 1)} className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition"><Plus size={18} /></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
-              <h3 className="text-xl font-semibold mb-6">Delivery Details</h3>
-              <div className="space-y-4">
-                <div className='flex justify-between'>
-                  <label className="text-xs font-bold uppercase text-accent-content">Full Name
-                    <input required type="text" value={form.customerName} onChange={handleChange} name="customerName" placeholder="Full Name" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
-                  </label>
-                  <label className="text-xs font-bold uppercase text-accent-content">Phone Number
-                    <input required type="tel" value={form.phone} onChange={handleChange} name="phone" placeholder="Phone Number" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
-                  </label>
-                </div>
-                <div className='flex justify-between'>
-                  <label className="text-xs font-bold uppercase text-accent-content">District
-                    <input required type="text" value={form.district} onChange={handleChange} name="district" placeholder="District" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
-                  </label>
-                  <label className="text-xs font-bold uppercase text-accent-content">City
-                    <input required type="text" value={form.city} onChange={handleChange} name="city" placeholder="City" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
-                  </label>
-                </div>
-                <label className="text-xs font-bold uppercase text-accent-content">Email
-                  <input required type="email" value={form.email} onChange={handleChange} name="email" placeholder="Email" className="w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none" />
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase text-gray-500">
+                  Image URL
                 </label>
-                <label htmlFor="address"
-                  className="text-xs font-bold uppercase text-accent-content">
-                  Full Address (Area, City, House No)</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={form.address}
-                  onChange={handleChange}
-                  name="address"
-                  id="address"
-                  placeholder="Full Address (Area, City, House No)"
-                  className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none resize-none"
+                <input
+                  type="text"
+                  disabled
+                  value={product?.image || ""}
+                  className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-gray-400 outline-none text-sm truncate"
                 />
               </div>
-            </div>
-          </div>
 
-          <div className="lg:col-span-5 space-y-8">
-            <div className="bg-[#11151c] border border-primary-color/30 rounded-2xl p-6 md:p-8 shadow-2xl sticky top-8">
-              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <CreditCard className="text-primary-color w-5 h-5" /> Payment Method
-              </h3>
-
-              <div className="grid grid-cols-1 gap-3 mb-8">
-                {[
-                  { id: 'cod', label: 'Cash on Delivery', sub: 'পণ্য হাতে পেয়ে টাকা দিন' },
-                  { id: 'bkash', label: 'bKash Payment', sub: '01626420774 (Send Money)' },
-                  { id: 'nagad', label: 'Nagad Payment', sub: '01626420774 (Send Money)' }
-                ].map((method) => (
-                  <label
-                    key={method.id}
-                    className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === method.id ? 'border-primary-color bg-primary-color/10' : 'border-gray-800 bg-[#0a0c12]'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="payment"
-                        value={method.id}
-                        checked={paymentMethod === method.id}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="accent-primary-color w-4 h-4"
-                      />
-                      <div>
-                        <p className="font-bold text-sm">{method.label}</p>
-                        <p className="text-[10px] text-gray-500">{method.sub}</p>
-                      </div>
-                    </div>
-                  </label>
-                ))}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase text-gray-500">
+                  Unit Price (৳)
+                </label>
+                <div className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-primary-color font-bold text-lg">
+                  ৳{unitPrice}
+                  {product?.discount > 0 && (
+                    <span className="ml-2 text-xs text-gray-500 line-through font-normal">
+                      ৳{product.price}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {paymentMethod !== 'cod' && (
-                <div className="mb-6 animate-in fade-in slide-in-from-top-2">
-                  <label className="text-xs font-bold uppercase text-primary-color block mb-2">Transaction ID *</label>
-                  <input
-                    required
-                    type="text"
-                    onChange={handleChange}
-                    name="transactionId"
-                    placeholder="Enter TrxID (e.g. 8N7X6W5Q)"
-                    className="w-full bg-[#0a0c12] border border-primary-color/50 rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary-color outline-none text-accent-content font-mono"
+              <Controller
+                name="selectedSize"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <VariantSelector
+                    label="Sizes"
+                    options={product?.productSizes}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    error={fieldState.error?.message}
                   />
+                )}
+              />
+
+              <Controller
+                name="selectedColor"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <VariantSelector
+                    label="Colors"
+                    options={product?.productColors}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    error={fieldState.error?.message}
+                    colorPicker
+                  />
+                )}
+              />
+
+              <Controller
+                name="selectedStatus"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <VariantSelector
+                    label="Product Status"
+                    options={product?.productStatus}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    error={fieldState.error?.message}
+                    badge
+                  />
+                )}
+              />
+
+              {product && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase text-gray-500">
+                    Stock
+                  </label>
+                  <p
+                    className={`text-sm font-bold ${product.stock > 0 ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {product.stock > 0
+                      ? `✓ ${product.stock} available`
+                      : "✕ Out of stock"}
+                  </p>
                 </div>
               )}
+            </div>
 
-              <div className="border-t border-gray-800 pt-6 mt-6 space-y-4">
-                <div className="flex justify-between text-gray-400">
-                  <span>Subtotal</span>
-                  <span>৳{pricePerUnit * quantity}</span>
+            <Controller
+              name="quantity"
+              control={control}
+              render={({ field, fieldState }) => (
+                <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+                  <div className="aspect-square w-32 sm:w-40 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
+                    {product?.image ? (
+                      <Image
+                        src={product.image}
+                        alt="Preview"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-600 text-xs text-center p-4">
+                        Image Preview
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold uppercase text-gray-500">
+                      Quantity
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          field.onChange(Math.max(1, (field.value || 1) - 1))
+                        }
+                        className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
+                        disabled={(field.value || 1) <= 1}
+                      >
+                        <Minus size={18} />
+                      </button>
+                      <span className="text-3xl font-bold w-12 text-center">
+                        {field.value || 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          field.onChange(
+                            Math.min(
+                              product?.stock || 99,
+                              (field.value || 1) + 1,
+                            ),
+                          )
+                        }
+                        className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
+                        disabled={(field.value || 1) >= (product?.stock || 99)}
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
+                    {fieldState.error && (
+                      <p className="text-red-400 text-xs">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Delivery Fee</span>
-                  <span className="text-btn-color">{form.district ? deliveryCharge : 0}</span>
-                </div>
-                <div className="flex justify-between text-2xl font-bold border-t border-gray-800 pt-4">
-                  <span>Total</span>
-                  <span className="text-primary-color">৳{pricePerUnit * quantity + deliveryCharge}</span>
-                </div>
+              )}
+            />
+          </div>
+
+          <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
+            <h3 className="text-xl font-semibold mb-6">Delivery Details</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Controller
+                  name="customerName"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      Full Name
+                      <input
+                        {...field}
+                        type="text"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Full Name"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      Phone Number
+                      <input
+                        {...field}
+                        type="tel"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Phone Number"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
               </div>
-
-              <button type="submit" className={`w-full ${form.district === "" || form.city === "" || form.address === "" || form.customerName === "" || form.phone === "" || selectedProduct == null ? "bg-accent/20 cursor-not-allowed text-accent-content/50" : "bg-primary-color hover:bg-primary-color text-accent"} py-5 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)]`}>
-                CONFIRM ORDER NOW
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Controller
+                  name="district"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      District
+                      <input
+                        {...field}
+                        type="text"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="District"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      City
+                      <input
+                        {...field}
+                        type="text"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="City"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+              </div>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <label
+                    className="text-xs font-bold uppercase text-accent-content block"
+                    data-invalid={fieldState.invalid}
+                  >
+                    Email
+                    <input
+                      {...field}
+                      type="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Email"
+                      className={inputClass}
+                    />
+                    {fieldState.error && (
+                      <p className="text-red-400 text-[10px] mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </label>
+                )}
+              />
+              <Controller
+                name="address"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <label
+                    className="text-xs font-bold uppercase text-accent-content block"
+                    data-invalid={fieldState.invalid}
+                  >
+                    Full Address (Area, City, House No)
+                    <textarea
+                      {...field}
+                      rows={3}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Full Address (Area, City, House No)"
+                      className={`${inputClass} resize-none`}
+                    />
+                    {fieldState.error && (
+                      <p className="text-red-400 text-[10px] mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </label>
+                )}
+              />
             </div>
           </div>
-        </form>
-      </section>
-    </>
+        </div>
+
+        <div className="lg:col-span-5 space-y-8">
+          <div className="bg-[#11151c] border border-primary-color/30 rounded-2xl p-6 md:p-8 shadow-2xl sticky top-8">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <CreditCard className="text-primary-color w-5 h-5" /> Payment
+              Method
+            </h3>
+
+            <Controller
+              name="paymentMethod"
+              control={control}
+              render={({ field }) => (
+                <PaymentSelector
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
+            {watchedPaymentMethod !== "cod" && (
+              <Controller
+                name="transactionId"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div className="mb-6">
+                    <label
+                      className="text-xs font-bold uppercase text-primary-color block mb-2"
+                      data-invalid={fieldState.invalid}
+                    >
+                      Transaction ID *
+                    </label>
+                    <input
+                      {...field}
+                      type="text"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Enter TrxID (e.g. 8N7X6W5Q)"
+                      className="w-full bg-[#0a0c12] border border-primary-color/50 rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary-color outline-none text-accent-content font-mono"
+                    />
+                    {fieldState.error && (
+                      <p className="text-red-400 text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            )}
+
+            <PriceSummary
+              unitPrice={unitPrice}
+              quantity={watchedQuantity || 1}
+              deliveryCharge={deliveryCharge}
+              district={watchedDistrict}
+            />
+
+            <button
+              type="submit"
+              disabled={!product || isSubmitting}
+              className={`w-full py-5 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)] ${
+                !product || isSubmitting
+                  ? "bg-gray-800 cursor-not-allowed text-gray-500"
+                  : "bg-primary-color hover:bg-primary-color text-black"
+              }`}
+            >
+              {isSubmitting ? "PROCESSING..." : "CONFIRM ORDER NOW"}
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
   );
 }

@@ -25,7 +25,7 @@ export default async function FeaturedProducts() {
           No products found!
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-8 max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-8 max-w-300 mx-auto">
           {products?.map((product) => (
             <div
               key={product._id}

@@ -6,7 +6,7 @@ import Product from "@/models/Product";
 export const getProducts = async () => {
   try {
     await connectDB();
-    const products = await Product.find({}).lean();
+    const products = await Product.find({}).sort({ createdAt: -1 }).lean();
     return products.map((product) => ({
       ...product,
       _id: product._id.toString(),

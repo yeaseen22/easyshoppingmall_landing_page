@@ -1,7 +1,6 @@
 import { ProductStatus } from "@/lib/validations/product";
 import mongoose from "mongoose";
 
-
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -67,10 +66,11 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre("save", function () {
-  console.log("From pre", this.discount);
   if (this.price && this.discount > 0) {
+    this.discountedPrice = parseFloat(
+      (this.price - (this.price * this.discount) / 100).toFixed(2),
+    );
     console.log("From pre if block", this.discount);
-    this.discountedPrice = this.price - (this.price * this.discount) / 100;
   } else {
     this.discountedPrice = this.price || 0;
   }
