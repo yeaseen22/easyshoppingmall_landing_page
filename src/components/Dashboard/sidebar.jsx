@@ -6,12 +6,12 @@ import {
   LayoutDashboard,
   ShoppingBag,
   Users,
-  ShoppingCart,
   LogOut,
   ImageIcon,
   Timer,
   Star,
   MessageSquare,
+  Settings,
   X
 } from "lucide-react";
 import Logo from '../Shared/Buttons/Logo';
@@ -29,6 +29,7 @@ export default function Sidebar({ onClose }) {
     { label: "Sale Countdown", href: "/dashboard/sale-countdown", icon: <Timer size={20} /> },
     { label: "Featured Products", href: "/dashboard/featured-products", icon: <Star size={20} /> },
     { label: "Reviews", href: "/dashboard/reviews", icon: <MessageSquare size={20} /> },
+    { label: "Site Settings", href: "/dashboard/site-settings", icon: <Settings size={20} /> },
   ];
 
   return (

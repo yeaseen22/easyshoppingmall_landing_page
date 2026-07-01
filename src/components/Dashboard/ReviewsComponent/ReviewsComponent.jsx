@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import { Search, Edit, Trash2, X, Plus, Star } from 'lucide-react';
+import { Edit, Trash2, X, Plus, Star, CheckCircle, XCircle } from 'lucide-react';
 import { addReview, updateReview, deleteReview } from '@/action/review';
 import DataTable from '@/components/Shared/DataTable';
 import Swal from 'sweetalert2';
@@ -13,11 +13,11 @@ export default function ReviewsComponent({ reviews }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
-        name: "",
-        location: "",
+        customerName: "",
+        customerEmail: "",
         rating: 5,
-        category: "",
-        review: "",
+        comment: "",
+        approved: false,
         featured: false
     });
 
@@ -51,20 +51,36 @@ export default function ReviewsComponent({ reviews }) {
         }
     };
 
+    const handleToggleApprove = async (id, currentStatus) => {
+        const result = await updateReview(id, { approved: !currentStatus });
+        if (result.success) {
+            router.refresh();
+            Swal.fire({
+                title: "Updated!",
+                text: `Review ${!currentStatus ? "approved" : "unapproved"}.`,
+                icon: "success",
+                background: "#11151c",
+                color: "#fff",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        }
+    };
+
     const handleOpenModal = (review = null) => {
         if (review) {
             setEditingReview(review._id);
             setFormData({
-                name: review.name,
-                location: review.location,
-                rating: review.rating,
-                category: review.category || "",
-                review: review.review,
+                customerName: review.customerName || "",
+                customerEmail: review.customerEmail || "",
+                rating: review.rating || 5,
+                comment: review.comment || "",
+                approved: review.approved || false,
                 featured: review.featured || false
             });
         } else {
             setEditingReview(null);
-            setFormData({ name: "", location: "", rating: 5, category: "", review: "", featured: false });
+            setFormData({ customerName: "", customerEmail: "", rating: 5, comment: "", approved: false, featured: false });
         }
         setIsModalOpen(true);
     };
@@ -110,15 +126,15 @@ export default function ReviewsComponent({ reviews }) {
     };
 
     const filteredReviews = reviews.filter(r =>
-        (r.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.review || "").toLowerCase().includes(searchTerm.toLowerCase())
+        (r.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (r.comment || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const headers = [
-        { label: "Reviewer" },
+        { label: "Customer" },
         { label: "Rating" },
-        { label: "Review Content" },
-        { label: "Category" },
+        { label: "Review" },
+        { label: "Approved" },
         { label: "Featured" },
         { label: "Actions", align: "right" },
     ];
@@ -131,7 +147,7 @@ export default function ReviewsComponent({ reviews }) {
                         Review <span className="text-primary-color">Management</span>
                     </h2>
                     <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                        Manage customer reviews displayed on the landing page
+                        Moderate customer reviews - approve, edit, or remove
                     </p>
                 </div>
                 <button
@@ -152,8 +168,8 @@ export default function ReviewsComponent({ reviews }) {
                 renderRow={(review) => (
                     <tr key={review._id} className="hover:bg-accent-content/5">
                         <td className="px-6 py-4">
-                            <p className="text-sm text-accent-content font-semibold">{review.name}</p>
-                            <p className="text-xs text-gray-400">{review.location}</p>
+                            <p className="text-sm text-accent-content font-semibold">{review.customerName}</p>
+                            <p className="text-xs text-gray-400">{review.customerEmail}</p>
                         </td>
                         <td className="px-6 py-4">
                             <div className="flex text-[#d4af37]">
@@ -163,12 +179,20 @@ export default function ReviewsComponent({ reviews }) {
                             </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-300">
-                            <p className="line-clamp-2">{review.review}</p>
+                            <p className="line-clamp-2">{review.comment}</p>
                         </td>
-                        <td className="px-6 py-4 text-xs">
-                            <span className="bg-accent-content/5 text-gray-300 px-2 py-1 rounded">
-                                {review.category || "General"}
-                            </span>
+                        <td className="px-6 py-4">
+                            <button
+                                onClick={() => handleToggleApprove(review._id, review.approved)}
+                                className={`inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold rounded transition-colors ${
+                                    review.approved
+                                        ? "bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                                        : "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20"
+                                }`}
+                            >
+                                {review.approved ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                                {review.approved ? "Approved" : "Pending"}
+                            </button>
                         </td>
                         <td className="px-6 py-4">
                             {review.featured ? (
@@ -189,8 +213,8 @@ export default function ReviewsComponent({ reviews }) {
                     <div key={review._id} className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-2">
                         <div className="flex justify-between items-start text-accent-content">
                             <div>
-                                <p className="font-semibold text-sm">{review.name}</p>
-                                <p className="text-[10px] text-gray-400">{review.location}</p>
+                                <p className="font-semibold text-sm">{review.customerName}</p>
+                                <p className="text-[10px] text-gray-400">{review.customerEmail}</p>
                             </div>
                             <div className="flex text-[#d4af37]">
                                 {[...Array(review.rating || 5)].map((_, i) => (
@@ -198,9 +222,17 @@ export default function ReviewsComponent({ reviews }) {
                                 ))}
                             </div>
                         </div>
-                        <p className="text-xs text-gray-400 line-clamp-2 italic">"{review.review}"</p>
+                        <p className="text-xs text-gray-400 line-clamp-2 italic">&ldquo;{review.comment}&rdquo;</p>
                         <div className="flex justify-between items-center text-[10px] font-mono">
-                            <span className="text-[#d4af37]">{review.category || "General"}</span>
+                            <button
+                                onClick={() => handleToggleApprove(review._id, review.approved)}
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded ${
+                                    review.approved ? "text-green-500" : "text-gray-500"
+                                }`}
+                            >
+                                {review.approved ? <CheckCircle size={10} /> : <XCircle size={10} />}
+                                {review.approved ? "Approved" : "Pending"}
+                            </button>
                             {review.featured && <span className="bg-primary-color/20 text-primary-color px-2 py-0.5 rounded">Featured</span>}
                         </div>
                         <div className="flex justify-end gap-2 pt-2 border-t border-accent-content/5">
@@ -225,43 +257,42 @@ export default function ReviewsComponent({ reviews }) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs text-gray-500 mb-1 block">Customer Name *</label>
-                                    <input required type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    <input required type="text" value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                                         className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50"
                                         placeholder="e.g. Rahim Ahmed" />
                                 </div>
                                 <div>
-                                    <label className="text-xs text-gray-500 mb-1 block">Location</label>
-                                    <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    <label className="text-xs text-gray-500 mb-1 block">Customer Email *</label>
+                                    <input required type="email" value={formData.customerEmail} onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
                                         className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50"
-                                        placeholder="e.g. Dhaka, BD" />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs text-gray-500 mb-1 block">Rating (1-5) *</label>
-                                    <input required type="number" min="1" max="5" value={formData.rating} onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
-                                        className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 mb-1 block">Category</label>
-                                    <input type="text" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50"
-                                        placeholder="e.g. Fashion, Electronics" />
+                                        placeholder="email@example.com" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-xs text-gray-500 mb-1 block">Review Content *</label>
-                                <textarea required rows="4" value={formData.review} onChange={(e) => setFormData({ ...formData, review: e.target.value })}
-                                    className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50 resize-none"
-                                    placeholder="Write the customer's review here..."></textarea>
+                                <label className="text-xs text-gray-500 mb-1 block">Rating (1-5) *</label>
+                                <input required type="number" min="1" max="5" value={formData.rating} onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
+                                    className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50" />
                             </div>
 
-                            <div className="flex items-center gap-2 pt-2">
-                                <input type="checkbox" id="featured" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                                    className="w-4 h-4 rounded bg-[#080808] border-accent-content/10 accent-[#d4af37]" />
-                                <label htmlFor="featured" className="text-sm text-gray-300">Mark as Featured</label>
+                            <div>
+                                <label className="text-xs text-gray-500 mb-1 block">Review Comment *</label>
+                                <textarea required rows="4" value={formData.comment} onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                                    className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50 resize-none"
+                                    placeholder="Write the review here..."></textarea>
+                            </div>
+
+                            <div className="flex gap-6 pt-2">
+                                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                    <input type="checkbox" checked={formData.approved} onChange={(e) => setFormData({ ...formData, approved: e.target.checked })}
+                                        className="w-4 h-4 rounded accent-[#d4af37]" />
+                                    Approved
+                                </label>
+                                <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                    <input type="checkbox" checked={formData.featured} onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                                        className="w-4 h-4 rounded accent-[#d4af37]" />
+                                    Featured
+                                </label>
                             </div>
 
                             <div className="pt-4 border-t border-accent-content/10 flex justify-end gap-3">

@@ -1,18 +1,15 @@
 "use client";
 
-import { createContext, useContext, useRef } from "react";
+import { createContext, useContext, useState } from "react";
 import { useStore } from "zustand";
 import { createProductStore } from "./productStore";
 
 const ProductStoreContext = createContext(null);
 
 export function ProductStoreProvider({ children, products = [] }) {
-  const storeRef = useRef(null);
-  if (!storeRef.current) {
-    storeRef.current = createProductStore(products);
-  }
+  const [store] = useState(() => createProductStore(products));
   return (
-    <ProductStoreContext.Provider value={storeRef.current}>
+    <ProductStoreContext.Provider value={store}>
       {children}
     </ProductStoreContext.Provider>
   );

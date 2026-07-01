@@ -2,38 +2,38 @@ import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema(
   {
-    name: {
+    customerName: {
       type: String,
-      required: [true, "Reviewer name is required"],
+      required: [true, "Customer name is required"],
       trim: true,
     },
-    location: {
+    customerEmail: {
       type: String,
+      required: [true, "Customer email is required"],
       trim: true,
+      lowercase: true,
     },
     rating: {
       type: Number,
-      default: 5,
+      required: [true, "Rating is required"],
       min: [1, "Rating must be at least 1"],
       max: [5, "Rating cannot exceed 5"],
     },
-    category: {
+    comment: {
       type: String,
+      required: [true, "Review comment is required"],
       trim: true,
     },
-    review: {
-      type: String,
-      required: [true, "Review content is required"],
-      trim: true,
+    approved: {
+      type: Boolean,
+      default: false,
     },
     featured: {
       type: Boolean,
       default: false,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 export default mongoose.models.Review || mongoose.model("Review", reviewSchema);

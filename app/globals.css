@@ -1,14 +1,5 @@
 @import "tailwindcss";
 
-/* color set up  */
-/* @theme {
-  --color-primary-color: #135E4B;
-  --color-secondary: #4CB572;
-  --color-btn-color: #478c1f;
-  --color-bg: #CADCAE;
-  --color-accent: black;
-  --color--accent-content: white;
-} */
 @theme {
   --color-primary-color: #ffc900;
   --color-secondary: #f87171cc;
@@ -16,33 +7,15 @@
   --color-bg: #fffde1;
   --color-accent: black;
   --color-accent-content: white;
-}
-
-/* #135E4B */
-/* #4CB572 */
-/* #A1D8B5 */
-/* #CCDCDB */
-
-/* #777777 */
-/* #ffbb00 */
-
-/* header style  */
-
-.MuiToolbar-root {
-  @apply bg-primary-color;
-}
-
-.container {
-  @apply w-[98%] lg:w-[97%] mx-auto md:py-5 lg:py-3 py-4;
-}
-
-.MuiInputBase-root {
-  @apply border-2 border-primary-color outline-none rounded-lg shadow-sm w-full h-13;
+  --color-dashboard-bg: #080808;
+  --color-card-bg: #11151c;
+  --color-card-border: rgba(255, 255, 255, 0.05);
 }
 
 /* Custom Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -57,86 +30,30 @@
   @apply bg-purple-600;
 }
 
-/* For Firefox */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #a855f7 #e5e7eb;
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-/* ===== Chart Animations ===== */
-
-@keyframes lineDraw {
-  from {
-    stroke-dasharray: 600;
-    stroke-dashoffset: 600;
-  }
-
-  to {
-    stroke-dasharray: 600;
-    stroke-dashoffset: 0;
-  }
+/* Smooth focus-visible for keyboard navigation */
+*:focus-visible {
+  @apply outline-2 outline-primary-color outline-offset-2;
 }
 
-.animate-line {
-  animation: lineDraw 1.8s ease-out forwards;
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-up {
-  animation: fadeUp 0.8s ease-out forwards;
-}
-
-@keyframes donutRotate {
-  from {
-    transform: rotate(-90deg) scale(0.85);
-    opacity: 0;
-  }
-
-  to {
-    transform: rotate(0deg) scale(1);
-    opacity: 1;
-  }
-}
-
-.animate-donut {
-  animation: donutRotate 1.2s ease-out forwards;
-}
-
-/* Marquee Animation */
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-label[data-invalid="true"] {
-  @apply text-red-600;
-}
-
-input[aria-invalid="true"],
-textarea[aria-invalid="true"] {
-  @apply border-red-500 focus:ring-red-500;
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
 }

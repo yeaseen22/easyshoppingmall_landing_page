@@ -2,6 +2,7 @@
 
 import { connectDB } from "@/lib/mongoose";
 import SaleCountdown from "@/models/SaleCountdown";
+import { isPast, parseISO } from "date-fns";
 
 export async function getSaleCountDown() {
   try {
@@ -11,7 +12,7 @@ export async function getSaleCountDown() {
       return {
         title: data.title,
         description: data.description,
-        targetDate: data.targetDate
+        targetDate: data.targetDate,
       };
     }
     return null;
@@ -23,6 +24,19 @@ export async function getSaleCountDown() {
 
 export async function updateSaleCountDown(title, description, targetDate) {
   try {
+    const parsedDate = parseISO(targetDate);
+
+    if (isNaN(parsedDate.getTime())) {
+      return { success: false, message: "Invalid date format." };
+    }
+
+    if (isPast(parsedDate)) {
+      return {
+        success: false,
+        message: "Target date must be in the future. Please select a future date and time.",
+      };
+    }
+
     await connectDB();
     await SaleCountdown.findOneAndUpdate(
       { type: "sale_countdown" },

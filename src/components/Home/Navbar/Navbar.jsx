@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShoppingCart, LayoutDashboard } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../app/api/auth/[...nextauth]/route";
 import AuthButton from "@/components/Shared/Buttons/AuthButton";
@@ -25,9 +25,7 @@ export default async function Navbar() {
           </div>
         </Link>
 
-        {/* Dashboard Button */}
         <AuthButton user={user} />
-
 
       </div>
     </nav>

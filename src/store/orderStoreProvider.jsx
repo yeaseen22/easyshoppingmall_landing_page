@@ -1,18 +1,15 @@
 "use client";
 
-import { createContext, useContext, useRef } from "react";
+import { createContext, useContext, useState } from "react";
 import { useStore } from "zustand";
 import { createOrderStore } from "./orderStore";
 
 const OrderStoreContext = createContext(null);
 
 export function OrderStoreProvider({ children, orders = [] }) {
-  const storeRef = useRef(null);
-  if (!storeRef.current) {
-    storeRef.current = createOrderStore(orders);
-  }
+  const [store] = useState(() => createOrderStore(orders));
   return (
-    <OrderStoreContext.Provider value={storeRef.current}>
+    <OrderStoreContext.Provider value={store}>
       {children}
     </OrderStoreContext.Provider>
   );
