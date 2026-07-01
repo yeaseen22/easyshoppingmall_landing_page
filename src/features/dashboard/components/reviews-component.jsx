@@ -6,7 +6,8 @@ import {
   deleteReview,
   updateReview,
 } from "@/features/reviews/actions/review";
-import { Edit, Plus, Star, Trash2, X } from "lucide-react";
+import { cn } from "@/utils/cn";
+import { Edit, Star, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Swal from "sweetalert2";
@@ -17,11 +18,9 @@ export default function ReviewsComponent({ reviews }) {
   const [editingReview, setEditingReview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  console.log("ReviewsComponent reviews:", reviews);
+
   const [formData, setFormData] = useState({
-    customerName: "",
-    customerEmail: "",
-    rating: 5,
-    comment: "",
     approved: false,
     featured: false,
   });
@@ -56,40 +55,16 @@ export default function ReviewsComponent({ reviews }) {
     }
   };
 
-  const handleToggleApprove = async (id, currentStatus) => {
-    const result = await updateReview(id, { approved: !currentStatus });
-    if (result.success) {
-      router.refresh();
-      Swal.fire({
-        title: "Updated!",
-        text: `Review ${!currentStatus ? "approved" : "unapproved"}.`,
-        icon: "success",
-        background: "#11151c",
-        color: "#fff",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    }
-  };
-
   const handleOpenModal = (review = null) => {
     if (review) {
       setEditingReview(review._id);
       setFormData({
-        customerName: review.customerName || "",
-        customerEmail: review.customerEmail || "",
-        rating: review.rating || 5,
-        comment: review.comment || "",
         approved: review.approved || false,
         featured: review.featured || false,
       });
     } else {
       setEditingReview(null);
       setFormData({
-        customerName: "",
-        customerEmail: "",
-        rating: 5,
-        comment: "",
         approved: false,
         featured: false,
       });
@@ -163,12 +138,6 @@ export default function ReviewsComponent({ reviews }) {
             Moderate customer reviews - approve, edit, or remove
           </p>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 bg-[#d4af37] text-black px-4 py-2 rounded-lg font-bold hover:bg-[#b5952f] transition-colors text-sm"
-        >
-          <Plus size={16} /> Add Review
-        </button>
       </div>
 
       <DataTable
@@ -182,9 +151,9 @@ export default function ReviewsComponent({ reviews }) {
           <tr key={review._id} className="hover:bg-accent-content/5">
             <td className="px-6 py-4">
               <p className="text-sm text-accent-content font-semibold">
-                {review.name}
+                {review.customerName}
               </p>
-              <p className="text-xs text-gray-400">{review.location}</p>
+              <p className="text-xs text-gray-400">{review.customerEmail}</p>
             </td>
             <td className="px-6 py-4">
               <div className="flex text-[#d4af37]">
@@ -194,11 +163,16 @@ export default function ReviewsComponent({ reviews }) {
               </div>
             </td>
             <td className="px-6 py-4 text-sm text-gray-300">
-              <p className="line-clamp-2">{review.review}</p>
+              <p className="line-clamp-2">{review.comment}</p>
             </td>
             <td className="px-6 py-4 text-xs">
-              <span className="bg-accent-content/5 text-gray-300 px-2 py-1 rounded">
-                {review.category || "General"}
+              <span
+                className={cn("px-2 py-1 rounded", {
+                  "bg-green-500/10 text-green-500": review.approved,
+                  "bg-red-500/10 text-red-500": !review.approved,
+                })}
+              >
+                {review.approved ? "Approved" : "Pending"}
               </span>
             </td>
             <td className="px-6 py-4">
@@ -237,8 +211,10 @@ export default function ReviewsComponent({ reviews }) {
           >
             <div className="flex justify-between items-start text-accent-content">
               <div>
-                <p className="font-semibold text-sm">{review.name}</p>
-                <p className="text-[10px] text-gray-400">{review.location}</p>
+                <p className="font-semibold text-sm">{review.customerName}</p>
+                <p className="text-[10px] text-gray-400">
+                  {review.customerEmail}
+                </p>
               </div>
               <div className="flex text-[#d4af37]">
                 {[...Array(review.rating || 5)].map((_, i) => (
@@ -247,7 +223,7 @@ export default function ReviewsComponent({ reviews }) {
               </div>
             </div>
             <p className="text-xs text-gray-400 line-clamp-2 italic">
-              `&quot;`{review.review}`&quot;`
+              `&quot;`{review.comment}`&quot;`
             </p>
             <div className="flex justify-between items-center text-[10px] font-mono">
               <span className="text-[#d4af37]">
@@ -282,7 +258,7 @@ export default function ReviewsComponent({ reviews }) {
           <div className="w-full max-w-lg bg-[#11151c] border border-accent-content/10 rounded-2xl shadow-2xl my-8">
             <div className="flex justify-between items-center p-4 sm:p-6 border-b border-accent-content/10">
               <h3 className="text-lg sm:text-xl font-bold text-accent-content">
-                {editingReview ? "Edit Review" : "Add New Review"}
+                Update Review Status
               </h3>
               <button
                 onClick={handleCloseModal}
@@ -293,81 +269,6 @@ export default function ReviewsComponent({ reviews }) {
             </div>
 
             <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">
-                    Customer Name *
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    value={formData.customerName}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        customerName: e.target.value,
-                      })
-                    }
-                    className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50"
-                    placeholder="e.g. Rahim Ahmed"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">
-                    Customer Email *
-                  </label>
-                  <input
-                    required
-                    type="email"
-                    value={formData.customerEmail}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        customerEmail: e.target.value,
-                      })
-                    }
-                    className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50"
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">
-                  Rating (1-5) *
-                </label>
-                <input
-                  required
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={formData.rating}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      rating: parseInt(e.target.value),
-                    })
-                  }
-                  className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">
-                  Review Comment *
-                </label>
-                <textarea
-                  required
-                  rows="4"
-                  value={formData.comment}
-                  onChange={(e) =>
-                    setFormData({ ...formData, comment: e.target.value })
-                  }
-                  className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3 py-2 text-sm text-accent-content outline-none focus:border-[#d4af37]/50 resize-none"
-                  placeholder="Write the review here..."
-                ></textarea>
-              </div>
-
               <div className="flex gap-6 pt-2">
                 <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                   <input
