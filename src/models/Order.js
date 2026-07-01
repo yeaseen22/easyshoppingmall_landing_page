@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentMethod } from "@/lib/validations/order";
+import { OrderStatus, PaymentMethod } from "@/features/orders/validations/order-schema";
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(

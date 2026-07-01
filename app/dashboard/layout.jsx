@@ -1,8 +1,8 @@
 import DashboardShell from "./DashboardShell";
-import { ProductStoreProvider } from "@/store/productStoreProvider";
-import { OrderStoreProvider } from "@/store/orderStoreProvider";
-import { getProducts } from "@/action/product";
-import { getOrders } from "@/action/order";
+import { ProductStoreProvider } from "@/features/products/store/product-store-provider";
+import { OrderStoreProvider } from "@/features/orders/store/order-store-provider";
+import { getProducts } from "@/features/products/actions/product";
+import { getOrders } from "@/features/orders/actions/order";
 
 export default async function DashboardLayout({ children }) {
   const [products, orders] = await Promise.all([getProducts(), getOrders()]);

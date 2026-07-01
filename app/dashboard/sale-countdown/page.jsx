@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getSaleCountDown, updateSaleCountDown } from "@/action/saleCountDown";
+import { getSaleCountDown, updateSaleCountDown } from "@/features/home/actions/sale-countdown";
 import { isPast, parseISO } from "date-fns";
 import Swal from "sweetalert2";
 import { Loader2 } from "lucide-react";
@@ -104,60 +104,27 @@ export default function SaleCountdownDashboard() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className={labelClass}>Section Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
-              placeholder="Limited Time Offer - Up to 40% Off!"
-              required
-            />
+            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} placeholder="Limited Time Offer - Up to 40% Off!" required />
           </div>
 
           <div>
             <label className={labelClass}>Section Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className={inputClass}
-              placeholder="Don&apos;t miss out on this exclusive offer..."
-              required
-            />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} placeholder="Don&apos;t miss out on this exclusive offer..." required />
           </div>
 
           <div>
             <label className={labelClass}>Target End Date/Time (Countdown Deadline)</label>
-            <input
-              type="datetime-local"
-              value={targetDate}
-              onChange={(e) => validateDate(e.target.value)}
-              className={`${inputClass} ${dateError ? "ring-2 ring-red-500" : ""} scheme-dark`}
-              required
-            />
-            {dateError && (
-              <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
-                <span>⚠</span> {dateError}
-              </p>
-            )}
+            <input type="datetime-local" value={targetDate} onChange={(e) => validateDate(e.target.value)} className={`${inputClass} ${dateError ? "ring-2 ring-red-500" : ""} scheme-dark`} required />
+            {dateError && <p className="text-red-400 text-xs mt-2 flex items-center gap-1"><span>⚠</span> {dateError}</p>}
           </div>
 
           <div className="flex justify-end pt-4">
             <button
               type="submit"
               disabled={isSaving || !!dateError}
-              className={`flex items-center gap-2 px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${
-                isSaving || dateError ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5"
-              }`}
+              className={`flex items-center gap-2 px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${isSaving || dateError ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5"}`}
             >
-              {isSaving ? (
-                <>
-                  <Loader2 className="animate-spin" size={16} />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
+              {isSaving ? <><Loader2 className="animate-spin" size={16} /> Saving...</> : "Save Changes"}
             </button>
           </div>
         </form>

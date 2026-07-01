@@ -1,4 +1,4 @@
-import { ProductStatus } from "@/lib/validations/product";
+import { ProductStatus } from "@/features/products/validations/product-schema";
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(

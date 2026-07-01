@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
-import Sidebar from "../../src/components/Dashboard/sidebar.jsx";
+
+import Sidebar from "@/features/dashboard/components/sidebar";
 import { Menu } from "lucide-react";
+import { useState } from "react";
 
 export default function DashboardShell({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

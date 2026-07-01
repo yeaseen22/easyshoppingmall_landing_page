@@ -1,7 +1,7 @@
 "use client";
 
-import { Component } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import { Component } from "react";
 
 export class ErrorBoundary extends Component {
   constructor(props) {

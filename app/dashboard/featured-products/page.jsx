@@ -1,5 +1,5 @@
-import ProductForm from "@/components/Dashboard/FeaturedProducts/ProductForm";
-import ProductTable from "@/components/Dashboard/FeaturedProducts/ProductTable";
+import ProductForm from "@/features/dashboard/components/product-form";
+import ProductTable from "@/features/dashboard/components/product-table";
 
 export default function FeaturedProductsDashboard() {
   return (

@@ -1,20 +1,19 @@
 export const dynamic = 'force-dynamic';
-import { getOrders } from "@/action/order";
-import CustomersComponent from "@/components/Dashboard/CustomersComponent/CustomersComponent";
+import { getOrders } from "@/features/orders/actions/order";
+import CustomersComponent from "@/features/dashboard/components/customers-component";
 
 export default async function CustomersPage() {
   const orders = await getOrders();
   
-  // Aggregate orders by email to extract unique customers
   const customersMap = {};
   
   orders?.forEach(order => {
-    const key = order.email; // Grouping by email as the primary unique identifier for customers
-    if (!key) return; // Skip if no email
+    const key = order.email;
+    if (!key) return;
     
     if (!customersMap[key]) {
       customersMap[key] = {
-        _id: order._id.toString(), // Store first order ID to use as a display ref
+        _id: order._id.toString(),
         name: order.customerName || order.name || "Unknown Customer",
         email: order.email || "N/A",
         phone: order.phone,
@@ -27,7 +26,6 @@ export default async function CustomersPage() {
     customersMap[key].totalOrders += 1;
     customersMap[key].spent += Number(order.totalPrice) || 0;
     
-    // Update missing email if a newer order has it
     if (customersMap[key].email === "N/A" && order.email) {
       customersMap[key].email = order.email;
     }

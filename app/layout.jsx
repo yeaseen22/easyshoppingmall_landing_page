@@ -1,5 +1,6 @@
-import { getProducts } from "@/action/product";
-import { ProductStoreProvider } from "@/store/productStoreProvider";
+import AuthProvider from "@/components/provider/auth-provider";
+import { getProducts } from "@/features/products/actions/product";
+import { ProductStoreProvider } from "@/features/products/store/product-store-provider";
 import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
 const roboto = Roboto({
@@ -39,7 +40,7 @@ export const metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://easyshoppingmallbd.com"), // Replace with actual domain
+  metadataBase: new URL("https://easyshoppingmallbd.com"),
   alternates: {
     canonical: "/",
   },
@@ -51,7 +52,7 @@ export const metadata = {
     siteName: "EasyShoppingMallBD",
     images: [
       {
-        url: "/icon.png", // Using the icon as a default OG image if no other is provided
+        url: "/icon.png",
         width: 800,
         height: 600,
         alt: "EasyShoppingMallBD Logo",
@@ -88,9 +89,11 @@ export default async function RootLayout({ children }) {
       <body
         className={`${poppins.variable} ${roboto.variable} antialiased scroll-smooth`}
       >
-        <ProductStoreProvider products={products}>
-          {children}
-        </ProductStoreProvider>
+        <AuthProvider>
+          <ProductStoreProvider products={products}>
+            {children}
+          </ProductStoreProvider>
+        </AuthProvider>
       </body>
     </html>
   );

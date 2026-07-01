@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
-import ReviewsComponent from '@/components/Dashboard/ReviewsComponent/ReviewsComponent';
-import { getReviews } from '@/action/review';
+import ReviewsComponent from '@/features/dashboard/components/reviews-component';
+import { getReviews } from '@/features/reviews/actions/review';
 
 const ReviewsPage = async () => {
     const data = await getReviews();

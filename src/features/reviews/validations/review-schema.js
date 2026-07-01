@@ -1,20 +1,17 @@
-import { z } from "zod/v4";
+import z from "zod";
 
-export const publicReviewSchema = z.object({
-  customerName: z.string().min(1, "Name is required"),
-  customerEmail: z.string().email("Valid email is required"),
-  rating: z.coerce.number().min(1, "Rating is required").max(5),
-  comment: z
-    .string()
-    .min(10, "Review must be at least 10 characters")
-    .max(500, "Review cannot exceed 500 characters"),
+export const reviewSchema = z.object({
+  name: z.string().min(1, "Reviewer name is required"),
+  location: z.string().optional().default(""),
+  rating: z.coerce.number().min(1).max(5).default(5),
+  category: z.string().optional().default(""),
+  review: z.string().min(1, "Review content is required"),
+  featured: z.boolean().default(false),
 });
 
-export const adminReviewSchema = z.object({
-  customerName: z.string().min(1, "Customer name is required"),
-  customerEmail: z.string().email("Valid email is required"),
-  rating: z.coerce.number().min(1).max(5),
-  comment: z.string().min(1, "Review comment is required"),
-  approved: z.boolean().default(false),
-  featured: z.boolean().default(false),
+export const publicReviewSchema = z.object({
+  customerName: z.string().min(2, "Name must be at least 2 characters"),
+  customerEmail: z.string().email("Please enter a valid email"),
+  rating: z.coerce.number().min(1, "Please select a rating").max(5),
+  comment: z.string().min(10, "Review must be at least 10 characters"),
 });

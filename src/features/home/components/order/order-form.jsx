@@ -1,0 +1,537 @@
+"use client";
+
+import { placeNewOrder } from "@/features/orders/store/order-store";
+import { createOrderSchema } from "@/features/orders/validations/order-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreditCard, ImageIcon, Minus, Plus } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import Swal from "sweetalert2";
+import PriceSummary from "./price-summary";
+import ProductSelector from "./product-selector";
+import VariantSelector from "./variant-selector";
+import PaymentSelector from "./payment-selector";
+
+const inputClass =
+  "w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none text-sm";
+
+export default function OrderForm({ products }) {
+  const params = useSearchParams();
+  const id = params.get("productId");
+  const [selectedProductId, setSelectedProductId] = useState(id || "");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+
+  const product = products?.find((p) => p._id === selectedProductId);
+  const schema = useMemo(
+    () => createOrderSchema({ product, paymentMethod }),
+    [product, paymentMethod],
+  );
+
+  const {
+    handleSubmit,
+    reset,
+    control,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      customerName: "",
+      phone: "",
+      district: "",
+      city: "",
+      address: "",
+      email: "",
+      transactionId: "",
+      paymentMethod: "cod",
+      quantity: 1,
+      selectedSize: "",
+      selectedColor: "",
+      selectedStatus: "",
+    },
+  });
+
+  const watchedQuantity = useWatch({ control, name: "quantity" });
+  const watchedDistrict = useWatch({ control, name: "district" });
+  const watchedPaymentMethod = useWatch({ control, name: "paymentMethod" });
+
+  useEffect(() => {
+    setPaymentMethod(watchedPaymentMethod);
+  }, [watchedPaymentMethod]);
+
+  useEffect(() => {
+    if (selectedProductId) {
+      reset({
+        customerName: "",
+        phone: "",
+        district: "",
+        city: "",
+        address: "",
+        email: "",
+        transactionId: "",
+        paymentMethod: "cod",
+        quantity: 1,
+        selectedSize: "",
+        selectedColor: "",
+        selectedStatus: "",
+      });
+    }
+  }, [selectedProductId, reset]);
+
+  useEffect(() => {
+    if (id && products?.length) {
+      const found = products.find((p) => p._id === id);
+      if (found) setSelectedProductId(id);
+    }
+  }, [id, products]);
+
+  const deliveryCharge = watchedDistrict?.toLowerCase() === "dhaka" ? 60 : 120;
+  const unitPrice =
+    product?.discount > 0
+      ? product.discountedPrice || product.price
+      : product?.price || 0;
+
+  const onSubmit = async (data) => {
+    const orderData = {
+      ...data,
+      productId: product._id,
+      deliveryCharge,
+      totalPrice: unitPrice * (data.quantity || 1) + deliveryCharge,
+    };
+
+    const res = await placeNewOrder(orderData);
+    if (res.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "অর্ডার সফলভাবে গ্রহণ করা হয়েছে!",
+        background: "#11151c",
+        color: "#fff",
+      });
+      reset();
+      setSelectedProductId("");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: res.message,
+        background: "#11151c",
+        color: "#fff",
+      });
+    }
+  };
+
+  return (
+    <section
+      id="order"
+      className="w-full min-h-screen bg-[#0a0c12] text-accent-content py-12 px-4 md:px-10 lg:px-20"
+    >
+      <div className="w-full text-center mb-12">
+        <span className="border border-primary-color text-primary-color px-6 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.2em]">
+          Premium Checkout
+        </span>
+        <h1 className="text-4xl md:text-6xl font-serif font-bold mt-6 mb-4">
+          Complete Your <span className="text-primary-color">Purchase</span>
+        </h1>
+        <p className="text-gray-400 max-w-2xl mx-auto italic">
+          আপনার পছন্দের ঘড়িটি অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন।
+        </p>
+      </div>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 max-w-400 mx-auto"
+        noValidate
+      >
+        <div className="lg:col-span-7 space-y-8">
+          <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <ImageIcon className="text-primary-color w-5 h-5" /> Product
+              Settings
+            </h3>
+
+            <ProductSelector
+              products={products}
+              selectedProductId={selectedProductId}
+              onChange={setSelectedProductId}
+            />
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase text-gray-500">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={product?.image || ""}
+                  className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-gray-400 outline-none text-sm truncate"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase text-gray-500">
+                  Unit Price (৳)
+                </label>
+                <div className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-primary-color font-bold text-lg">
+                  ৳{unitPrice}
+                  {product?.discount > 0 && (
+                    <span className="ml-2 text-xs text-gray-500 line-through font-normal">
+                      ৳{product.price}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <Controller
+                name="selectedSize"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <VariantSelector
+                    label="Sizes"
+                    options={product?.productSizes}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                name="selectedColor"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <VariantSelector
+                    label="Colors"
+                    options={product?.productColors}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    error={fieldState.error?.message}
+                    colorPicker
+                  />
+                )}
+              />
+
+              <Controller
+                name="selectedStatus"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <VariantSelector
+                    label="Product Status"
+                    options={product?.productStatus}
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    error={fieldState.error?.message}
+                    badge
+                  />
+                )}
+              />
+
+              {product && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase text-gray-500">
+                    Stock
+                  </label>
+                  <p
+                    className={`text-sm font-bold ${product.stock > 0 ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {product.stock > 0
+                      ? `✓ ${product.stock} available`
+                      : "✕ Out of stock"}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <Controller
+              name="quantity"
+              control={control}
+              render={({ field, fieldState }) => (
+                <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+                  <div className="aspect-square w-32 sm:w-40 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
+                    {product?.image ? (
+                      <Image
+                        src={product.image}
+                        alt="Preview"
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-600 text-xs text-center p-4">
+                        Image Preview
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold uppercase text-gray-500">
+                      Quantity
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          field.onChange(Math.max(1, (field.value || 1) - 1))
+                        }
+                        className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
+                        disabled={(field.value || 1) <= 1}
+                      >
+                        <Minus size={18} />
+                      </button>
+                      <span className="text-3xl font-bold w-12 text-center">
+                        {field.value || 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          field.onChange(
+                            Math.min(
+                              product?.stock || 99,
+                              (field.value || 1) + 1,
+                            ),
+                          )
+                        }
+                        className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
+                        disabled={(field.value || 1) >= (product?.stock || 99)}
+                      >
+                        <Plus size={18} />
+                      </button>
+                    </div>
+                    {fieldState.error && (
+                      <p className="text-red-400 text-xs">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          </div>
+
+          <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
+            <h3 className="text-xl font-semibold mb-6">Delivery Details</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Controller
+                  name="customerName"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      Full Name
+                      <input
+                        {...field}
+                        type="text"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Full Name"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      Phone Number
+                      <input
+                        {...field}
+                        type="tel"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Phone Number"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Controller
+                  name="district"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      District
+                      <input
+                        {...field}
+                        type="text"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="District"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <label
+                      className="text-xs font-bold uppercase text-accent-content"
+                      data-invalid={fieldState.invalid}
+                    >
+                      City
+                      <input
+                        {...field}
+                        type="text"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="City"
+                        className={inputClass}
+                      />
+                      {fieldState.error && (
+                        <p className="text-red-400 text-[10px] mt-1">
+                          {fieldState.error.message}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                />
+              </div>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <label
+                    className="text-xs font-bold uppercase text-accent-content block"
+                    data-invalid={fieldState.invalid}
+                  >
+                    Email
+                    <input
+                      {...field}
+                      type="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Email"
+                      className={inputClass}
+                    />
+                    {fieldState.error && (
+                      <p className="text-red-400 text-[10px] mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </label>
+                )}
+              />
+              <Controller
+                name="address"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <label
+                    className="text-xs font-bold uppercase text-accent-content block"
+                    data-invalid={fieldState.invalid}
+                  >
+                    Full Address (Area, City, House No)
+                    <textarea
+                      {...field}
+                      rows={3}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Full Address (Area, City, House No)"
+                      className={`${inputClass} resize-none`}
+                    />
+                    {fieldState.error && (
+                      <p className="text-red-400 text-[10px] mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </label>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 space-y-8">
+          <div className="bg-[#11151c] border border-primary-color/30 rounded-2xl p-6 md:p-8 shadow-2xl sticky top-8">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <CreditCard className="text-primary-color w-5 h-5" /> Payment
+              Method
+            </h3>
+
+            <Controller
+              name="paymentMethod"
+              control={control}
+              render={({ field }) => (
+                <PaymentSelector
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+
+            {watchedPaymentMethod !== "cod" && (
+              <Controller
+                name="transactionId"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div className="mb-6">
+                    <label
+                      className="text-xs font-bold uppercase text-primary-color block mb-2"
+                      data-invalid={fieldState.invalid}
+                    >
+                      Transaction ID *
+                    </label>
+                    <input
+                      {...field}
+                      type="text"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Enter TrxID (e.g. 8N7X6W5Q)"
+                      className="w-full bg-[#0a0c12] border border-primary-color/50 rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary-color outline-none text-accent-content font-mono"
+                    />
+                    {fieldState.error && (
+                      <p className="text-red-400 text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            )}
+
+            <PriceSummary
+              unitPrice={unitPrice}
+              quantity={watchedQuantity || 1}
+              deliveryCharge={deliveryCharge}
+              district={watchedDistrict}
+            />
+
+            <button
+              type="submit"
+              disabled={!product || isSubmitting}
+              className={`w-full py-5 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)] ${
+                !product || isSubmitting
+                  ? "bg-gray-800 cursor-not-allowed text-gray-500"
+                  : "bg-primary-color hover:bg-primary-color text-black"
+              }`}
+            >
+              {isSubmitting ? "PROCESSING..." : "CONFIRM ORDER NOW"}
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  );
+}

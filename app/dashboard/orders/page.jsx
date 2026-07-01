@@ -1,11 +1,9 @@
 export const dynamic = "force-dynamic";
-import { getOrders } from "@/action/order";
-import OrdersComponent from "@/components/Dashboard/OrdersComponent/OrdersComponent";
+import { getOrders } from "@/features/orders/actions/order";
+import OrdersComponent from "@/features/dashboard/components/orders-component";
 
 const OrdersPage = async () => {
   const orders = await getOrders();
-
-  console.log(orders);
 
   return <OrdersComponent orders={orders} />;
 };

@@ -9,62 +9,37 @@ const siteSettingsSchema = new mongoose.Schema(
       trim: true,
     },
     navbar: {
-      logo: { type: String, default: "" },
-      brandName: { type: String, default: "EASYSHOPPINGMALL" },
-      tagline: { type: String, default: "Best deals every day" },
-      navLinks: [
-        {
-          label: { type: String, required: true },
-          href: { type: String, required: true },
-        },
-      ],
-    },
-    features: {
-      enabled: { type: Boolean, default: true },
-      title: { type: String, default: "Why Choose Us" },
-      subtitle: { type: String, default: "We provide the best shopping experience" },
-      items: [
-        {
-          title: { type: String, required: true },
-          description: { type: String, required: true },
-          icon: { type: String, default: "Package" },
-        },
-      ],
-    },
-    about: {
-      enabled: { type: Boolean, default: true },
-      title: { type: String, default: "About Us" },
-      description: { type: String, default: "" },
-      imageUrl: { type: String, default: "" },
+      brandName: {
+        type: String,
+        default: "EASYSHOPPINGMALL",
+        trim: true,
+        unique: true,
+        uppercase: true,
+      },
+      tagline: { type: String, default: "Best deals every day", trim: true },
     },
     footer: {
-      copyright: { type: String, default: "© 2025 EasyShoppingMall. All rights reserved." },
       description: { type: String, default: "" },
-      socialLinks: [
-        {
-          platform: { type: String, required: true },
-          label: { type: String, required: true },
-          url: { type: String, required: true },
-        },
-      ],
-      paymentMethods: [{ type: String }],
-      contactInfo: [
-        {
-          icon: { type: String, default: "MapPin" },
-          text: { type: String, required: true },
-          label: { type: String, default: "" },
-        },
-      ],
-    },
-    sections: [
-      {
-        name: { type: String, required: true },
-        order: { type: Number, default: 0 },
-        enabled: { type: Boolean, default: true },
+      socialLinks: {
+        facebook: { type: String, default: "" },
+        twitter: { type: String, default: "" },
+        instagram: { type: String, default: "" },
       },
-    ],
+      contactInfo: {
+        email: { type: String, default: "easyshoppingmall@gmail.com" },
+        phone: { type: String, default: "+880 1234 567890" },
+        address: { type: String, default: "Dhaka, Bangladesh" },
+      },
+      businessHours: {
+        startDate: { type: String, default: "Monday" },
+        endDate: { type: String, default: "Friday" },
+        startTime: { type: String, default: "9:00 AM" },
+        endTime: { type: String, default: "5:00 PM" },
+      },
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.models.SiteSettings || mongoose.model("SiteSettings", siteSettingsSchema);
+export default mongoose.models.Site_Settings ||
+  mongoose.model("Site_Settings", siteSettingsSchema);
