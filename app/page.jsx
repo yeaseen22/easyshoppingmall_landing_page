@@ -10,14 +10,10 @@ import SaleCountDown from "@/features/home/components/sale-countdown/sale-countd
 import { getProducts } from "@/features/products/actions/product";
 
 const Home = async () => {
-  const [productsFromDb, settings] = await Promise.all([
+  const [products, settings] = await Promise.all([
     getProducts(),
     getSiteSettings(),
   ]);
-  const products = productsFromDb?.map((product) => ({
-    ...product,
-    _id: product._id.toString(),
-  }));
 
   return (
     <>
@@ -25,7 +21,7 @@ const Home = async () => {
       <Hero />
       <SaleCountDown />
       <FeaturedProducts />
-      <OrderForm products={products} />
+      <OrderForm products={products} settings={settings} />
       <Testimonial />
       <Footer settings={settings} />
     </>

@@ -23,10 +23,9 @@ export const placeOrder = async (orderData) => {
       };
     }
 
+    const order = await Order.create(orderData);
     product.stock -= orderData.quantity;
     await product.save();
-
-    const order = await Order.create(orderData);
 
     return {
       success: true,

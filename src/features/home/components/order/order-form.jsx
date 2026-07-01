@@ -2,28 +2,31 @@
 
 import { placeNewOrder } from "@/features/orders/store/order-store";
 import { createOrderSchema } from "@/features/orders/validations/order-schema";
+import { getProductById } from "@/features/products/actions/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreditCard, ImageIcon, Minus, Plus } from "lucide-react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import Swal from "sweetalert2";
+import PaymentSelector from "./payment-selector";
 import PriceSummary from "./price-summary";
 import ProductSelector from "./product-selector";
 import VariantSelector from "./variant-selector";
-import PaymentSelector from "./payment-selector";
 
 const inputClass =
   "w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none text-sm";
 
-export default function OrderForm({ products }) {
+export default function OrderForm({ settings = {} }) {
   const params = useSearchParams();
   const id = params.get("productId");
-  const [selectedProductId, setSelectedProductId] = useState(id || "");
+  const { push } = useRouter();
+  const searchParams = useSearchParams();
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [product, setProduct] = useState({});
+  const [isLoading, startTransition] = useTransition();
 
-  const product = products?.find((p) => p._id === selectedProductId);
   const schema = useMemo(
     () => createOrderSchema({ product, paymentMethod }),
     [product, paymentMethod],
@@ -57,11 +60,39 @@ export default function OrderForm({ products }) {
   const watchedPaymentMethod = useWatch({ control, name: "paymentMethod" });
 
   useEffect(() => {
+    if (id) {
+      startTransition(async () => {
+        try {
+          const res = await getProductById(id);
+
+          if (!res.success) {
+            throw new Error(res.message || "Failed to fetch product details.");
+          }
+          setProduct(res.product || {});
+        } catch (error) {
+          console.error("Error fetching product:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to fetch product details.",
+            background: "#11151c",
+            color: "#fff",
+          });
+
+          setProduct({});
+        }
+      });
+    } else {
+      setProduct({});
+    }
+  }, [id]);
+
+  useEffect(() => {
     setPaymentMethod(watchedPaymentMethod);
   }, [watchedPaymentMethod]);
 
   useEffect(() => {
-    if (selectedProductId) {
+    if (id) {
       reset({
         customerName: "",
         phone: "",
@@ -77,16 +108,13 @@ export default function OrderForm({ products }) {
         selectedStatus: "",
       });
     }
-  }, [selectedProductId, reset]);
+  }, [id, reset]);
 
-  useEffect(() => {
-    if (id && products?.length) {
-      const found = products.find((p) => p._id === id);
-      if (found) setSelectedProductId(id);
-    }
-  }, [id, products]);
-
-  const deliveryCharge = watchedDistrict?.toLowerCase() === "dhaka" ? 60 : 120;
+  const dc = settings?.deliveryCharge || {};
+  const deliveryCharge =
+    watchedDistrict?.toLowerCase() === "dhaka"
+      ? dc.insideDhaka || 60
+      : dc.outsideDhaka || 120;
   const unitPrice =
     product?.discount > 0
       ? product.discountedPrice || product.price
@@ -95,7 +123,7 @@ export default function OrderForm({ products }) {
   const onSubmit = async (data) => {
     const orderData = {
       ...data,
-      productId: product._id,
+      productId: product?._id,
       deliveryCharge,
       totalPrice: unitPrice * (data.quantity || 1) + deliveryCharge,
     };
@@ -109,8 +137,12 @@ export default function OrderForm({ products }) {
         background: "#11151c",
         color: "#fff",
       });
+
       reset();
-      setSelectedProductId("");
+      setProduct({});
+      const url = new URLSearchParams(searchParams.toString());
+      url.delete("productId");
+      push(`/?${url.toString()}#order`);
     } else {
       Swal.fire({
         icon: "error",
@@ -151,11 +183,7 @@ export default function OrderForm({ products }) {
               Settings
             </h3>
 
-            <ProductSelector
-              products={products}
-              selectedProductId={selectedProductId}
-              onChange={setSelectedProductId}
-            />
+            <ProductSelector />
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -165,7 +193,7 @@ export default function OrderForm({ products }) {
                 <input
                   type="text"
                   disabled
-                  value={product?.image || ""}
+                  value={isLoading ? "Loading..." : product?.image || ""}
                   className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-gray-400 outline-none text-sm truncate"
                 />
               </div>
@@ -175,11 +203,19 @@ export default function OrderForm({ products }) {
                   Unit Price (৳)
                 </label>
                 <div className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-primary-color font-bold text-lg">
-                  ৳{unitPrice}
-                  {product?.discount > 0 && (
-                    <span className="ml-2 text-xs text-gray-500 line-through font-normal">
-                      ৳{product.price}
+                  {isLoading ? (
+                    <span className="animate-pulse text-gray-400 text-sm font-normal">
+                      Loading...
                     </span>
+                  ) : (
+                    <>
+                      ৳{unitPrice}
+                      {product?.discount > 0 && (
+                        <span className="ml-2 text-xs text-gray-500 line-through font-normal">
+                          ৳{product.price}
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -228,7 +264,7 @@ export default function OrderForm({ products }) {
                 )}
               />
 
-              {product && (
+              {product.stock && (
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-gray-500">
                     Stock
@@ -250,7 +286,7 @@ export default function OrderForm({ products }) {
               render={({ field, fieldState }) => (
                 <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                   <div className="aspect-square w-32 sm:w-40 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-                    {product?.image ? (
+                    {product.image ? (
                       <Image
                         src={product.image}
                         alt="Preview"
@@ -260,7 +296,7 @@ export default function OrderForm({ products }) {
                       />
                     ) : (
                       <div className="text-gray-600 text-xs text-center p-4">
-                        Image Preview
+                        {isLoading ? "Loading..." : "No image available"}
                       </div>
                     )}
                   </div>

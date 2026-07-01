@@ -37,6 +37,10 @@ const siteSettingsSchema = new mongoose.Schema(
         endTime: { type: String, default: "5:00 PM" },
       },
     },
+    deliveryCharge: {
+      insideDhaka: { type: Number, default: 60 },
+      outsideDhaka: { type: Number, default: 120 },
+    },
   },
   { timestamps: true },
 );

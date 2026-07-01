@@ -8,6 +8,7 @@ const ProductStoreContext = createContext(null);
 
 export function ProductStoreProvider({ children, products = [] }) {
   const [store] = useState(() => createProductStore(products));
+
   return (
     <ProductStoreContext.Provider value={store}>
       {children}
@@ -17,8 +18,12 @@ export function ProductStoreProvider({ children, products = [] }) {
 
 export function useProductStore(selector) {
   const store = useContext(ProductStoreContext);
+  
   if (!store) {
-    throw new Error("useProductStore must be used within a ProductStoreProvider");
+    throw new Error(
+      "useProductStore must be used within a ProductStoreProvider",
+    );
   }
+
   return useStore(store, selector);
 }

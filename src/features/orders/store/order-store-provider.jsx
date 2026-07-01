@@ -8,6 +8,7 @@ const OrderStoreContext = createContext(null);
 
 export function OrderStoreProvider({ children, orders = [] }) {
   const [store] = useState(() => createOrderStore(orders));
+
   return (
     <OrderStoreContext.Provider value={store}>
       {children}
@@ -17,8 +18,10 @@ export function OrderStoreProvider({ children, orders = [] }) {
 
 export function useOrderStore(selector) {
   const store = useContext(OrderStoreContext);
+
   if (!store) {
     throw new Error("useOrderStore must be used within an OrderStoreProvider");
   }
+
   return useStore(store, selector);
 }

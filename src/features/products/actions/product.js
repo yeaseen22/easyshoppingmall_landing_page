@@ -2,6 +2,7 @@
 
 import { connectDB } from "@/config/db";
 import Product from "@/models/Product";
+import { Types } from "mongoose";
 
 export const getProducts = async () => {
   try {
@@ -14,6 +15,33 @@ export const getProducts = async () => {
   } catch (error) {
     console.log(error);
     return [];
+  }
+};
+
+export const getProductById = async (id) => {
+  try {
+    await connectDB();
+
+    if (!Types.ObjectId.isValid(id)) {
+      return { success: false, message: "Invalid product ID." };
+    }
+
+    const product = await Product.findById(id).lean();
+
+    if (!product) {
+      return { success: false, message: "Product not found." };
+    }
+
+    return {
+      success: true,
+      product: {
+        ...product,
+        _id: product._id.toString(),
+      },
+    };
+  } catch (error) {
+    console.error("Failed to get product by ID:", error);
+    return { success: false, message: "Failed to get product." };
   }
 };
 

@@ -1,5 +1,5 @@
-import { createStore } from "zustand";
 import { getProducts, addProduct, updateProduct, deleteProduct } from "@/features/products/actions/product";
+import { createStore } from "zustand";
 
 export const fetchProducts = async () => {
   const data = await getProducts();

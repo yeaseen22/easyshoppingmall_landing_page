@@ -1,4 +1,6 @@
 import AuthProvider from "@/components/provider/auth-provider";
+import { getOrders } from "@/features/orders/actions/order";
+import { OrderStoreProvider } from "@/features/orders/store/order-store-provider";
 import { getProducts } from "@/features/products/actions/product";
 import { ProductStoreProvider } from "@/features/products/store/product-store-provider";
 import { Poppins, Roboto } from "next/font/google";
@@ -82,7 +84,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const products = await getProducts();
+  const [products, orders] = await Promise.all([getProducts(), getOrders()]);
 
   return (
     <html lang="en">
@@ -91,7 +93,7 @@ export default async function RootLayout({ children }) {
       >
         <AuthProvider>
           <ProductStoreProvider products={products}>
-            {children}
+            <OrderStoreProvider orders={orders}>{children}</OrderStoreProvider>
           </ProductStoreProvider>
         </AuthProvider>
       </body>

@@ -43,6 +43,10 @@ export async function updateFooter(data) {
   return updateSiteSettings({ footer: data });
 }
 
+export async function updateDeliveryCharge(data) {
+  return updateSiteSettings({ deliveryCharge: data });
+}
+
 function getDefaultSettings() {
   return {
     navbar: {
@@ -68,6 +72,10 @@ function getDefaultSettings() {
         startTime: "9:00 AM",
         endTime: "5:00 PM",
       },
+    },
+    deliveryCharge: {
+      insideDhaka: 60,
+      outsideDhaka: 120,
     },
   };
 }

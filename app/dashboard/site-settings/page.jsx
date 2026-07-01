@@ -3,6 +3,7 @@
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   getSiteSettings,
+  updateDeliveryCharge,
   updateFooter,
   updateNavbar,
 } from "@/features/home/actions/site-settings";
@@ -17,6 +18,7 @@ import {
   Save,
   Share2,
   Twitter,
+  Truck,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import Swal from "sweetalert2";
@@ -53,6 +55,7 @@ export default function SiteSettingsDashboard() {
   const tabs = [
     { id: "navbar", label: "Navbar" },
     { id: "footer", label: "Footer" },
+    { id: "delivery", label: "Delivery Charge" },
   ];
 
   useEffect(() => {
@@ -69,6 +72,7 @@ export default function SiteSettingsDashboard() {
     const updaters = {
       navbar: updateNavbar,
       footer: updateFooter,
+      delivery: updateDeliveryCharge,
     };
     const result = await updaters[section](data);
     setIsSaving(false);
@@ -370,6 +374,67 @@ export default function SiteSettingsDashboard() {
                 <Save size={16} />
               )}
               Save Footer
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "delivery" && (
+        <div className={sectionClass}>
+          <h2 className={sectionTitleClass}>
+            <Truck size={24} className="mr-2" />
+            Delivery Charge Settings
+          </h2>
+          <p className="text-sm text-gray-400 -mt-4">
+            Set delivery fees used during checkout. The charge is automatically
+            applied based on the customer&apos;s district.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className={labelClass}>
+                <MapPin size={16} className="mr-1 inline" /> Inside Dhaka (৳)
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={settings.deliveryCharge?.insideDhaka ?? ""}
+                onChange={(e) => {
+                  const dc = { ...(settings.deliveryCharge || {}), insideDhaka: Number(e.target.value) };
+                  setSettings((prev) => ({ ...prev, deliveryCharge: dc }));
+                }}
+                placeholder="60"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>
+                <Truck size={16} className="mr-1 inline" /> Outside Dhaka (৳)
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={settings.deliveryCharge?.outsideDhaka ?? ""}
+                onChange={(e) => {
+                  const dc = { ...(settings.deliveryCharge || {}), outsideDhaka: Number(e.target.value) };
+                  setSettings((prev) => ({ ...prev, deliveryCharge: dc }));
+                }}
+                placeholder="120"
+                className={inputClass}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end pt-4">
+            <button
+              onClick={() => handleSave("delivery", settings.deliveryCharge)}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-6 py-3 bg-primary-color text-black font-bold rounded-xl transition-all hover:bg-primary-color/90 disabled:opacity-70"
+            >
+              {isSaving ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : (
+                <Save size={16} />
+              )}
+              Save Delivery Charges
             </button>
           </div>
         </div>
