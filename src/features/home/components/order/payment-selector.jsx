@@ -8,7 +8,7 @@ export default function PaymentSelector({ value, onChange }) {
   return (
     <div className="grid grid-cols-1 gap-3 mb-8">
       {methods.map((method) => (
-        <label key={method.id} className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+        <label key={method.id} className={`flex items-center justify-between p-4 py-2 sm:py-4 rounded-xl border cursor-pointer transition-all ${
           value === method.id ? "border-primary-color bg-primary-color/10" : "border-gray-800 bg-[#0a0c12]"
         }`}>
           <div className="flex items-center gap-3">

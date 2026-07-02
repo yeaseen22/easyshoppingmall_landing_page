@@ -34,7 +34,7 @@ export default function ProductSelector({ startTransition }) {
         disabled={isLoading}
         value={id || ""}
         onChange={handleChange}
-        className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none"
+        className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 sm:py-3 py-2 focus:border-primary-color outline-none text-xs sm:text-sm"
       >
         <option disabled value="">
           Select a product
