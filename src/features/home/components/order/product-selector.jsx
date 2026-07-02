@@ -3,7 +3,7 @@
 import { useProductStore } from "@/features/products/store/product-store-provider";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ProductSelector() {
+export default function ProductSelector({ startTransition }) {
   const products = useProductStore((state) => state.products);
   const isLoading = useProductStore((state) => state.isLoading);
   const searchParams = useSearchParams();
@@ -20,7 +20,9 @@ export default function ProductSelector() {
       url.delete("productId");
     }
 
-    push(`/?${url.toString()}#order`);
+    startTransition(() => {
+      push(`/?${url.toString()}#order`);
+    });
   };
 
   return (

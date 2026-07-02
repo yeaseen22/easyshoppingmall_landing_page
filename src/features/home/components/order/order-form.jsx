@@ -183,7 +183,7 @@ export default function OrderForm({ settings = {} }) {
               Settings
             </h3>
 
-            <ProductSelector />
+            <ProductSelector startTransition={startTransition} />
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -193,7 +193,7 @@ export default function OrderForm({ settings = {} }) {
                 <input
                   type="text"
                   disabled
-                  value={isLoading ? "Loading..." : product?.image || ""}
+                  value={isLoading ? "Loading..." : product.image || ""}
                   className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-gray-400 outline-none text-sm truncate"
                 />
               </div>
@@ -220,49 +220,55 @@ export default function OrderForm({ settings = {} }) {
                 </div>
               </div>
 
-              <Controller
-                name="selectedSize"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <VariantSelector
-                    label="Sizes"
-                    options={product?.productSizes}
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    error={fieldState.error?.message}
-                  />
-                )}
-              />
+              {isLoading && (
+                <Controller
+                  name="selectedSize"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <VariantSelector
+                      label="Sizes"
+                      options={product?.productSizes}
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+              )}
 
-              <Controller
-                name="selectedColor"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <VariantSelector
-                    label="Colors"
-                    options={product?.productColors}
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    error={fieldState.error?.message}
-                    colorPicker
-                  />
-                )}
-              />
+              {isLoading && (
+                <Controller
+                  name="selectedColor"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <VariantSelector
+                      label="Colors"
+                      options={product?.productColors}
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      error={fieldState.error?.message}
+                      colorPicker
+                    />
+                  )}
+                />
+              )}
 
-              <Controller
-                name="selectedStatus"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <VariantSelector
-                    label="Product Status"
-                    options={product?.productStatus}
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    error={fieldState.error?.message}
-                    badge
-                  />
-                )}
-              />
+              {!isLoading && (
+                <Controller
+                  name="selectedStatus"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <VariantSelector
+                      label="Product Status"
+                      options={product?.productStatus}
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      error={fieldState.error?.message}
+                      badge
+                    />
+                  )}
+                />
+              )}
 
               {product.stock && (
                 <div className="space-y-2">
@@ -286,7 +292,11 @@ export default function OrderForm({ settings = {} }) {
               render={({ field, fieldState }) => (
                 <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
                   <div className="aspect-square w-32 sm:w-40 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
-                    {product.image ? (
+                    {isLoading ? (
+                      <>
+                        <div className="w-12 h-12 border-4 border-gray-700 border-t-primary-color rounded-full animate-spin"></div>
+                      </>
+                    ) : product.image ? (
                       <Image
                         src={product.image}
                         alt="Preview"
@@ -296,7 +306,7 @@ export default function OrderForm({ settings = {} }) {
                       />
                     ) : (
                       <div className="text-gray-600 text-xs text-center p-4">
-                        {isLoading ? "Loading..." : "No image available"}
+                        No image available
                       </div>
                     )}
                   </div>
@@ -552,6 +562,7 @@ export default function OrderForm({ settings = {} }) {
               quantity={watchedQuantity || 1}
               deliveryCharge={deliveryCharge}
               district={watchedDistrict}
+              isLoading={isLoading}
             />
 
             <button
