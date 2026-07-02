@@ -18,8 +18,6 @@ export default function ReviewsComponent({ reviews }) {
   const [editingReview, setEditingReview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log("ReviewsComponent reviews:", reviews);
-
   const [formData, setFormData] = useState({
     approved: false,
     featured: false,

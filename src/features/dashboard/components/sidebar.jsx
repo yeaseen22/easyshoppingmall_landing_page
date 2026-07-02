@@ -15,10 +15,11 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Sidebar({ onClose }) {
   const pathname = usePathname();
+  const { push } = useRouter();
 
   const menuItems = [
     {
@@ -108,7 +109,13 @@ export default function Sidebar({ onClose }) {
           <HomeIcon size={20} /> <span>Back to Home</span>
         </Link>
         <button
-          onClick={() => signOut()}
+          onClick={() => {
+            signOut({
+              redirect: false,
+            });
+            onClose();
+            push("/");
+          }}
           className="flex items-center gap-4 px-4 py-2 w-full text-gray-500 hover:text-secondary transition-colors font-bold text-sm"
         >
           <LogOut size={20} /> <span>Logout</span>
