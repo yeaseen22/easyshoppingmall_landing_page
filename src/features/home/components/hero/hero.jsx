@@ -10,34 +10,34 @@ export default async function Hero() {
 
   return (
     <Section className="relative min-h-[90vh] flex items-center bg-[#07070a] overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,201,0,0.08)_0%,_transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(248,113,113,0.05)_0%,_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.04)_0%,_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,201,0,0.08)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(248,113,113,0.05)_0%,transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.04)_0%,transparent_50%)]" />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full opacity-30 animate-orb-float"
+          className="absolute -top-40 -left-40 w-125 h-125 rounded-full opacity-30 animate-orb-float"
           style={{
             background:
               "radial-gradient(circle at center, rgba(255,201,0,0.15) 0%, transparent 70%)",
           }}
         />
         <div
-          className="absolute top-1/3 -right-32 w-[400px] h-[400px] rounded-full opacity-25 animate-orb-float-slow"
+          className="absolute top-1/3 -right-32 w-100 h-100 rounded-full opacity-25 animate-orb-float-slow"
           style={{
             background:
               "radial-gradient(circle at center, rgba(248,113,113,0.12) 0%, transparent 70%)",
           }}
         />
         <div
-          className="absolute -bottom-40 left-1/4 w-[450px] h-[450px] rounded-full opacity-20 animate-orb-float-reverse"
+          className="absolute -bottom-40 left-1/4 w-112.5 h-112.5 rounded-full opacity-20 animate-orb-float-reverse"
           style={{
             background:
               "radial-gradient(circle at center, rgba(99,102,241,0.1) 0%, transparent 70%)",
           }}
         />
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 animate-orb-float"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 rounded-full opacity-10 animate-orb-float"
           style={{
             background:
               "radial-gradient(circle at center, rgba(255,201,0,0.08) 0%, transparent 70%)",
