@@ -6,7 +6,7 @@ const Section = ({ children, className, ...props }) => {
   return (
     <section
       className={cn(
-        "py-16 md:py-20 min-h-[calc(100vh-70px)] grid place-items-center",
+        "py-26 md:py-32 min-h-dvh grid place-items-center w-full h-full clear-both",
         className,
       )}
       {...props}

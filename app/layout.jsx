@@ -89,7 +89,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${poppins.variable} ${roboto.variable} antialiased scroll-smooth`}
+        className={`${poppins.variable} ${roboto.variable} font-sans antialiased scroll-smooth`}
       >
         <AuthProvider>
           <ProductStoreProvider products={products}>

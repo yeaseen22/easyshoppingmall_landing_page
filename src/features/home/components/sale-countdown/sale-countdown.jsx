@@ -1,4 +1,5 @@
 "use client";
+
 import { getSaleCountDown } from "@/features/home/actions/sale-countdown";
 import { useCallback, useEffect, useState } from "react";
 
@@ -18,6 +19,7 @@ const SaleCountDown = () => {
         if (data.targetDate) setTargetDate(data.targetDate);
       }
     }
+
     fetchConfig();
   }, []);
 
