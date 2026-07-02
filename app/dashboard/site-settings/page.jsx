@@ -17,8 +17,8 @@ import {
   Phone,
   Save,
   Share2,
-  Twitter,
   Truck,
+  Twitter,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import Swal from "sweetalert2";
@@ -146,6 +146,7 @@ export default function SiteSettingsDashboard() {
                   updateField("navbar", "brandName", e.target.value)
                 }
                 className={inputClass}
+                required
               />
             </div>
             <div>
@@ -207,8 +208,14 @@ export default function SiteSettingsDashboard() {
                   type="url"
                   value={settings.footer?.socialLinks?.facebook || ""}
                   onChange={(e) => {
-                    const links = { ...(settings.footer?.socialLinks || {}), facebook: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, socialLinks: links } }));
+                    const links = {
+                      ...(settings.footer?.socialLinks || {}),
+                      facebook: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, socialLinks: links },
+                    }));
                   }}
                   placeholder="https://facebook.com/your-page"
                   className={inputClass}
@@ -222,8 +229,14 @@ export default function SiteSettingsDashboard() {
                   type="url"
                   value={settings.footer?.socialLinks?.twitter || ""}
                   onChange={(e) => {
-                    const links = { ...(settings.footer?.socialLinks || {}), twitter: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, socialLinks: links } }));
+                    const links = {
+                      ...(settings.footer?.socialLinks || {}),
+                      twitter: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, socialLinks: links },
+                    }));
                   }}
                   placeholder="https://twitter.com/your-handle"
                   className={inputClass}
@@ -237,8 +250,14 @@ export default function SiteSettingsDashboard() {
                   type="url"
                   value={settings.footer?.socialLinks?.instagram || ""}
                   onChange={(e) => {
-                    const links = { ...(settings.footer?.socialLinks || {}), instagram: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, socialLinks: links } }));
+                    const links = {
+                      ...(settings.footer?.socialLinks || {}),
+                      instagram: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, socialLinks: links },
+                    }));
                   }}
                   placeholder="https://instagram.com/your-profile"
                   className={inputClass}
@@ -261,8 +280,14 @@ export default function SiteSettingsDashboard() {
                   type="email"
                   value={settings.footer?.contactInfo?.email || ""}
                   onChange={(e) => {
-                    const info = { ...(settings.footer?.contactInfo || {}), email: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, contactInfo: info } }));
+                    const info = {
+                      ...(settings.footer?.contactInfo || {}),
+                      email: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, contactInfo: info },
+                    }));
                   }}
                   placeholder="info@example.com"
                   className={inputClass}
@@ -276,8 +301,14 @@ export default function SiteSettingsDashboard() {
                   type="text"
                   value={settings.footer?.contactInfo?.phone || ""}
                   onChange={(e) => {
-                    const info = { ...(settings.footer?.contactInfo || {}), phone: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, contactInfo: info } }));
+                    const info = {
+                      ...(settings.footer?.contactInfo || {}),
+                      phone: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, contactInfo: info },
+                    }));
                   }}
                   placeholder="+880 1234 567890"
                   className={inputClass}
@@ -291,8 +322,14 @@ export default function SiteSettingsDashboard() {
                   type="text"
                   value={settings.footer?.contactInfo?.address || ""}
                   onChange={(e) => {
-                    const info = { ...(settings.footer?.contactInfo || {}), address: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, contactInfo: info } }));
+                    const info = {
+                      ...(settings.footer?.contactInfo || {}),
+                      address: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, contactInfo: info },
+                    }));
                   }}
                   placeholder="Dhaka, Bangladesh"
                   className={inputClass}
@@ -313,8 +350,14 @@ export default function SiteSettingsDashboard() {
                   type="text"
                   value={settings.footer?.businessHours?.startDate || ""}
                   onChange={(e) => {
-                    const hours = { ...(settings.footer?.businessHours || {}), startDate: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, businessHours: hours } }));
+                    const hours = {
+                      ...(settings.footer?.businessHours || {}),
+                      startDate: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, businessHours: hours },
+                    }));
                   }}
                   placeholder="Monday"
                   className={inputClass}
@@ -326,8 +369,14 @@ export default function SiteSettingsDashboard() {
                   type="text"
                   value={settings.footer?.businessHours?.endDate || ""}
                   onChange={(e) => {
-                    const hours = { ...(settings.footer?.businessHours || {}), endDate: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, businessHours: hours } }));
+                    const hours = {
+                      ...(settings.footer?.businessHours || {}),
+                      endDate: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, businessHours: hours },
+                    }));
                   }}
                   placeholder="Friday"
                   className={inputClass}
@@ -339,8 +388,14 @@ export default function SiteSettingsDashboard() {
                   type="text"
                   value={settings.footer?.businessHours?.startTime || ""}
                   onChange={(e) => {
-                    const hours = { ...(settings.footer?.businessHours || {}), startTime: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, businessHours: hours } }));
+                    const hours = {
+                      ...(settings.footer?.businessHours || {}),
+                      startTime: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, businessHours: hours },
+                    }));
                   }}
                   placeholder="9:00 AM"
                   className={inputClass}
@@ -352,8 +407,14 @@ export default function SiteSettingsDashboard() {
                   type="text"
                   value={settings.footer?.businessHours?.endTime || ""}
                   onChange={(e) => {
-                    const hours = { ...(settings.footer?.businessHours || {}), endTime: e.target.value };
-                    setSettings((prev) => ({ ...prev, footer: { ...prev.footer, businessHours: hours } }));
+                    const hours = {
+                      ...(settings.footer?.businessHours || {}),
+                      endTime: e.target.value,
+                    };
+                    setSettings((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, businessHours: hours },
+                    }));
                   }}
                   placeholder="5:00 PM"
                   className={inputClass}
@@ -399,11 +460,15 @@ export default function SiteSettingsDashboard() {
                 min={0}
                 value={settings.deliveryCharge?.insideDhaka ?? ""}
                 onChange={(e) => {
-                  const dc = { ...(settings.deliveryCharge || {}), insideDhaka: Number(e.target.value) };
+                  const dc = {
+                    ...(settings.deliveryCharge || {}),
+                    insideDhaka: Number(e.target.value),
+                  };
                   setSettings((prev) => ({ ...prev, deliveryCharge: dc }));
                 }}
                 placeholder="60"
                 className={inputClass}
+                required
               />
             </div>
             <div>
@@ -415,11 +480,15 @@ export default function SiteSettingsDashboard() {
                 min={0}
                 value={settings.deliveryCharge?.outsideDhaka ?? ""}
                 onChange={(e) => {
-                  const dc = { ...(settings.deliveryCharge || {}), outsideDhaka: Number(e.target.value) };
+                  const dc = {
+                    ...(settings.deliveryCharge || {}),
+                    outsideDhaka: Number(e.target.value),
+                  };
                   setSettings((prev) => ({ ...prev, deliveryCharge: dc }));
                 }}
                 placeholder="120"
                 className={inputClass}
+                required
               />
             </div>
           </div>
