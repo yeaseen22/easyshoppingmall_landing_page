@@ -30,8 +30,11 @@ button {
   @apply cursor-pointer;
 }
 
-button:disabled {
-  @apply cursor-not-allowed!
+button,
+input,
+textarea,
+select {
+  @apply disabled:cursor-not-allowed!;
 }
 
 input[aria-invalid="true"],

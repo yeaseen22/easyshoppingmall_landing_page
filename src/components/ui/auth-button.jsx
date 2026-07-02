@@ -12,10 +12,13 @@ export const AuthButton = () => {
     return (
       <button
         onClick={() => push("/dashboard")}
-        className="flex items-center gap-2 bg-primary-color/80 hover:bg-primary-color text-white px-4 py-2 rounded-lg transition-colors"
+        type="button"
+        aria-label="Dashboard"
+        title="Dashboard"
+        className="flex items-center gap-2 bg-primary-color/80 hover:bg-primary-color text-neutral-900 px-2 md:px-4 py-2 rounded-lg transition-colors"
       >
-        <LayoutDashboardIcon className="w-4 h-4" />
-        Dashboard
+        <LayoutDashboardIcon className="size-4" />
+        <span className="hidden sm:inline-block">Dashboard</span>
       </button>
     );
   }
@@ -23,10 +26,13 @@ export const AuthButton = () => {
   return (
     <button
       onClick={() => push("/login")}
-      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition-colors"
+      type="button"
+      aria-label="Sign In"
+      title="Sign In"
+      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-2 md:px-4 py-2 rounded-lg transition-colors"
     >
-      <LogIn className="w-4 h-4" />
-      Sign In
+      <LogIn className="size-4" />
+      <span className="hidden sm:inline-block">Sign In</span>
     </button>
   );
 };
