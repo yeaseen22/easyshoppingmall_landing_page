@@ -1,5 +1,7 @@
 "use client";
 
+import Container from "@/components/ui/container";
+import Section from "@/components/ui/section";
 import { getSaleCountDown } from "@/features/home/actions/sale-countdown";
 import { useCallback, useEffect, useState } from "react";
 
@@ -51,26 +53,28 @@ const SaleCountDown = () => {
 
   const timeBlock = (value, label) => (
     <div className="flex flex-col items-center">
-      <div className="bg-[#2C2B30] px-6 py-4 rounded-lg shadow-md text-primary-color text-2xl font-mono min-w-15">
+      <div className="bg-[#2C2B30] p-2.5 sm:p-4 rounded-lg shadow-md text-primary-color text-xl font-mono">
         {(value ?? 0).toString().padStart(2, "0")}
       </div>
-      <div className="text-xs text-[#AAAAAA] mt-1">{label}</div>
+      <div className="text-[10px] sm:text-xs text-[#AAAAAA] mt-1">{label}</div>
     </div>
   );
 
   return (
-    <div className="w-full bg-[#1C1A18] py-16 px-4 text-center">
-      <div className="max-w-6xl mx-auto rounded-xl">
-        <p className="inline-block px-3 py-1 rounded-full text-sm mb-3 bg-[#622c1c] text-primary-color">
+    <Section className="w-full bg-[#1C1A18] text-center min-h-auto py-10 md:py-16">
+      <Container className="max-w-2xl rounded-xl">
+        <p className="inline-block px-3 py-1 rounded-full text-xs sm:text-sm mb-3 bg-[#622c1c] text-primary-color">
           {timeLeft?.expired ? "🎉 Sale Ended" : "🔥 Limited Time Only"}
         </p>
-        <h1 className="text-2xl md:text-4xl font-bold mb-2 text-accent-content">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-accent-content">
           {title}
         </h1>
-        <p className="mb-8 text-[#B0B0B0] text-lg">{description}</p>
+        <p className="mb-8 text-[#B0B0B0] text-sm sm:text-base md:text-lg">
+          {description}
+        </p>
 
         {timeLeft && !timeLeft.expired && (
-          <div className="flex justify-center flex-wrap gap-4 mb-8">
+          <div className="grid grid-cols-7 place-items-center gap-1 mb-8 max-w-xs mx-auto">
             {timeBlock(timeLeft.days, "DAYS")}
             <span className="text-xl font-bold text-[#AAAAAA] flex items-center">
               :
@@ -92,8 +96,8 @@ const SaleCountDown = () => {
             This sale has ended. Stay tuned for new offers!
           </div>
         )}
-      </div>
-    </div>
+      </Container>
+    </Section>
   );
 };
 

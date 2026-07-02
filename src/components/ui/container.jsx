@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn";
 const Container = ({ children, className, ...props }) => {
   return (
     <div
-      className={cn("container mx-auto px-5 overflow-hidden", className)}
+      className={cn("container w-full mx-auto px-5 overflow-hidden", className)}
       {...props}
     >
       {children}

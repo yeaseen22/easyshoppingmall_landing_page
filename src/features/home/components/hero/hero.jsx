@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default async function Hero() {
-  const banner = await getHeroBanner();
+  const banner = (await getHeroBanner()) || {};
 
   return (
     <Section className="bg-[#080808] relative overflow-hidden font-sans">
@@ -16,7 +16,7 @@ export default async function Hero() {
       <Container className="relative grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="flex flex-col gap-8">
           <div className="space-y-3.5">
-            {banner?.tagLine && (
+            {banner.tagLine && (
               <span className="inline-flex items-center gap-2 bg-linear-to-r from-primary-color/20 to-transparent border-l-2 border-primary-color text-primary-color text-[10px] sm:text-xs font-bold px-4 py-2 uppercase tracking-[0.2em]">
                 <Zap className="size-3.5 fill-current" />
                 {banner.tagLine}
@@ -49,10 +49,10 @@ export default async function Hero() {
           <div className="absolute -inset-1 bg-linear-to-r from-primary-color to-secondary rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
 
           <div className="relative bg-[#0f0f0f] border border-accent-content/10 rounded-md overflow-hidden shadow-2xl">
-            <div className="relative aspect-3/2 h-56 sm:h-80 xl:100 w-full rounded-md overflow-hidden">
+            <div className="relative aspect-3/2 h-[clamp(200px,50vw,320px)] md:h-100 2xl:h-120 w-full rounded-md overflow-hidden">
               <Image
                 src={
-                  banner.imageUrl ||
+                  banner?.imageUrl ||
                   "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop"
                 }
                 alt="New Arrivals"
