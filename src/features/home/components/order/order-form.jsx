@@ -220,7 +220,7 @@ export default function OrderForm({ settings = {} }) {
                 </div>
               </div>
 
-              {isLoading && (
+              {!isLoading && (
                 <Controller
                   name="selectedSize"
                   control={control}
@@ -236,7 +236,7 @@ export default function OrderForm({ settings = {} }) {
                 />
               )}
 
-              {isLoading && (
+              {!isLoading && (
                 <Controller
                   name="selectedColor"
                   control={control}
