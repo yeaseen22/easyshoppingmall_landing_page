@@ -5,7 +5,7 @@ import { publicReviewSchema } from "@/features/reviews/validations/review-schema
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle, Send, Star } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 const inputClass =
   "w-full bg-[#1c2128] border border-gray-700 rounded-xl px-4 py-3.5 text-accent-content placeholder-gray-500 focus:outline-none focus:border-primary-color transition-colors text-sm";
@@ -17,8 +17,8 @@ export default function ReviewForm() {
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(publicReviewSchema),
@@ -30,7 +30,7 @@ export default function ReviewForm() {
     },
   });
 
-  const currentRating = watch("rating");
+  const currentRating = useWatch({ name: "rating", control });
 
   const onSubmit = async (data) => {
     setSubmitState("submitting");
@@ -149,7 +149,7 @@ export default function ReviewForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 bg-primary-color hover:bg-primary-color/90 text-black font-bold py-4 rounded-xl transition-all disabled:opacity-70"
+            className="w-full flex items-center justify-center gap-2 bg-primary-color hover:bg-primary-color/90 text-black font-semibold text-base md:text-lg py-2 px-4 rounded-xl transition-all disabled:opacity-70"
           >
             {isSubmitting ? (
               "Submitting..."
