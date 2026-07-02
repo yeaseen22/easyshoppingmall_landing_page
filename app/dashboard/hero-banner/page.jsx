@@ -12,7 +12,11 @@ import Swal from "sweetalert2";
 import { z } from "zod";
 
 const heroBannerSchema = z.object({
-  tagLine: z.string().trim().optional(),
+  tagLine: z
+    .string()
+    .trim()
+    .max(35, "Tag line must be under 35 characters")
+    .optional(),
   title: z
     .string()
     .trim()
@@ -53,7 +57,7 @@ const formFields = [
     placeholder: "Experience the future of online shopping...",
     component: "textarea",
     required: true,
-    rows: 4,
+    rows: 3,
   },
   {
     name: "imageUrl",
@@ -81,6 +85,7 @@ export default function HeroBannerDashboard() {
       description: "",
       imageUrl: "",
     },
+    mode: "onChange",
   });
 
   const imageUrl = useWatch({ name: "imageUrl", control });

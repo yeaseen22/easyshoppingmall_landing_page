@@ -320,8 +320,8 @@ export default function OrderForm({ settings = {} }) {
                         onClick={() =>
                           field.onChange(Math.max(1, (field.value || 1) - 1))
                         }
-                        className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
-                        disabled={(field.value || 1) <= 1}
+                        className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed!"
+                        disabled={!id || (field.value || 1) <= 1}
                       >
                         <Minus size={18} />
                       </button>
@@ -339,7 +339,7 @@ export default function OrderForm({ settings = {} }) {
                           )
                         }
                         className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
-                        disabled={(field.value || 1) >= (product?.stock || 99)}
+                        disabled={!id || (field.value || 1) >= (product?.stock || 99)}
                       >
                         <Plus size={18} />
                       </button>
@@ -355,24 +355,124 @@ export default function OrderForm({ settings = {} }) {
             />
           </div>
 
-          <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
-            <h3 className="text-xl font-semibold mb-6">Delivery Details</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {id && (
+            <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
+              <h3 className="text-xl font-semibold mb-6">Delivery Details</h3>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Controller
+                    name="customerName"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <label
+                        className="text-xs font-bold uppercase text-accent-content"
+                        data-invalid={fieldState.invalid}
+                      >
+                        Full Name
+                        <input
+                          {...field}
+                          type="text"
+                          aria-invalid={fieldState.invalid}
+                          placeholder="Full Name"
+                          className={inputClass}
+                        />
+                        {fieldState.error && (
+                          <p className="text-red-400 text-[10px] mt-1">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </label>
+                    )}
+                  />
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <label
+                        className="text-xs font-bold uppercase text-accent-content"
+                        data-invalid={fieldState.invalid}
+                      >
+                        Phone Number
+                        <input
+                          {...field}
+                          type="tel"
+                          aria-invalid={fieldState.invalid}
+                          placeholder="Phone Number"
+                          className={inputClass}
+                        />
+                        {fieldState.error && (
+                          <p className="text-red-400 text-[10px] mt-1">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </label>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Controller
+                    name="district"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <label
+                        className="text-xs font-bold uppercase text-accent-content"
+                        data-invalid={fieldState.invalid}
+                      >
+                        District
+                        <input
+                          {...field}
+                          type="text"
+                          aria-invalid={fieldState.invalid}
+                          placeholder="District"
+                          className={inputClass}
+                        />
+                        {fieldState.error && (
+                          <p className="text-red-400 text-[10px] mt-1">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </label>
+                    )}
+                  />
+                  <Controller
+                    name="city"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <label
+                        className="text-xs font-bold uppercase text-accent-content"
+                        data-invalid={fieldState.invalid}
+                      >
+                        City
+                        <input
+                          {...field}
+                          type="text"
+                          aria-invalid={fieldState.invalid}
+                          placeholder="City"
+                          className={inputClass}
+                        />
+                        {fieldState.error && (
+                          <p className="text-red-400 text-[10px] mt-1">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </label>
+                    )}
+                  />
+                </div>
                 <Controller
-                  name="customerName"
+                  name="email"
                   control={control}
                   render={({ field, fieldState }) => (
                     <label
-                      className="text-xs font-bold uppercase text-accent-content"
+                      className="text-xs font-bold uppercase text-accent-content block"
                       data-invalid={fieldState.invalid}
                     >
-                      Full Name
+                      Email
                       <input
                         {...field}
-                        type="text"
+                        type="email"
                         aria-invalid={fieldState.invalid}
-                        placeholder="Full Name"
+                        placeholder="Email"
                         className={inputClass}
                       />
                       {fieldState.error && (
@@ -384,20 +484,20 @@ export default function OrderForm({ settings = {} }) {
                   )}
                 />
                 <Controller
-                  name="phone"
+                  name="address"
                   control={control}
                   render={({ field, fieldState }) => (
                     <label
-                      className="text-xs font-bold uppercase text-accent-content"
+                      className="text-xs font-bold uppercase text-accent-content block"
                       data-invalid={fieldState.invalid}
                     >
-                      Phone Number
-                      <input
+                      Full Address (Area, City, House No)
+                      <textarea
                         {...field}
-                        type="tel"
+                        rows={3}
                         aria-invalid={fieldState.invalid}
-                        placeholder="Phone Number"
-                        className={inputClass}
+                        placeholder="Full Address (Area, City, House No)"
+                        className={`${inputClass} resize-none`}
                       />
                       {fieldState.error && (
                         <p className="text-red-400 text-[10px] mt-1">
@@ -408,106 +508,8 @@ export default function OrderForm({ settings = {} }) {
                   )}
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Controller
-                  name="district"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <label
-                      className="text-xs font-bold uppercase text-accent-content"
-                      data-invalid={fieldState.invalid}
-                    >
-                      District
-                      <input
-                        {...field}
-                        type="text"
-                        aria-invalid={fieldState.invalid}
-                        placeholder="District"
-                        className={inputClass}
-                      />
-                      {fieldState.error && (
-                        <p className="text-red-400 text-[10px] mt-1">
-                          {fieldState.error.message}
-                        </p>
-                      )}
-                    </label>
-                  )}
-                />
-                <Controller
-                  name="city"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <label
-                      className="text-xs font-bold uppercase text-accent-content"
-                      data-invalid={fieldState.invalid}
-                    >
-                      City
-                      <input
-                        {...field}
-                        type="text"
-                        aria-invalid={fieldState.invalid}
-                        placeholder="City"
-                        className={inputClass}
-                      />
-                      {fieldState.error && (
-                        <p className="text-red-400 text-[10px] mt-1">
-                          {fieldState.error.message}
-                        </p>
-                      )}
-                    </label>
-                  )}
-                />
-              </div>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <label
-                    className="text-xs font-bold uppercase text-accent-content block"
-                    data-invalid={fieldState.invalid}
-                  >
-                    Email
-                    <input
-                      {...field}
-                      type="email"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Email"
-                      className={inputClass}
-                    />
-                    {fieldState.error && (
-                      <p className="text-red-400 text-[10px] mt-1">
-                        {fieldState.error.message}
-                      </p>
-                    )}
-                  </label>
-                )}
-              />
-              <Controller
-                name="address"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <label
-                    className="text-xs font-bold uppercase text-accent-content block"
-                    data-invalid={fieldState.invalid}
-                  >
-                    Full Address (Area, City, House No)
-                    <textarea
-                      {...field}
-                      rows={3}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Full Address (Area, City, House No)"
-                      className={`${inputClass} resize-none`}
-                    />
-                    {fieldState.error && (
-                      <p className="text-red-400 text-[10px] mt-1">
-                        {fieldState.error.message}
-                      </p>
-                    )}
-                  </label>
-                )}
-              />
             </div>
-          </div>
+          )}
         </div>
 
         <div className="lg:col-span-5 space-y-8">
@@ -567,14 +569,14 @@ export default function OrderForm({ settings = {} }) {
 
             <button
               type="submit"
-              disabled={!product || isSubmitting}
-              className={`w-full py-5 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)] ${
-                !product || isSubmitting
-                  ? "bg-gray-800 cursor-not-allowed text-gray-500"
-                  : "bg-primary-color hover:bg-primary-color text-black"
-              }`}
+              disabled={!id || isSubmitting}
+              className={`w-full py-5 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)] disabled:bg-gray-800 disabled:cursor-not-allowed! disabled:text-gray-500 bg-primary-color hover:bg-primary-color text-black`}
             >
-              {isSubmitting ? "PROCESSING..." : "CONFIRM ORDER NOW"}
+              {!id
+                ? "SELECT A PRODUCT FIRST"
+                : isSubmitting
+                  ? "PROCESSING..."
+                  : "CONFIRM ORDER NOW"}
             </button>
           </div>
         </div>

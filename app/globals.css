@@ -30,7 +30,16 @@ button {
   @apply cursor-pointer;
 }
 
+button:disabled {
+  @apply cursor-not-allowed!
+}
+
 input[aria-invalid="true"],
-textarea[aria-invalid="true"] {
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
   @apply border-red-500;
+}
+
+label[data-invalid="true"] {
+  @apply text-red-500;
 }

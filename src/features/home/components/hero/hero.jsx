@@ -14,10 +14,12 @@ export default async function Hero() {
       <div className="relative z-10 px-[6%] pt-20 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="flex flex-col gap-8">
           <div className="space-y-5">
-            <span className="inline-flex items-center gap-2 bg-linear-to-r from-primary-color/20 to-transparent border-l-2 border-primary-color text-primary-color text-[12px] font-bold px-4 py-2 uppercase tracking-[0.2em]">
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              {banner?.tagLine?.trim() || "Mega Sale is Live Now"}
-            </span>
+            {banner.tagLine && (
+              <span className="inline-flex items-center gap-2 bg-linear-to-r from-primary-color/20 to-transparent border-l-2 border-primary-color text-primary-color text-[12px] font-bold px-4 py-2 uppercase tracking-[0.2em]">
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                {banner.tagLine}
+              </span>
+            )}
 
             <h1 className="text-5xl md:text-7xl font-black text-accent-content leading-[1.05] tracking-tight">
               {banner.title || "Shop Smarter, Save Big."}

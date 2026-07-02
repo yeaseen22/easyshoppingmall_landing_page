@@ -36,7 +36,9 @@ export default function ProductSelector({ startTransition }) {
         onChange={handleChange}
         className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 focus:border-primary-color outline-none"
       >
-        <option value="">Select a product</option>
+        <option disabled value="">
+          Select a product
+        </option>
         {products.map((p) => (
           <option key={p._id} value={p._id}>
             {p.name} {p.stock === 0 ? "(Out of stock)" : ""}
