@@ -45,6 +45,7 @@ export const getOrders = async () => {
       .sort({ createdAt: -1 })
       .lean()
       .populate("productId", "name description image");
+    
     return orders.map((order) => ({
       ...order,
       _id: order._id.toString(),

@@ -1,6 +1,7 @@
 "use server";
 
 import { connectDB } from "@/config/db";
+import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { Types } from "mongoose";
 
@@ -72,6 +73,8 @@ export const deleteProduct = async (id) => {
     await connectDB();
     const result = await Product.findByIdAndDelete(id);
     if (result) {
+      await Order.deleteMany({ productId: id });
+      
       return { success: true, message: "Product deleted successfully." };
     }
     return { success: false, message: "Product not found." };

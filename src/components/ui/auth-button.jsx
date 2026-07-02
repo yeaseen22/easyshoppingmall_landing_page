@@ -5,8 +5,16 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export const AuthButton = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { push } = useRouter();
+
+  if (status === "loading") {
+    return (
+      <>
+        <div className="w-20 h-6 rounded-lg bg-gray-500 animate-pulse"></div>
+      </>
+    );
+  }
 
   if (session) {
     return (
