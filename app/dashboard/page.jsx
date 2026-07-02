@@ -1,16 +1,15 @@
-export const dynamic = 'force-dynamic';
-import { getOrders } from "@/action/order";
-import DashboardHome from "@/components/Dashboard/DashboardHome/DashboardHome";
+export const dynamic = "force-dynamic";
+import DashboardOverview from "@/features/dashboard/components/overview/dashboard-overview";
+import { getOrders } from "@/features/orders/actions/order";
 
-const DashboardPage = async() => {
+const DashboardPage = async () => {
   const data = await getOrders();
-   const orders = data?.map((order) => ({
-      ...order,
-      _id: order._id.toString(),
-    }));
-    return (
-        <DashboardHome orders = {orders} />
-    );
+  const orders = data?.map((order) => ({
+    ...order,
+    _id: order._id.toString(),
+  }));
+
+  return <DashboardOverview orders={orders} />;
 };
 
 export default DashboardPage;

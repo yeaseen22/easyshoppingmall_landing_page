@@ -1,30 +1,31 @@
-export const dynamic = 'force-dynamic';
-import FeaturedProducts from "../src/components/Home/FeaturedProducts/FeaturedProducts"
-import OrderForm from "../src/components/Home/Order/OrderForm"
-import Testimonial from "../src/components/Home/testimonial/testimonial"
-import Footer from "../src/components/Home/footer/footer"
-import Navbar from "../src/components/Home/Navbar/Navbar"
-import Hero from "@/components/Home/Hero/Hero"
-import SaleCountDown from "../src/components/Home/SaleCountDown/SaleCountDown"
-import { getProducts } from "@/action/product"
+export const dynamic = "force-dynamic";
+import { getSiteSettings } from "@/features/home/actions/site-settings";
+import FeaturedProducts from "@/features/home/components/featured-products/featured-products";
+import Footer from "@/features/home/components/footer/footer";
+import Hero from "@/features/home/components/hero/hero";
+import Navbar from "@/features/home/components/navbar/navbar";
+import OrderForm from "@/features/home/components/order/order-form";
+import Testimonial from "@/features/home/components/review/testimonials";
+import SaleCountDown from "@/features/home/components/sale-countdown/sale-countdown";
+import { getProducts } from "@/features/products/actions/product";
 
 const Home = async () => {
-  const productsFromDb = await getProducts();
-  const products = productsFromDb?.map((product) => ({
-    ...product,
-    _id: product._id.toString(),
-  }));
+  const [products, settings] = await Promise.all([
+    getProducts(),
+    getSiteSettings(),
+  ]);
+
   return (
-    <div>
-      <Navbar />
+    <>
+      <Navbar settings={settings} />
       <Hero />
       <SaleCountDown />
       <FeaturedProducts />
-      <OrderForm products={products} />
+      <OrderForm products={products} settings={settings} />
       <Testimonial />
-      <Footer />
-    </div>
-  )
-}
+      <Footer settings={settings} />
+    </>
+  );
+};
 
-export default Home
+export default Home;

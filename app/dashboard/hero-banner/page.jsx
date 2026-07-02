@@ -1,38 +1,110 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getHeroBanner, updateHeroBanner } from "@/action/heroBanner";
-import Swal from "sweetalert2";
+import {
+  getHeroBanner,
+  updateHeroBanner,
+} from "@/features/home/actions/hero-banner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useEffect, useTransition } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import Swal from "sweetalert2";
+import { z } from "zod";
+
+const heroBannerSchema = z.object({
+  tagLine: z
+    .string()
+    .trim()
+    .max(35, "Tag line must be under 35 characters")
+    .optional(),
+  title: z
+    .string()
+    .trim()
+    .min(1, "Banner title is required")
+    .max(200, "Title must be under 200 characters"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Banner description is required")
+    .max(500, "Description must be under 500 characters"),
+  imageUrl: z
+    .string()
+    .trim()
+    .min(1, "Banner image URL is required")
+    .url("Please enter a valid URL"),
+});
+
+const formFields = [
+  {
+    name: "tagLine",
+    label: "Banner TagLine",
+    type: "text",
+    placeholder: "Enter hero banner tag line...",
+    component: "input",
+    required: false,
+  },
+  {
+    name: "title",
+    label: "Banner Title",
+    type: "text",
+    placeholder: "Enter hero banner title...",
+    component: "input",
+    required: true,
+  },
+  {
+    name: "description",
+    label: "Banner Description",
+    placeholder: "Experience the future of online shopping...",
+    component: "textarea",
+    required: true,
+    rows: 3,
+  },
+  {
+    name: "imageUrl",
+    label: "Banner Image URL",
+    type: "url",
+    placeholder: "https://example.com/image.jpg",
+    component: "input",
+    required: true,
+  },
+];
 
 export default function HeroBannerDashboard() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, startTransition] = useTransition();
+
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(heroBannerSchema),
+    defaultValues: {
+      tagLine: "",
+      title: "",
+      description: "",
+      imageUrl: "",
+    },
+    mode: "onChange",
+  });
+
+  const imageUrl = useWatch({ name: "imageUrl", control });
 
   useEffect(() => {
-    async function loadBanner() {
-      const banner = await getHeroBanner();
-      if (banner) {
-        setTitle(banner.title || "");
-        setDescription(banner.description || "");
-        setImageUrl(banner.imageUrl || "");
-      }
-      setIsLoading(false);
-    }
-    loadBanner();
-  }, []);
+    startTransition(async () => {
+      const banner = (await getHeroBanner()) || {};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
+      setValue("tagLine", banner.tagLine || "", { shouldValidate: true });
+      setValue("title", banner.title || "", { shouldValidate: true });
+      setValue("description", banner.description || "", {
+        shouldValidate: true,
+      });
+      setValue("imageUrl", banner.imageUrl || "", { shouldValidate: true });
+    });
+  }, [setValue]);
 
-    // Call server action to update the banner
-    const result = await updateHeroBanner(title, description, imageUrl);
-
-    setIsSaving(false);
+  const onSubmit = async (data) => {
+    const result = await updateHeroBanner(data);
 
     if (result.success) {
       Swal.fire({
@@ -56,91 +128,107 @@ export default function HeroBannerDashboard() {
   if (isLoading) {
     return (
       <div className="flex justify-center flex-col items-center h-48 gap-4">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-color"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-color" />
         <p className="text-gray-400">Loading banner data...</p>
       </div>
     );
   }
 
+  const inputClass =
+    "w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color transition-all";
+  const labelClass = "block text-sm font-medium text-gray-300 mb-2";
+
   return (
-    <div className="max-w-4xl max-h-4xl h-full mx-auto p-8 bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5">
-      <h1 className="text-2xl font-bold text-accent-content mb-8">Manage Hero Banner</h1>
+    <section className="max-w-4xl mx-auto p-4 md:p-8">
+      <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
+        <h1 className="text-xl md:text-2xl font-bold text-accent-content mb-8">
+          Manage Hero Banner
+        </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Banner Title (HTML Allowed)
-          </label>
-          <p className="text-xs text-gray-500 mb-2">Example: Shop &lt;span class="text-transparent bg-clip-text bg-linear-to-r from-primary-color to-orange-400"&gt;Smarter&lt;/span&gt;,&lt;br /&gt; Save Big.</p>
-          <textarea
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            rows={4}
-            className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color focus:border-transparent transition-all"
-            placeholder="Enter hero banner title..."
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {formFields.map((field) => (
+            <Controller
+              key={field.name}
+              name={field.name}
+              control={control}
+              render={({ field: formField, fieldState }) => {
+                const error = fieldState.error?.message;
 
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Banner Description
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color focus:border-transparent transition-all"
-            placeholder="Experience the future of online shopping..."
-            required
-          />
-        </div>
+                return (
+                  <div>
+                    <label
+                      className={labelClass}
+                      htmlFor={field.name}
+                      data-invalid={fieldState.invalid}
+                    >
+                      {field.label}{" "}
+                      {field.required && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Banner Image URL
-          </label>
-          <input
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color focus:border-transparent transition-all"
-            placeholder="https://example.com/image.jpg"
-            required
-          />
-        </div>
+                    {field.component === "textarea" ? (
+                      <textarea
+                        {...formField}
+                        id={field.name}
+                        rows={field.rows}
+                        aria-invalid={fieldState.invalid}
+                        className={`${inputClass} resize-y min-h-25`}
+                        placeholder={field.placeholder}
+                      />
+                    ) : (
+                      <input
+                        {...formField}
+                        id={field.name}
+                        type={field.type}
+                        aria-invalid={fieldState.invalid}
+                        className={inputClass}
+                        placeholder={field.placeholder}
+                      />
+                    )}
 
-        {/* Preview section */}
-        {imageUrl && (
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Image Preview
-            </label>
-            <div className="relative w-full h-64 rounded-xl overflow-hidden border border-accent-content/10 mt-2 bg-black/50 flex items-center justify-center">
-              <Image
-                src={imageUrl}
-                alt="Banner preview"
-                className="w-full h-full object-cover"
-                width={800}
-                height={400}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
+                    {error && (
+                      <p className="text-red-500 text-sm mt-1">{error}</p>
+                    )}
+                  </div>
+                );
+              }}
+            />
+          ))}
+
+          {imageUrl?.trim() && (
+            <div>
+              <label className={labelClass}>Image Preview</label>
+              <div className="relative w-full h-[clamp(200px, 30vh, 300px)] md:h-74 lg:h-86 aspect-3/2 rounded-xl overflow-hidden border border-accent-content/10 mt-2 bg-black/50">
+                <Image
+                  src={imageUrl}
+                  alt="Banner preview"
+                  className="w-full h-full object-cover"
+                  width={800}
+                  height={400}
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="flex justify-end pt-4">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className={`px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-[0_4px_15px_-5px_rgba(var(--primary-rgb),0.5)] ${isSaving ? 'opacity-70 cursor-not-allowed' : 'hover:-translate-y-0.5'}`}
-          >
-            {isSaving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="flex justify-end pt-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-4 py-2 bg-primary-color hover:bg-accent-content text-black font-semibold text-sm sm:text-base rounded-xl transition-all shadow-lg ${
+                isSubmitting
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:-translate-y-0.5"
+              }`}
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 }

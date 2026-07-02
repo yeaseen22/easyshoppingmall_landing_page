@@ -1,48 +1,13 @@
 @import "tailwindcss";
 
-
-/* color set up  */
-/* @theme {
-  --color-primary-color: #135E4B; 
-  --color-secondary: #4CB572; 
-  --color-btn-color: #478c1f;  
-  --color-bg: #CADCAE;
-  --color-accent: black;
-  --color--accent-content: white;
-} */
 @theme {
-  --color-primary-color: #FFC900;
-  --color-secondary: #f87171CC;
+  --color-primary-color: #ffc900;
+  --color-secondary: #f87171cc;
   --color-btn-color: #478c1f;
-  --color-bg: #FFFDE1;
+  --color-bg: #fffde1;
   --color-accent: black;
   --color-accent-content: white;
 }
-
-
-/* #135E4B */
-/* #4CB572 */
-/* #A1D8B5 */
-/* #CCDCDB */
-
-/* #777777 */
-/* #ffbb00 */
-
-/* header style  */
-
-.MuiToolbar-root {
-  @apply bg-primary-color;
-}
-
-
-.container {
-  @apply w-[98%] lg:w-[97%] mx-auto md:py-5 lg:py-3 py-4;
-}
-
-.MuiInputBase-root {
-  @apply border-2 border-primary-color outline-none rounded-lg shadow-sm w-full h-13;
-}
-
 
 /* Custom Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
@@ -54,84 +19,73 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-purple-500 rounded-full;
+  @apply bg-primary-color rounded-full;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  @apply bg-purple-600;
+  @apply bg-primary-color;
 }
 
-/* For Firefox */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #a855f7 #e5e7eb;
+button {
+  @apply cursor-pointer;
 }
 
-/* ===== Chart Animations ===== */
-
-@keyframes lineDraw {
-  from {
-    stroke-dasharray: 600;
-    stroke-dashoffset: 600;
-  }
-
-  to {
-    stroke-dasharray: 600;
-    stroke-dashoffset: 0;
-  }
+button,
+input,
+textarea,
+select {
+  @apply disabled:cursor-not-allowed!;
 }
 
-.animate-line {
-  animation: lineDraw 1.8s ease-out forwards;
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
+  @apply border-red-500  focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)];
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+label[data-invalid="true"] {
+  @apply text-red-500;
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.8s ease-out forwards;
+@keyframes orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -40px) scale(1.05); }
+  50% { transform: translate(-20px, -60px) scale(0.95); }
+  75% { transform: translate(-40px, -20px) scale(1.02); }
 }
 
-@keyframes donutRotate {
-  from {
-    transform: rotate(-90deg) scale(0.85);
-    opacity: 0;
-  }
-
-  to {
-    transform: rotate(0deg) scale(1);
-    opacity: 1;
-  }
+@keyframes orb-float-slow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, 30px) scale(1.1); }
+  66% { transform: translate(40px, -10px) scale(0.9); }
 }
 
-.animate-donut {
-  animation: donutRotate 1.2s ease-out forwards;
+@keyframes orb-float-reverse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-30px, 30px) scale(0.95); }
+  50% { transform: translate(20px, 50px) scale(1.05); }
+  75% { transform: translate(30px, -30px) scale(0.98); }
 }
 
-/* Marquee Animation */
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(25deg); }
+  100% { transform: translateX(200%) rotate(25deg); }
 }
 
-.animate-marquee:hover {
-  animation-play-state: paused;
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 201, 0, 0.15), 0 0 60px rgba(255, 201, 0, 0.05); }
+  50% { box-shadow: 0 0 40px rgba(255, 201, 0, 0.25), 0 0 80px rgba(255, 201, 0, 0.1); }
 }
+
+.animate-orb-float { animation: orb-float 12s ease-in-out infinite; }
+.animate-orb-float-slow { animation: orb-float-slow 18s ease-in-out infinite; }
+.animate-orb-float-reverse { animation: orb-float-reverse 15s ease-in-out infinite; }
+.animate-gradient-shift { animation: gradient-shift 8s ease infinite; background-size: 200% 200%; }
+.animate-shimmer { animation: shimmer 3s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
