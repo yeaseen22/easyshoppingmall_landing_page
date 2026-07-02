@@ -38,15 +38,39 @@ export const placeOrder = async (orderData) => {
   }
 };
 
-export const getOrders = async () => {
+export const getOrders = async (page, limit = 10) => {
   try {
     await connectDB();
-    const orders = await Order.find()
-      .sort({ createdAt: -1 })
-      .lean()
-      .populate("productId", "name description image");
-    
-    return orders.map((order) => ({
+
+    if (page === undefined) {
+      const orders = await Order.find()
+        .sort({ createdAt: -1 })
+        .lean()
+        .populate("productId", "name description image");
+
+      return orders.map((order) => ({
+        ...order,
+        _id: order._id.toString(),
+        productId: {
+          name: order.productId.name,
+          description: order.productId.description,
+          image: order.productId.image,
+        },
+      }));
+    }
+
+    const skip = (page - 1) * limit;
+    const [orders, total] = await Promise.all([
+      Order.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .populate("productId", "name description image"),
+      Order.countDocuments(),
+    ]);
+
+    const data = orders.map((order) => ({
       ...order,
       _id: order._id.toString(),
       productId: {
@@ -55,6 +79,8 @@ export const getOrders = async () => {
         image: order.productId.image,
       },
     }));
+
+    return { data, total, totalPages: Math.ceil(total / limit), currentPage: page };
   } catch (error) {
     console.log("Failed to get orders:", error);
     return [];
@@ -72,6 +98,56 @@ export const updateOrderStatus = async (id, status) => {
   } catch (error) {
     console.error("Failed to update order status:", error);
     return { success: false, message: "Failed to update order status." };
+  }
+};
+
+export const getCustomers = async (page = 1, limit = 10) => {
+  try {
+    await connectDB();
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .lean()
+      .populate("productId", "name description image");
+
+    const customersMap = {};
+    orders.forEach((order) => {
+      const key = order.email;
+      if (!key) return;
+
+      if (!customersMap[key]) {
+        customersMap[key] = {
+          _id: order._id.toString(),
+          name: order.customerName || order.name || "Unknown Customer",
+          email: order.email || "N/A",
+          phone: order.phone,
+          location: order.district
+            ? `${order.city || ""}, ${order.district}`
+            : order.address || "Unknown",
+          totalOrders: 0,
+          spent: 0,
+        };
+      }
+
+      customersMap[key].totalOrders += 1;
+      customersMap[key].spent += Number(order.totalPrice) || 0;
+
+      if (customersMap[key].email === "N/A" && order.email) {
+        customersMap[key].email = order.email;
+      }
+    });
+
+    const allCustomers = Object.values(customersMap).sort(
+      (a, b) => b.spent - a.spent,
+    );
+    const total = allCustomers.length;
+    const totalPages = Math.ceil(total / limit);
+    const skip = (page - 1) * limit;
+    const data = allCustomers.slice(skip, skip + limit);
+
+    return { data, total, totalPages, currentPage: page };
+  } catch (error) {
+    console.error("Failed to get customers:", error);
+    return { data: [], total: 0, totalPages: 0, currentPage: 1 };
   }
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import DataTable from "@/components/ui/data-table";
+import Pagination from "@/components/ui/pagination";
 import {
   addReview,
   deleteReview,
@@ -12,7 +13,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Swal from "sweetalert2";
 
-export default function ReviewsComponent({ reviews }) {
+export default function ReviewsComponent({
+  reviews,
+  currentPage,
+  totalPages,
+  total,
+}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
@@ -249,6 +255,12 @@ export default function ReviewsComponent({ reviews }) {
             </div>
           </div>
         )}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        total={total}
       />
 
       {isModalOpen && (

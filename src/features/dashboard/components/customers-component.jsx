@@ -1,10 +1,11 @@
 "use client";
 
 import DataTable from "@/components/ui/data-table";
+import Pagination from "@/components/ui/pagination";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 
-export default function CustomersComponent({ customers = [] }) {
+export default function CustomersComponent({ customers = [], currentPage, totalPages, total }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredCustomers = customers.filter(
@@ -88,6 +89,12 @@ export default function CustomersComponent({ customers = [] }) {
             </td>
           </tr>
         )}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        total={total}
       />
     </section>
   );

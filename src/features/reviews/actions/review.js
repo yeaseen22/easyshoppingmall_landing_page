@@ -26,15 +26,31 @@ export const addReview = async (reviewData) => {
   }
 };
 
-export const getReviews = async (onlyApproved = false) => {
+export const getReviews = async (onlyApproved = false, page, limit = 10) => {
   try {
     await connectDB();
     const filter = onlyApproved ? { approved: true } : {};
-    const reviews = await Review.find(filter).sort({ createdAt: -1 }).lean();
-    return reviews.map((review) => ({
+
+    if (page === undefined) {
+      const reviews = await Review.find(filter).sort({ createdAt: -1 }).lean();
+      return reviews.map((review) => ({
+        ...review,
+        _id: review._id.toString(),
+      }));
+    }
+
+    const skip = (page - 1) * limit;
+    const [reviews, total] = await Promise.all([
+      Review.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Review.countDocuments(filter),
+    ]);
+
+    const data = reviews.map((review) => ({
       ...review,
       _id: review._id.toString(),
     }));
+
+    return { data, total, totalPages: Math.ceil(total / limit), currentPage: page };
   } catch (error) {
     console.log("Failed to get reviews:", error);
     return [];

@@ -1,9 +1,10 @@
 "use client";
 
+import Pagination from "@/components/ui/pagination";
 import { useState } from "react";
 import OrderTable from "./shared/order-table";
 
-export default function OrdersComponent({ orders }) {
+export default function OrdersComponent({ orders, currentPage, totalPages, total }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredOrders = orders.filter(
@@ -29,6 +30,12 @@ export default function OrdersComponent({ orders }) {
         orders={filteredOrders}
         search={searchTerm}
         onSearch={setSearchTerm}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        total={total}
       />
     </section>
   );

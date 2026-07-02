@@ -1,11 +1,13 @@
 "use client";
 
 import DataTable from "@/components/ui/data-table";
+import Pagination from "@/components/ui/pagination";
 import { removeProduct } from "@/features/products/store/product-store";
 import { useProductStore } from "@/features/products/store/product-store-provider";
 import { ProductStatus } from "@/features/products/validations/product-schema";
 import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import ProductCard from "./product-card";
 
@@ -14,6 +16,10 @@ const ProductTable = () => {
   const isLoading = useProductStore((s) => s.isLoading);
   const setEditingProduct = useProductStore((s) => s.setEditingProduct);
   const refetch = useProductStore((s) => s.refetch);
+  const [page, setPage] = useState(1);
+  const limit = 4;
+  const totalPages = Math.max(1, Math.ceil(products.length / limit));
+  const paginatedProducts = products.slice((page - 1) * limit, page * limit);
 
   const headers = [
     { label: "Product" },
@@ -80,7 +86,7 @@ const ProductTable = () => {
         ) : (
           <DataTable
             headers={headers}
-            data={products}
+            data={paginatedProducts}
             emptyMessage="No featured products found."
             renderRow={(product) => (
               <tr key={product._id} className="hover:bg-accent-content/5">
@@ -190,6 +196,13 @@ const ProductTable = () => {
             )}
           />
         )}
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          total={products.length}
+          onPageChange={setPage}
+        />
       </div>
     </>
   );
