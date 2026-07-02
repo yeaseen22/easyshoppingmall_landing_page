@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
-import { getCustomers } from "@/features/orders/actions/order";
 import CustomersComponent from "@/features/dashboard/components/customers-component";
+import { getCustomers } from "@/features/orders/actions/order";
 
 const CustomersPage = async ({ searchParams }) => {
   const params = await searchParams;
@@ -12,7 +12,6 @@ const CustomersPage = async ({ searchParams }) => {
       customers={result.data}
       currentPage={result.currentPage}
       totalPages={result.totalPages}
-      total={result.total}
     />
   );
 };

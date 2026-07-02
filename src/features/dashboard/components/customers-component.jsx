@@ -5,7 +5,11 @@ import Pagination from "@/components/ui/pagination";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 
-export default function CustomersComponent({ customers = [], currentPage, totalPages, total }) {
+export default function CustomersComponent({
+  customers = [],
+  currentPage,
+  totalPages,
+}) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredCustomers = customers.filter(
@@ -91,11 +95,7 @@ export default function CustomersComponent({ customers = [], currentPage, totalP
         )}
       />
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        total={total}
-      />
+      <Pagination currentPage={currentPage} totalPages={totalPages} />
     </section>
   );
 }
