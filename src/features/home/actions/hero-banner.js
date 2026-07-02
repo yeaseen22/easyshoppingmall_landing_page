@@ -8,7 +8,12 @@ export async function getHeroBanner() {
     await connectDB();
     const banner = await HeroBanner.findOne({ type: "main_banner" }).lean();
     if (banner) {
-      return { title: banner.title, description: banner.description, imageUrl: banner.imageUrl };
+      return {
+        title: banner.title,
+        description: banner.description,
+        imageUrl: banner.imageUrl,
+        tagLine: banner.tagLine,
+      };
     }
     return null;
   } catch (error) {
@@ -17,13 +22,18 @@ export async function getHeroBanner() {
   }
 }
 
-export async function updateHeroBanner(title, description, imageUrl) {
+export async function updateHeroBanner({
+  title,
+  description,
+  imageUrl,
+  tagLine,
+}) {
   try {
     await connectDB();
     await HeroBanner.findOneAndUpdate(
       { type: "main_banner" },
-      { $set: { title, description, imageUrl } },
-      { upsert: true }
+      { $set: { title, description, imageUrl, tagLine } },
+      { upsert: true },
     );
     return { success: true, message: "Hero banner updated successfully." };
   } catch (error) {

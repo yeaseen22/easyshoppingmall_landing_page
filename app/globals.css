@@ -29,3 +29,8 @@
 button {
   @apply cursor-pointer;
 }
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  @apply border-red-500;
+}

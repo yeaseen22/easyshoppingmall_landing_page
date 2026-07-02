@@ -16,29 +16,15 @@ export default async function Hero() {
           <div className="space-y-5">
             <span className="inline-flex items-center gap-2 bg-linear-to-r from-primary-color/20 to-transparent border-l-2 border-primary-color text-primary-color text-[12px] font-bold px-4 py-2 uppercase tracking-[0.2em]">
               <Zap className="w-3.5 h-3.5 fill-current" />
-              Mega Sale is Live Now
+              {banner?.tagLine?.trim() || "Mega Sale is Live Now"}
             </span>
 
-            {banner?.title ? (
-              <h1
-                className="text-5xl md:text-7xl font-black text-accent-content leading-[1.05] tracking-tight"
-                dangerouslySetInnerHTML={{
-                  __html: banner.title.replace(/className=/g, "class="),
-                }}
-              />
-            ) : (
-              <h1 className="text-5xl md:text-7xl font-black text-accent-content leading-[1.05] tracking-tight">
-                Shop{" "}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-color to-primary-color">
-                  Smarter
-                </span>
-                ,<br />
-                Save Big.
-              </h1>
-            )}
+            <h1 className="text-5xl md:text-7xl font-black text-accent-content leading-[1.05] tracking-tight">
+              {banner.title || "Shop Smarter, Save Big."}
+            </h1>
 
             <p className="text-gray-400 text-lg leading-relaxed max-w-120">
-              {banner?.description ||
+              {banner.description ||
                 "Experience the future of online shopping. Premium products, wholesale prices, and lightning-fast delivery at your doorstep."}
             </p>
           </div>

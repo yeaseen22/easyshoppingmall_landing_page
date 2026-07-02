@@ -4,35 +4,102 @@ import {
   getHeroBanner,
   updateHeroBanner,
 } from "@/features/home/actions/hero-banner";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useTransition } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import Swal from "sweetalert2";
+import { z } from "zod";
+
+const heroBannerSchema = z.object({
+  tagLine: z.string().trim().optional(),
+  title: z
+    .string()
+    .trim()
+    .min(1, "Banner title is required")
+    .max(200, "Title must be under 200 characters"),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Banner description is required")
+    .max(500, "Description must be under 500 characters"),
+  imageUrl: z
+    .string()
+    .trim()
+    .min(1, "Banner image URL is required")
+    .url("Please enter a valid URL"),
+});
+
+const formFields = [
+  {
+    name: "tagLine",
+    label: "Banner TagLine",
+    type: "text",
+    placeholder: "Enter hero banner tag line...",
+    component: "input",
+    required: false,
+  },
+  {
+    name: "title",
+    label: "Banner Title",
+    type: "text",
+    placeholder: "Enter hero banner title...",
+    component: "input",
+    required: true,
+  },
+  {
+    name: "description",
+    label: "Banner Description",
+    placeholder: "Experience the future of online shopping...",
+    component: "textarea",
+    required: true,
+    rows: 4,
+  },
+  {
+    name: "imageUrl",
+    label: "Banner Image URL",
+    type: "url",
+    placeholder: "https://example.com/image.jpg",
+    component: "input",
+    required: true,
+  },
+];
 
 export default function HeroBannerDashboard() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, startTransition] = useTransition();
+
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(heroBannerSchema),
+    defaultValues: {
+      tagLine: "",
+      title: "",
+      description: "",
+      imageUrl: "",
+    },
+  });
+
+  const imageUrl = useWatch({ name: "imageUrl", control });
 
   useEffect(() => {
-    async function loadBanner() {
-      const banner = await getHeroBanner();
-      if (banner) {
-        setTitle(banner.title || "");
-        setDescription(banner.description || "");
-        setImageUrl(banner.imageUrl || "");
-      }
-      setIsLoading(false);
-    }
-    loadBanner();
-  }, []);
+    startTransition(async () => {
+      const banner = (await getHeroBanner()) || {};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    const result = await updateHeroBanner(title, description, imageUrl);
-    setIsSaving(false);
+      setValue("tagLine", banner.tagLine || "", { shouldValidate: true });
+      setValue("title", banner.title || "", { shouldValidate: true });
+      setValue("description", banner.description || "", {
+        shouldValidate: true,
+      });
+      setValue("imageUrl", banner.imageUrl || "", { shouldValidate: true });
+    });
+  }, [setValue]);
+
+  const onSubmit = async (data) => {
+    const result = await updateHeroBanner(data);
 
     if (result.success) {
       Swal.fire({
@@ -73,44 +140,58 @@ export default function HeroBannerDashboard() {
           Manage Hero Banner
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className={labelClass}>Banner Title</label>
-            <textarea
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              rows={4}
-              className={inputClass}
-              placeholder="Enter hero banner title..."
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {formFields.map((field) => (
+            <Controller
+              key={field.name}
+              name={field.name}
+              control={control}
+              render={({ field: formField, fieldState }) => {
+                const error = fieldState.error?.message;
 
-          <div>
-            <label className={labelClass}>Banner Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className={inputClass}
-              placeholder="Experience the future of online shopping..."
-              required
-            />
-          </div>
+                return (
+                  <div>
+                    <label
+                      className={labelClass}
+                      htmlFor={field.name}
+                      data-invalid={fieldState.invalid}
+                    >
+                      {field.label}{" "}
+                      {field.required && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
 
-          <div>
-            <label className={labelClass}>Banner Image URL</label>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className={inputClass}
-              placeholder="https://example.com/image.jpg"
-              required
-            />
-          </div>
+                    {field.component === "textarea" ? (
+                      <textarea
+                        {...formField}
+                        id={field.name}
+                        rows={field.rows}
+                        aria-invalid={fieldState.invalid}
+                        className={`${inputClass} resize-y min-h-25`}
+                        placeholder={field.placeholder}
+                      />
+                    ) : (
+                      <input
+                        {...formField}
+                        id={field.name}
+                        type={field.type}
+                        aria-invalid={fieldState.invalid}
+                        className={inputClass}
+                        placeholder={field.placeholder}
+                      />
+                    )}
 
-          {imageUrl && (
+                    {error && (
+                      <p className="text-red-500 text-sm mt-1">{error}</p>
+                    )}
+                  </div>
+                );
+              }}
+            />
+          ))}
+
+          {imageUrl?.trim() && (
             <div>
               <label className={labelClass}>Image Preview</label>
               <div className="relative w-full h-64 rounded-xl overflow-hidden border border-accent-content/10 mt-2 bg-black/50">
@@ -131,10 +212,14 @@ export default function HeroBannerDashboard() {
           <div className="flex justify-end pt-4">
             <button
               type="submit"
-              disabled={isSaving}
-              className={`px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5"}`}
+              disabled={isSubmitting}
+              className={`px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${
+                isSubmitting
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:-translate-y-0.5"
+              }`}
             >
-              {isSaving ? "Saving..." : "Save Changes"}
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
