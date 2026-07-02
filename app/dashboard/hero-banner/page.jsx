@@ -139,9 +139,9 @@ export default function HeroBannerDashboard() {
   const labelClass = "block text-sm font-medium text-gray-300 mb-2";
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8">
+    <section className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
-        <h1 className="text-2xl font-bold text-accent-content mb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-accent-content mb-8">
           Manage Hero Banner
         </h1>
 
@@ -199,7 +199,7 @@ export default function HeroBannerDashboard() {
           {imageUrl?.trim() && (
             <div>
               <label className={labelClass}>Image Preview</label>
-              <div className="relative w-full h-64 rounded-xl overflow-hidden border border-accent-content/10 mt-2 bg-black/50">
+              <div className="relative w-full h-[clamp(200px, 30vh, 300px)] md:h-74 lg:h-86 aspect-3/2 rounded-xl overflow-hidden border border-accent-content/10 mt-2 bg-black/50">
                 <Image
                   src={imageUrl}
                   alt="Banner preview"
@@ -218,7 +218,7 @@ export default function HeroBannerDashboard() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${
+              className={`px-4 py-2 bg-primary-color hover:bg-accent-content text-black font-semibold text-sm sm:text-base rounded-xl transition-all shadow-lg ${
                 isSubmitting
                   ? "opacity-70 cursor-not-allowed"
                   : "hover:-translate-y-0.5"
@@ -229,6 +229,6 @@ export default function HeroBannerDashboard() {
           </div>
         </form>
       </div>
-    </div>
+    </section>
   );
 }

@@ -160,8 +160,8 @@ export default function ProductForm() {
   const errorClass = "text-red-400 text-xs mt-1";
 
   return (
-    <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
-      <h1 className="text-2xl font-bold text-accent-content mb-6">
+    <section className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
+      <h1 className="text-xl md:text-2xl font-bold text-accent-content mb-6">
         {editingProduct ? "Edit Featured Product" : "Add Featured Product"}
       </h1>
 
@@ -258,6 +258,6 @@ export default function ProductForm() {
           </button>
         </div>
       </form>
-    </div>
+    </section>
   );
 }

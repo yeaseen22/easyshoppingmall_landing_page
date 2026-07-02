@@ -69,7 +69,7 @@ const ProductTable = () => {
   return (
     <>
       <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
-        <h2 className="text-2xl font-bold text-accent-content mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-accent-content mb-6">
           Manage Existing Products
         </h2>
 

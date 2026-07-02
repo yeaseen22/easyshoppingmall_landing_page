@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import DashboardHome from "@/features/dashboard/components/dashboard-home";
+import DashboardOverview from "@/features/dashboard/components/overview/dashboard-overview";
 import { getOrders } from "@/features/orders/actions/order";
 
 const DashboardPage = async () => {
@@ -9,7 +9,7 @@ const DashboardPage = async () => {
     _id: order._id.toString(),
   }));
 
-  return <DashboardHome orders={orders} />;
+  return <DashboardOverview orders={orders} />;
 };
 
 export default DashboardPage;

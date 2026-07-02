@@ -23,10 +23,10 @@ export default function CustomersComponent({ customers = [] }) {
   ];
 
   return (
-    <div className="w-full space-y-6">
+    <section className="w-full space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-accent-content font-serif">
+          <h2 className="text-3xl font-bold text-accent-content">
             Customer <span className="text-[#d4af37]">Directory</span>
           </h2>
           <p className="text-gray-500 text-sm mt-1">
@@ -53,7 +53,7 @@ export default function CustomersComponent({ customers = [] }) {
                   {customer.name ? customer.name.charAt(0).toUpperCase() : "?"}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-accent-content">
+                  <div className="text-sm font-bold text-accent-content whitespace-nowrap">
                     {customer.name}
                   </div>
                   <div className="text-[10px] text-gray-500 font-mono">
@@ -74,7 +74,7 @@ export default function CustomersComponent({ customers = [] }) {
               </div>
             </td>
             <td className="px-8 py-5">
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-400 whitespace-nowrap">
                 <MapPin size={14} /> {customer.location}
               </div>
             </td>
@@ -89,6 +89,6 @@ export default function CustomersComponent({ customers = [] }) {
           </tr>
         )}
       />
-    </div>
+    </section>
   );
 }

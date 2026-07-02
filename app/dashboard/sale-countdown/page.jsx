@@ -96,9 +96,9 @@ export default function SaleCountdownDashboard() {
   const labelClass = "block text-sm font-medium text-gray-300 mb-2";
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8">
+    <section className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
-        <h1 className="text-2xl font-bold text-accent-content mb-2">Manage Sale Countdown</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-accent-content mb-2">Manage Sale Countdown</h1>
         <p className="text-gray-400 text-sm mb-8">Configure the sale banner countdown timer on the landing page</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -129,6 +129,6 @@ export default function SaleCountdownDashboard() {
           </div>
         </form>
       </div>
-    </div>
+    </section>
   );
 }

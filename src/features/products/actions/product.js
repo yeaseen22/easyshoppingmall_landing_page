@@ -74,7 +74,7 @@ export const deleteProduct = async (id) => {
     const result = await Product.findByIdAndDelete(id);
     if (result) {
       await Order.deleteMany({ productId: id });
-      
+
       return { success: true, message: "Product deleted successfully." };
     }
     return { success: false, message: "Product not found." };
