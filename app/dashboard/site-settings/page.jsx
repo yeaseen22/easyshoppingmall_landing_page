@@ -448,7 +448,7 @@ export default function SiteSettingsDashboard() {
           </h2>
           <p className="text-sm text-gray-400 -mt-4">
             Set delivery fees used during checkout. The charge is automatically
-            applied based on the customer&apos;s district.
+            applied based on the customer&apos;s zilla.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>

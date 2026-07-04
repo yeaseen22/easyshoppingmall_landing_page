@@ -44,8 +44,8 @@ export default function OrderForm({ settings = {} }) {
     defaultValues: {
       customerName: "",
       phone: "",
-      district: "",
-      city: "",
+      zilla: "",
+      thana: "",
       address: "",
       email: "",
       transactionId: "",
@@ -58,7 +58,7 @@ export default function OrderForm({ settings = {} }) {
   });
 
   const watchedQuantity = useWatch({ control, name: "quantity" });
-  const watchedDistrict = useWatch({ control, name: "district" });
+  const watchedZilla = useWatch({ control, name: "zilla" });
   const watchedPaymentMethod = useWatch({ control, name: "paymentMethod" });
 
   useEffect(() => {
@@ -98,8 +98,8 @@ export default function OrderForm({ settings = {} }) {
       reset({
         customerName: "",
         phone: "",
-        district: "",
-        city: "",
+        zilla: "",
+        thana: "",
         address: "",
         email: "",
         transactionId: "",
@@ -114,7 +114,7 @@ export default function OrderForm({ settings = {} }) {
 
   const dc = settings?.deliveryCharge || {};
   const deliveryCharge =
-    watchedDistrict?.toLowerCase() === "dhaka"
+    watchedZilla?.toLowerCase() === "dhaka"
       ? dc.insideDhaka || 60
       : dc.outsideDhaka || 120;
   const unitPrice =
@@ -416,19 +416,19 @@ export default function OrderForm({ settings = {} }) {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Controller
-                      name="district"
+                      name="zilla"
                       control={control}
                       render={({ field, fieldState }) => (
                         <label
                           className="text-xs font-bold uppercase text-accent-content"
                           data-invalid={fieldState.invalid}
                         >
-                          District
+                          Zilla
                           <input
                             {...field}
                             type="text"
                             aria-invalid={fieldState.invalid}
-                            placeholder="District"
+                            placeholder="Zilla (e.g. Dhaka)"
                             className={inputClass}
                           />
                           {fieldState.error && (
@@ -440,19 +440,19 @@ export default function OrderForm({ settings = {} }) {
                       )}
                     />
                     <Controller
-                      name="city"
+                      name="thana"
                       control={control}
                       render={({ field, fieldState }) => (
                         <label
                           className="text-xs font-bold uppercase text-accent-content"
                           data-invalid={fieldState.invalid}
                         >
-                          City
+                          Thana
                           <input
                             {...field}
                             type="text"
                             aria-invalid={fieldState.invalid}
-                            placeholder="City"
+                            placeholder="Thana (e.g. Mirpur)"
                             className={inputClass}
                           />
                           {fieldState.error && (
@@ -496,12 +496,12 @@ export default function OrderForm({ settings = {} }) {
                         className="text-xs font-bold uppercase text-accent-content block"
                         data-invalid={fieldState.invalid}
                       >
-                        Full Address (Area, City, House No)
+                        Full Address (Area, Thana, House No)
                         <textarea
                           {...field}
                           rows={3}
                           aria-invalid={fieldState.invalid}
-                          placeholder="Full Address (Area, City, House No)"
+                          placeholder="Full Address (Area, Thana, House No)"
                           className={`${inputClass} resize-none`}
                         />
                         {fieldState.error && (
@@ -568,7 +568,7 @@ export default function OrderForm({ settings = {} }) {
                 unitPrice={unitPrice}
                 quantity={watchedQuantity || 1}
                 deliveryCharge={deliveryCharge}
-                district={watchedDistrict}
+                zilla={watchedZilla}
                 isLoading={isLoading}
               />
 

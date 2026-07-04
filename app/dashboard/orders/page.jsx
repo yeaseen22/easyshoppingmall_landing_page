@@ -1,14 +1,30 @@
 export const dynamic = "force-dynamic";
+import OrdersComponent from "@/features/dashboard/components/order/orders-component";
 import { getOrders } from "@/features/orders/actions/order";
-import OrdersComponent from "@/features/dashboard/components/orders-component";
+import { OrderStatus } from "@/features/orders/validations/order-schema";
+
+const orderTabs = [
+  { label: "All", value: "" },
+  ...Object.values(OrderStatus).map((s) => ({ label: s, value: s })),
+];
 
 const OrdersPage = async ({ searchParams }) => {
   const params = await searchParams;
   const page = Number(params?.page) || 1;
-  const result = await getOrders(page, 10);
+  const status = params?.status || "";
+  const result = await getOrders(page, 10, status || undefined);
 
   if (!result?.data) {
-    return <OrdersComponent orders={[]} currentPage={1} totalPages={1} total={0} />;
+    return (
+      <OrdersComponent
+        orders={[]}
+        currentPage={1}
+        totalPages={1}
+        total={0}
+        activeStatus={status}
+        tabs={orderTabs}
+      />
+    );
   }
 
   return (
@@ -17,6 +33,8 @@ const OrdersPage = async ({ searchParams }) => {
       currentPage={result.currentPage}
       totalPages={result.totalPages}
       total={result.total}
+      activeStatus={status}
+      tabs={orderTabs}
     />
   );
 };

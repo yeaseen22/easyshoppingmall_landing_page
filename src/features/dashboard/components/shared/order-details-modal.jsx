@@ -176,16 +176,16 @@ const OrderDetailsModal = ({ order, onClose }) => {
                 <div className="sm:col-span-3">
                   <p className={labelClass}>Full Address</p>
                   <p className={valueClass}>
-                    {order.address}, {order.city}, {order.district}
+                    {order.address}, {order.thana}, {order.zilla}
                   </p>
                 </div>
                 <div>
-                  <p className={labelClass}>City</p>
-                  <p className={valueClass}>{order.city}</p>
+                  <p className={labelClass}>Thana</p>
+                  <p className={valueClass}>{order.thana}</p>
                 </div>
                 <div>
-                  <p className={labelClass}>District</p>
-                  <p className={valueClass}>{order.district}</p>
+                  <p className={labelClass}>Zilla</p>
+                  <p className={valueClass}>{order.zilla}</p>
                 </div>
               </div>
             </div>
