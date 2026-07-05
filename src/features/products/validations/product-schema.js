@@ -52,7 +52,7 @@ export const productSchema = z.object({
         return input < 0
           ? "Stock cannot be negative"
           : input === 0
-            ? "Stock cannot be 0"
+            ? "Stock must be greater than 0"
             : "Stock is required";
       },
     })

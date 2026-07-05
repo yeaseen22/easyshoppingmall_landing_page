@@ -9,7 +9,7 @@ export default async function Hero() {
   const banner = (await getHeroBanner()) || {};
 
   return (
-    <Section className="relative min-h-[90vh] flex items-center bg-[#07070a] overflow-hidden">
+    <Section className="relative flex items-center bg-[#07070a] overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,201,0,0.08)_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(248,113,113,0.05)_0%,transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.04)_0%,transparent_50%)]" />
@@ -104,10 +104,10 @@ export default async function Hero() {
                 <Image
                   src={
                     banner?.imageUrl ||
-                    "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop"
+                    "https://res.cloudinary.com/dqh5dajig/image/upload/v1777375085/samples/coffee.jpg"
                   }
                   alt="Premium Shopping Experience"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-fill transition-transform duration-700 group-hover:scale-105"
                   width={840}
                   height={600}
                   loading="eager"
@@ -115,25 +115,6 @@ export default async function Hero() {
                 />
 
                 <div className="absolute inset-0 bg-linear-to-t from-[#07070a]/60 via-transparent to-transparent" />
-              </div>
-
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between px-4 py-3 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-lg bg-primary-color/20 flex items-center justify-center">
-                    <Sparkles className="size-4 text-primary-color" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-accent-content">
-                      Premium Collection
-                    </p>
-                    <p className="text-[10px] text-gray-500">
-                      New arrivals dropped
-                    </p>
-                  </div>
-                </div>
-                <span className="text-primary-color text-xs font-bold">
-                  Shop Now &rarr;
-                </span>
               </div>
             </div>
           </div>

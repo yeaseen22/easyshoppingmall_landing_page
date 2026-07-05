@@ -2,11 +2,11 @@ export default function PriceSummary({
   unitPrice,
   quantity,
   deliveryCharge,
-  district,
+  zilla,
   isLoading,
 }) {
   const subtotal = unitPrice * quantity;
-  const total = subtotal + (district ? deliveryCharge : 0);
+  const total = subtotal + (zilla ? deliveryCharge : 0);
 
   return (
     <div className="border-t border-gray-800 pt-6 mt-6 space-y-4">
@@ -27,8 +27,8 @@ export default function PriceSummary({
             <div className="w-12 h-4 bg-gray-700 rounded animate-pulse"></div>
           </>
         ) : (
-          <span className={district ? "text-btn-color" : "text-gray-600"}>
-            {district ? `৳${deliveryCharge}` : "—"}
+          <span className={zilla ? "text-btn-color" : "text-gray-600"}>
+            {zilla ? `৳${deliveryCharge}` : "—"}
           </span>
         )}
       </div>

@@ -38,12 +38,14 @@ export const placeOrder = async (orderData) => {
   }
 };
 
-export const getOrders = async (page, limit = 10) => {
+export const getOrders = async (page, limit = 10, status) => {
   try {
     await connectDB();
 
+    const filter = status ? { status } : {};
+
     if (page === undefined) {
-      const orders = await Order.find()
+      const orders = await Order.find(filter)
         .sort({ createdAt: -1 })
         .lean()
         .populate("productId", "name description image");
@@ -61,13 +63,13 @@ export const getOrders = async (page, limit = 10) => {
 
     const skip = (page - 1) * limit;
     const [orders, total] = await Promise.all([
-      Order.find()
+      Order.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean()
         .populate("productId", "name description image"),
-      Order.countDocuments(),
+      Order.countDocuments(filter),
     ]);
 
     const data = orders.map((order) => ({
@@ -120,8 +122,8 @@ export const getCustomers = async (page = 1, limit = 10) => {
           name: order.customerName || order.name || "Unknown Customer",
           email: order.email || "N/A",
           phone: order.phone,
-          location: order.district
-            ? `${order.city || ""}, ${order.district}`
+          location: order.zilla
+            ? `${order.thana || ""}, ${order.zilla}`
             : order.address || "Unknown",
           totalOrders: 0,
           spent: 0,

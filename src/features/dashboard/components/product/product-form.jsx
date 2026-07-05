@@ -1,9 +1,13 @@
 "use client";
 
-import { cn } from "@/utils/cn";
-import { productSchema } from "@/features/products/validations/product-schema";
-import { createProduct, editProduct } from "@/features/products/store/product-store";
+import { ImageUploader } from "@/features/images/components/image-uploader";
+import {
+  createProduct,
+  editProduct,
+} from "@/features/products/store/product-store";
 import { useProductStore } from "@/features/products/store/product-store-provider";
+import { productSchema } from "@/features/products/validations/product-schema";
+import { cn } from "@/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -45,13 +49,6 @@ const formFields = [
     label: "Stock",
     type: "number",
     placeholder: "E.g. 50",
-    required: true,
-  },
-  {
-    name: "image",
-    label: "Image URL",
-    type: "url",
-    placeholder: "https://example.com/watch.jpg",
     required: true,
   },
   {
@@ -165,7 +162,10 @@ export default function ProductForm() {
         {editingProduct ? "Edit Featured Product" : "Add Featured Product"}
       </h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         {formFields.map((field) => {
           const isRequired = field.required;
 
@@ -175,9 +175,19 @@ export default function ProductForm() {
               name={field.name}
               control={control}
               render={({ field: rhfField, fieldState }) => (
-                <div className={cn("md:col-span-1", field.colSpan && "md:col-span-2")}>
-                  <label htmlFor={rhfField.name} data-invalid={fieldState.invalid} className={cn(labelClass)}>
-                    {field.label} {isRequired && <span className="text-red-400">*</span>}
+                <div
+                  className={cn(
+                    "md:col-span-1",
+                    field.colSpan && "md:col-span-2",
+                  )}
+                >
+                  <label
+                    htmlFor={rhfField.name}
+                    data-invalid={fieldState.invalid}
+                    className={cn(labelClass)}
+                  >
+                    {field.label}{" "}
+                    {isRequired && <span className="text-red-400">*</span>}
                   </label>
 
                   {field.type === "textarea" ? (
@@ -200,7 +210,9 @@ export default function ProductForm() {
                     />
                   )}
 
-                  {fieldState.error && <p className={errorClass}>{fieldState.error.message}</p>}
+                  {fieldState.error && (
+                    <p className={errorClass}>{fieldState.error.message}</p>
+                  )}
                 </div>
               )}
             />
@@ -208,23 +220,56 @@ export default function ProductForm() {
         })}
 
         <Controller
+          name="image"
+          control={control}
+          render={({ field: rhfField, fieldState }) => (
+            <div className="md:col-span-2">
+              <label className={labelClass}>
+                Product Image <span className="text-red-400">*</span>
+              </label>
+              <ImageUploader
+                folder="product"
+                value={rhfField.value}
+                onChange={rhfField.onChange}
+                onRemove={() => rhfField.onChange("")}
+                label="Product"
+              />
+              {fieldState.error && (
+                <p className={errorClass}>{fieldState.error.message}</p>
+              )}
+            </div>
+          )}
+        />
+
+        <Controller
           name="productStatus"
           control={control}
           render={({ field: rhfField, fieldState }) => (
             <div>
-              <label className={labelClass} data-invalid={fieldState.invalid}>Product Status</label>
+              <label className={labelClass} data-invalid={fieldState.invalid}>
+                Product Status
+              </label>
               <div className="flex gap-4 mt-2">
                 {["hot", "cold"].map((status) => (
-                  <label key={status} htmlFor={status} className="flex items-center gap-2 text-gray-300 cursor-pointer">
+                  <label
+                    key={status}
+                    htmlFor={status}
+                    className="flex items-center gap-2 text-gray-300 cursor-pointer"
+                  >
                     <input
                       id={status}
                       type="checkbox"
                       checked={rhfField.value?.includes(status)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          rhfField.onChange([...(rhfField.value || []), status]);
+                          rhfField.onChange([
+                            ...(rhfField.value || []),
+                            status,
+                          ]);
                         } else {
-                          rhfField.onChange((rhfField.value || []).filter((s) => s !== status));
+                          rhfField.onChange(
+                            (rhfField.value || []).filter((s) => s !== status),
+                          );
                         }
                       }}
                       className="w-4 h-4 accent-primary-color"
@@ -233,7 +278,9 @@ export default function ProductForm() {
                   </label>
                 ))}
               </div>
-              {fieldState.error && <p className={errorClass}>{fieldState.error.message}</p>}
+              {fieldState.error && (
+                <p className={errorClass}>{fieldState.error.message}</p>
+              )}
             </div>
           )}
         />
@@ -254,7 +301,11 @@ export default function ProductForm() {
             disabled={isSubmitting}
             className="px-8 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
           >
-            {isSubmitting ? "Saving..." : editingProduct ? "Update Product" : "Add Product"}
+            {isSubmitting
+              ? "Saving..."
+              : editingProduct
+                ? "Update Product"
+                : "Add Product"}
           </button>
         </div>
       </form>

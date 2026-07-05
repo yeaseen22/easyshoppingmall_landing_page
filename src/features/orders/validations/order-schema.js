@@ -22,8 +22,8 @@ export const createOrderSchema = ({ product, paymentMethod }) => {
   const schema = {
     customerName: z.string().min(1, "Full name is required"),
     phone: z.string().min(1, "Phone number is required"),
-    district: z.string().min(1, "District is required"),
-    city: z.string().min(1, "City is required"),
+    zilla: z.string().min(1, "Zilla is required"),
+    thana: z.string().min(1, "Thana is required"),
     address: z.string().min(1, "Address is required"),
     email: z.string().email("Valid email is required"),
     paymentMethod: z.enum(Object.values(PaymentMethod)),

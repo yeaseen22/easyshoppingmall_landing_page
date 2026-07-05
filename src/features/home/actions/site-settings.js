@@ -47,6 +47,10 @@ export async function updateDeliveryCharge(data) {
   return updateSiteSettings({ deliveryCharge: data });
 }
 
+export async function updatePaymentMethods(data) {
+  return updateSiteSettings({ paymentMethods: data });
+}
+
 function getDefaultSettings() {
   return {
     navbar: {

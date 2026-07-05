@@ -4,8 +4,8 @@ import {
   getHeroBanner,
   updateHeroBanner,
 } from "@/features/home/actions/hero-banner";
+import { ImageUploader } from "@/features/images/components/image-uploader";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useEffect, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import Swal from "sweetalert2";
@@ -15,7 +15,7 @@ const heroBannerSchema = z.object({
   tagLine: z
     .string()
     .trim()
-    .max(35, "Tag line must be under 35 characters")
+    .max(100, "Tag line must be under 100 characters")
     .optional(),
   title: z
     .string()
@@ -27,11 +27,7 @@ const heroBannerSchema = z.object({
     .trim()
     .min(1, "Banner description is required")
     .max(500, "Description must be under 500 characters"),
-  imageUrl: z
-    .string()
-    .trim()
-    .min(1, "Banner image URL is required")
-    .url("Please enter a valid URL"),
+  imageUrl: z.string().trim().min(1, "Banner image URL is required"),
 });
 
 const formFields = [
@@ -59,14 +55,6 @@ const formFields = [
     required: true,
     rows: 3,
   },
-  {
-    name: "imageUrl",
-    label: "Banner Image URL",
-    type: "url",
-    placeholder: "https://example.com/image.jpg",
-    component: "input",
-    required: true,
-  },
 ];
 
 export default function HeroBannerDashboard() {
@@ -85,7 +73,6 @@ export default function HeroBannerDashboard() {
       description: "",
       imageUrl: "",
     },
-    mode: "onChange",
   });
 
   const imageUrl = useWatch({ name: "imageUrl", control });
@@ -196,23 +183,33 @@ export default function HeroBannerDashboard() {
             />
           ))}
 
-          {imageUrl?.trim() && (
-            <div>
-              <label className={labelClass}>Image Preview</label>
-              <div className="relative w-full h-[clamp(200px, 30vh, 300px)] md:h-74 lg:h-86 aspect-3/2 rounded-xl overflow-hidden border border-accent-content/10 mt-2 bg-black/50">
-                <Image
-                  src={imageUrl}
-                  alt="Banner preview"
-                  className="w-full h-full object-cover"
-                  width={800}
-                  height={400}
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
+          <Controller
+            name="imageUrl"
+            control={control}
+            render={({ fieldState }) => (
+              <div>
+                <label className={labelClass}>
+                  Banner Image <span className="text-red-500">*</span>
+                </label>
+                <ImageUploader
+                  folder="hero"
+                  value={imageUrl}
+                  onChange={(url) =>
+                    setValue("imageUrl", url, { shouldValidate: true })
+                  }
+                  onRemove={() =>
+                    setValue("imageUrl", "", { shouldValidate: true })
+                  }
+                  label="Banner"
                 />
+                {fieldState.error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldState.error.message}
+                  </p>
+                )}
               </div>
-            </div>
-          )}
+            )}
+          />
 
           <div className="flex justify-end pt-4">
             <button

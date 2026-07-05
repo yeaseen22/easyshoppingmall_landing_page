@@ -1,11 +1,19 @@
 "use client";
 
 import Pagination from "@/components/ui/pagination";
-import { useState } from "react";
-import OrderTable from "./shared/order-table";
+import { useState, useTransition } from "react";
+import OrderTable from "../shared/order-table";
+import StatusTab from "./status-tab";
 
-export default function OrdersComponent({ orders, currentPage, totalPages, total }) {
+export default function OrdersComponent({
+  orders,
+  currentPage,
+  totalPages,
+  activeStatus = "",
+  tabs = [],
+}) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, startTransition] = useTransition();
 
   const filteredOrders = orders.filter(
     (o) =>
@@ -26,16 +34,25 @@ export default function OrdersComponent({ orders, currentPage, totalPages, total
         </p>
       </div>
 
+      <StatusTab
+        tabs={tabs}
+        activeStatus={activeStatus}
+        startTransition={startTransition}
+        isLoading={isLoading}
+      />
+
       <OrderTable
         orders={filteredOrders}
         search={searchTerm}
         onSearch={setSearchTerm}
+        isLoading={isLoading}
       />
 
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        total={total}
+        startTransition={startTransition}
+        isLoading={isLoading}
       />
     </section>
   );

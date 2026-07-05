@@ -9,7 +9,7 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import OrderDetailsModal from "./order-details-modal";
 
-const OrderTable = ({ orders = [], search, onSearch }) => {
+const OrderTable = ({ orders = [], search, onSearch, isLoading }) => {
   const router = useRouter();
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -32,64 +32,79 @@ const OrderTable = ({ orders = [], search, onSearch }) => {
     }
   };
 
-  const orderHeaders = [
-    { label: "Order ID" },
-    { label: "Customer" },
-    { label: "Date" },
-    { label: "Amount" },
-    { label: "Phone" },
-    { label: "Status" },
-    { label: "Action", align: "right" },
+  const orderColumns = [
+    {
+      header: "Order ID",
+      accessor: "_id",
+      className: "text-xs text-primary-color font-mono",
+      cell: (val) => (val || "").slice(0, 8),
+    },
+    {
+      header: "Customer",
+      accessor: "customerName",
+      className: "text-sm text-accent-content",
+    },
+    {
+      header: "Date",
+      accessor: "createdAt",
+      className: "text-sm text-gray-400",
+      cell: (val) => new Date(val).toLocaleDateString(),
+    },
+    {
+      header: "Amount",
+      accessor: "totalPrice",
+      className: "text-sm text-accent-content font-bold",
+      cell: (val) => `৳${val}`,
+    },
+    {
+      header: "Phone",
+      accessor: "phone",
+      className: "text-sm text-gray-400",
+    },
+    {
+      header: "Status",
+      accessor: "status",
+      cell: (val) => (
+        <span
+          className={`px-3 py-1 text-[10px] rounded ${getStatusStyle(val)}`}
+        >
+          {val}
+        </span>
+      ),
+    },
+    {
+      header: "Action",
+      accessor: "_id",
+      className: "text-right",
+      mobileHidden: true,
+      cell: (_val, row) => (
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setSelectedOrder(row)}
+            className="p-2 bg-primary-color rounded-lg"
+          >
+            <EyeIcon size={16} />
+          </button>
+          <button
+            onClick={() => handleDelete(row._id)}
+            className="p-2 bg-secondary rounded-lg"
+          >
+            <Trash2Icon size={16} />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   return (
     <>
       <DataTable
-        headers={orderHeaders}
+        columns={orderColumns}
         data={orders || []}
         search={search}
         onSearch={onSearch}
+        isLoading={isLoading}
         emptyMessage="No orders yet."
-        renderRow={(order) => (
-          <tr key={order._id} className="hover:bg-accent-content/5">
-            <td className="px-6 py-4 text-xs text-primary-color font-mono">
-              {(order._id || "").slice(0, 8)}
-            </td>
-            <td className="px-6 py-4 text-sm text-accent-content">
-              {order.customerName}
-            </td>
-            <td className="px-6 py-4 text-sm text-gray-400">
-              {new Date(order.createdAt).toLocaleDateString()}
-            </td>
-            <td className="px-6 py-4 text-sm text-accent-content font-bold">
-              ৳{order.totalPrice}
-            </td>
-            <td className="px-6 py-4 text-sm text-gray-400">{order.phone}</td>
-            <td className="px-6 py-4">
-              <span
-                className={`px-3 py-1 text-[10px] rounded ${getStatusStyle(order.status)}`}
-              >
-                {order.status}
-              </span>
-            </td>
-            <td className="px-6 py-4 text-right">
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setSelectedOrder(order)}
-                  className="p-2 bg-primary-color rounded-lg"
-                >
-                  <EyeIcon size={16} />
-                </button>
-                <button
-                  onClick={() => handleDelete(order._id)}
-                  className="p-2 bg-secondary rounded-lg"
-                >
-                  <Trash2Icon size={16} />
-                </button>
-              </div>
-            </td>
-          </tr>
-        )}
         renderMobileCard={(order) => (
           <div
             key={order._id}

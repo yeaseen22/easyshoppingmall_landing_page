@@ -1,4 +1,7 @@
-import { OrderStatus, PaymentMethod } from "@/features/orders/validations/order-schema";
+import {
+  OrderStatus,
+  PaymentMethod,
+} from "@/features/orders/validations/order-schema";
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
@@ -18,14 +21,14 @@ const orderSchema = new mongoose.Schema(
       required: [true, "Phone number is required"],
       trim: true,
     },
-    district: {
+    zilla: {
       type: String,
-      required: [true, "District is required"],
+      required: [true, "Zilla is required"],
       trim: true,
     },
-    city: {
+    thana: {
       type: String,
-      required: [true, "City is required"],
+      required: [true, "Thana is required"],
       trim: true,
     },
     address: {

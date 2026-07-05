@@ -15,10 +15,11 @@ export async function getHeroBanner() {
         tagLine: banner.tagLine,
       };
     }
-    return null;
+
+    return getDefaultHeroBanner();
   } catch (error) {
     console.error("Failed to fetch hero banner data:", error);
-    return null;
+    return getDefaultHeroBanner();
   }
 }
 
@@ -40,4 +41,14 @@ export async function updateHeroBanner({
     console.error("Failed to update hero banner data:", error);
     return { success: false, message: "Failed to update hero banner." };
   }
+}
+
+function getDefaultHeroBanner() {
+  return {
+    title: "Welcome to our Online Store!",
+    description: "Shop for the latest fashion trends and accessories.",
+    imageUrl:
+      "https://res.cloudinary.com/dqh5dajig/image/upload/v1777375085/samples/coffee.jpg",
+    tagLine: "Save up to 50% on your first order",
+  };
 }

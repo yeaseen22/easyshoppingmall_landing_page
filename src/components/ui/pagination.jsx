@@ -3,7 +3,13 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+  startTransition,
+  isLoading,
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -15,6 +21,15 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
     }
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
+
+    if (typeof startTransition === "function") {
+      startTransition(() => {
+        router.push(`${pathname}?${params.toString()}`);
+      });
+
+      return;
+    }
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -43,7 +58,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
       <div className="flex items-center gap-1.5">
         <button
           onClick={() => goToPage(currentPage - 1)}
-          disabled={currentPage <= 1}
+          disabled={isLoading || currentPage <= 1}
           className={`${btnBase} text-gray-500 hover:bg-accent-content/5 hover:text-accent-content disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent`}
           aria-label="Previous page"
         >
@@ -59,6 +74,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             <button
               key={page}
               onClick={() => goToPage(page)}
+              disabled={isLoading}
               className={`${btnBase} ${
                 page === currentPage
                   ? "bg-primary-color text-black"
@@ -73,7 +89,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
 
         <button
           onClick={() => goToPage(currentPage + 1)}
-          disabled={currentPage >= totalPages}
+          disabled={isLoading || currentPage >= totalPages}
           className={`${btnBase} text-gray-500 hover:bg-accent-content/5 hover:text-accent-content disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent`}
           aria-label="Next page"
         >

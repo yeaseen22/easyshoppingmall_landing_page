@@ -20,14 +20,14 @@ export default function DeliveryForm({ customer, onChange, errors }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="text-xs font-bold uppercase text-accent-content">
-            District
-            <input type="text" name="district" value={customer.district} onChange={onChange} placeholder="District" className={inputClass} />
-            {errors.district && <p className="text-red-400 text-[10px] mt-1">{errors.district}</p>}
+            Zilla
+            <input type="text" name="zilla" value={customer.zilla} onChange={onChange} placeholder="Zilla (e.g. Dhaka)" className={inputClass} />
+            {errors.zilla && <p className="text-red-400 text-[10px] mt-1">{errors.zilla}</p>}
           </label>
           <label className="text-xs font-bold uppercase text-accent-content">
-            City
-            <input type="text" name="city" value={customer.city} onChange={onChange} placeholder="City" className={inputClass} />
-            {errors.city && <p className="text-red-400 text-[10px] mt-1">{errors.city}</p>}
+            Thana
+            <input type="text" name="thana" value={customer.thana} onChange={onChange} placeholder="Thana (e.g. Mirpur)" className={inputClass} />
+            {errors.thana && <p className="text-red-400 text-[10px] mt-1">{errors.thana}</p>}
           </label>
         </div>
         <label className="text-xs font-bold uppercase text-accent-content block">
@@ -36,8 +36,8 @@ export default function DeliveryForm({ customer, onChange, errors }) {
           {errors.email && <p className="text-red-400 text-[10px] mt-1">{errors.email}</p>}
         </label>
         <label className="text-xs font-bold uppercase text-accent-content block">
-          Full Address (Area, City, House No)
-          <textarea name="address" rows={3} value={customer.address} onChange={onChange} placeholder="Full Address (Area, City, House No)" className={`${inputClass} resize-none`} />
+          Full Address (Area, Thana, House No)
+          <textarea name="address" rows={3} value={customer.address} onChange={onChange} placeholder="Full Address (Area, Thana, House No)" className={`${inputClass} resize-none`} />
           {errors.address && <p className="text-red-400 text-[10px] mt-1">{errors.address}</p>}
         </label>
       </div>

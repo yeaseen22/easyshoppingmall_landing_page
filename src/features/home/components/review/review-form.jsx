@@ -19,7 +19,7 @@ export default function ReviewForm() {
     setValue,
     reset,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(publicReviewSchema),
     defaultValues: {
@@ -148,7 +148,7 @@ export default function ReviewForm() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={!isValid || isSubmitting}
             className="w-full flex items-center justify-center gap-2 bg-primary-color hover:bg-primary-color/90 text-black font-semibold text-base md:text-lg py-2 px-4 rounded-xl transition-all disabled:opacity-70"
           >
             {isSubmitting ? (

@@ -10,19 +10,19 @@ import {
 import { cn } from "@/utils/cn";
 import { Edit, Star, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Swal from "sweetalert2";
 
 export default function ReviewsComponent({
   reviews,
   currentPage,
   totalPages,
-  total,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, startTransition] = useTransition();
 
   const [formData, setFormData] = useState({
     approved: false,
@@ -122,13 +122,83 @@ export default function ReviewsComponent({
       (r.comment || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const headers = [
-    { label: "Customer" },
-    { label: "Rating" },
-    { label: "Review" },
-    { label: "Approved" },
-    { label: "Featured" },
-    { label: "Actions", align: "right" },
+  const reviewColumns = [
+    {
+      header: "Customer",
+      accessor: "customerName",
+      cell: (val, row) => (
+        <>
+          <p className="text-sm text-accent-content font-semibold">{val}</p>
+          <p className="text-xs text-gray-400">{row.customerEmail}</p>
+        </>
+      ),
+    },
+    {
+      header: "Rating",
+      accessor: "rating",
+      cell: (val) => (
+        <div className="flex text-[#d4af37]">
+          {[...Array(val || 5)].map((_, i) => (
+            <Star key={i} size={14} fill="currentColor" />
+          ))}
+        </div>
+      ),
+    },
+    {
+      header: "Review",
+      accessor: "comment",
+      className: "text-sm text-gray-300",
+      cell: (val) => <p className="line-clamp-2">{val}</p>,
+    },
+    {
+      header: "Approved",
+      accessor: "approved",
+      cell: (val) => (
+        <span
+          className={cn("px-2 py-1 rounded text-xs", {
+            "bg-green-500/10 text-green-500": val,
+            "bg-red-500/10 text-red-500": !val,
+          })}
+        >
+          {val ? "Approved" : "Pending"}
+        </span>
+      ),
+    },
+    {
+      header: "Featured",
+      accessor: "featured",
+      cell: (val) =>
+        val ? (
+          <span className="bg-green-500/10 text-green-500 px-2 py-1 text-[10px] font-bold rounded uppercase">
+            Yes
+          </span>
+        ) : (
+          <span className="bg-gray-500/10 text-gray-500 px-2 py-1 text-[10px] font-bold rounded uppercase">
+            No
+          </span>
+        ),
+    },
+    {
+      header: "Actions",
+      accessor: "_id",
+      className: "text-right",
+      cell: (val, row) => (
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => handleOpenModal(row)}
+            className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500/20"
+          >
+            <Edit size={16} />
+          </button>
+          <button
+            onClick={() => handleDelete(row._id)}
+            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -145,69 +215,13 @@ export default function ReviewsComponent({
       </div>
 
       <DataTable
-        headers={headers}
+        columns={reviewColumns}
         data={filteredReviews}
         search={searchTerm}
         onSearch={setSearchTerm}
         searchPlaceholder="Search reviews by name or content..."
         emptyMessage="No reviews found."
-        renderRow={(review) => (
-          <tr key={review._id} className="hover:bg-accent-content/5">
-            <td className="px-6 py-4">
-              <p className="text-sm text-accent-content font-semibold">
-                {review.customerName}
-              </p>
-              <p className="text-xs text-gray-400">{review.customerEmail}</p>
-            </td>
-            <td className="px-6 py-4">
-              <div className="flex text-[#d4af37]">
-                {[...Array(review.rating || 5)].map((_, i) => (
-                  <Star key={i} size={14} fill="currentColor" />
-                ))}
-              </div>
-            </td>
-            <td className="px-6 py-4 text-sm text-gray-300">
-              <p className="line-clamp-2">{review.comment}</p>
-            </td>
-            <td className="px-6 py-4 text-xs">
-              <span
-                className={cn("px-2 py-1 rounded", {
-                  "bg-green-500/10 text-green-500": review.approved,
-                  "bg-red-500/10 text-red-500": !review.approved,
-                })}
-              >
-                {review.approved ? "Approved" : "Pending"}
-              </span>
-            </td>
-            <td className="px-6 py-4">
-              {review.featured ? (
-                <span className="bg-green-500/10 text-green-500 px-2 py-1 text-[10px] font-bold rounded uppercase">
-                  Yes
-                </span>
-              ) : (
-                <span className="bg-gray-500/10 text-gray-500 px-2 py-1 text-[10px] font-bold rounded uppercase">
-                  No
-                </span>
-              )}
-            </td>
-            <td className="px-6 py-4 text-right">
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => handleOpenModal(review)}
-                  className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500/20"
-                >
-                  <Edit size={16} />
-                </button>
-                <button
-                  onClick={() => handleDelete(review._id)}
-                  className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </td>
-          </tr>
-        )}
+        isLoading={isLoading}
         renderMobileCard={(review) => (
           <div
             key={review._id}
@@ -260,7 +274,8 @@ export default function ReviewsComponent({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        total={total}
+        startTransition={startTransition}
+        isLoading={isLoading}
       />
 
       {isModalOpen && (
