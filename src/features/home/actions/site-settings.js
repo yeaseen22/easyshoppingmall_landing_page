@@ -47,6 +47,10 @@ export async function updateDeliveryCharge(data) {
   return updateSiteSettings({ deliveryCharge: data });
 }
 
+export async function updatePaymentMethods(data) {
+  return updateSiteSettings({ paymentMethods: data });
+}
+
 function getDefaultSettings() {
   return {
     navbar: {
@@ -76,6 +80,10 @@ function getDefaultSettings() {
     deliveryCharge: {
       insideDhaka: 60,
       outsideDhaka: 120,
+    },
+    paymentMethods: {
+      nagad: { number: "", type: "Send Money" },
+      bKash: { number: "", type: "Send Money" },
     },
   };
 }

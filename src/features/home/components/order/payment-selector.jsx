@@ -1,10 +1,24 @@
-const methods = [
-  { id: "cod", label: "Cash on Delivery", sub: "পণ্য হাতে পেয়ে টাকা দিন" },
-  { id: "bkash", label: "bKash Payment", sub: "01626420774 (Send Money)" },
-  { id: "nagad", label: "Nagad Payment", sub: "01626420774 (Send Money)" },
-];
+export default function PaymentSelector({ value, onChange, paymentMethods }) {
+  const methods = [
+    { id: "cod", label: "Cash on Delivery", sub: "পণ্য হাতে পেয়ে টাকা দিন" },
+  ];
 
-export default function PaymentSelector({ value, onChange }) {
+  if (paymentMethods?.bKash?.number) {
+    methods.push({
+      id: "bkash",
+      label: "bKash Payment",
+      sub: `${paymentMethods.bKash.number} (${paymentMethods.bKash.type})`,
+    });
+  }
+
+  if (paymentMethods?.nagad?.number) {
+    methods.push({
+      id: "nagad",
+      label: "Nagad Payment",
+      sub: `${paymentMethods.nagad.number} (${paymentMethods.nagad.type})`,
+    });
+  }
+
   return (
     <div className="grid grid-cols-1 gap-3 mb-8">
       {methods.map((method) => (

@@ -1,5 +1,27 @@
 import mongoose from "mongoose";
 
+const mfsProviderSchema = new mongoose.Schema(
+  {
+    number: {
+      type: String,
+      required: [true, "Phone number is required"],
+      match: [
+        /^01[3-9]\d{8}$/,
+        "Please provide a valid Bangladeshi phone number",
+      ],
+    },
+    type: {
+      type: String,
+      required: [true, "Transaction type is required"],
+      enum: {
+        values: ["Send Money", "Cash Out"],
+        message: "{VALUE} is not supported. Must be SendMoney or CashOut",
+      },
+    },
+  },
+  { _id: false },
+);
+
 const siteSettingsSchema = new mongoose.Schema(
   {
     type: {
@@ -7,43 +29,71 @@ const siteSettingsSchema = new mongoose.Schema(
       default: "global",
       unique: true,
       trim: true,
+      immutable: true,
     },
     navbar: {
       brandName: {
         type: String,
         default: "EASYSHOPPINGMALL",
         trim: true,
-        unique: true,
         uppercase: true,
+        required: [true, "Brand name is required"],
       },
-      tagline: { type: String, default: "Best deals every day", trim: true },
+      tagline: { type: String, trim: true },
     },
     footer: {
-      description: { type: String, default: "" },
+      description: { type: String, default: "", trim: true },
       socialLinks: {
-        facebook: { type: String, default: "" },
-        twitter: { type: String, default: "" },
-        instagram: { type: String, default: "" },
+        facebook: { type: String, default: "", trim: true },
+        twitter: { type: String, default: "", trim: true },
+        instagram: { type: String, default: "", trim: true },
       },
       contactInfo: {
-        email: { type: String, default: "easyshoppingmall@gmail.com" },
-        phone: { type: String, default: "+880 1234 567890" },
-        address: { type: String, default: "Dhaka, Bangladesh" },
+        email: {
+          type: String,
+          default: "easyshoppingmall@gmail.com",
+          trim: true,
+          lowercase: true,
+        },
+        phone: { type: String, default: "+880 1234 567890", trim: true },
+        address: { type: String, default: "Dhaka, Bangladesh", trim: true },
       },
       businessHours: {
-        startDate: { type: String, default: "Monday" },
-        endDate: { type: String, default: "Friday" },
-        startTime: { type: String, default: "9:00 AM" },
-        endTime: { type: String, default: "5:00 PM" },
+        startDate: { type: String, default: "Monday", trim: true },
+        endDate: { type: String, default: "Friday", trim: true },
+        startTime: { type: String, default: "9:00 AM", trim: true },
+        endTime: { type: String, default: "5:00 PM", trim: true },
       },
     },
     deliveryCharge: {
-      insideDhaka: { type: Number, default: 60 },
-      outsideDhaka: { type: Number, default: 120 },
+      insideDhaka: {
+        type: Number,
+        default: 60,
+        min: [0, "Charge cannot be negative"],
+      },
+      outsideDhaka: {
+        type: Number,
+        default: 120,
+        min: [0, "Charge cannot be negative"],
+      },
+    },
+
+    paymentMethods: {
+      nagad: {
+        type: mfsProviderSchema,
+        required: false,
+      },
+      bKash: {
+        type: mfsProviderSchema,
+        required: false,
+      },
     },
   },
-  { timestamps: true },
+  { timestamps: true, collection: "site_settings" },
 );
 
-export default mongoose.models.Site_Settings ||
-  mongoose.model("Site_Settings", siteSettingsSchema);
+const SiteSettings =
+  mongoose.models.SiteSettings ||
+  mongoose.model("SiteSettings", siteSettingsSchema);
+
+export default SiteSettings;

@@ -114,9 +114,11 @@ export default function OrderForm({ settings = {} }) {
 
   const dc = settings?.deliveryCharge || {};
   const deliveryCharge =
-    watchedZilla?.toLowerCase() === "dhaka"
-      ? dc.insideDhaka || 60
-      : dc.outsideDhaka || 120;
+    watchedPaymentMethod === "cod"
+      ? watchedZilla?.toLowerCase() === "dhaka"
+        ? dc.insideDhaka || 60
+        : dc.outsideDhaka || 120
+      : 0;
   const unitPrice =
     product?.discount > 0
       ? product.discountedPrice || product.price
@@ -531,6 +533,7 @@ export default function OrderForm({ settings = {} }) {
                   <PaymentSelector
                     value={field.value}
                     onChange={field.onChange}
+                    paymentMethods={settings?.paymentMethods}
                   />
                 )}
               />
