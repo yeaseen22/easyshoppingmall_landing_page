@@ -1,50 +1,71 @@
 "use client";
 
 import { useProductStore } from "@/features/products/store/product-store-provider";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function ProductSelector({ startTransition }) {
   const products = useProductStore((state) => state.products);
   const isLoading = useProductStore((state) => state.isLoading);
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const id = searchParams.get("productId");
   const { push } = useRouter();
+  const url = new URLSearchParams(searchParams.toString());
 
   const handleChange = (e) => {
-    const selectedProductId = e.target.value?.trim();
-    const url = new URLSearchParams(searchParams.toString());
+    const value = e.target.value?.trim();
 
-    if (selectedProductId) {
-      url.set("productId", selectedProductId);
-    } else {
-      url.delete("productId");
+    if (value) {
+      url.set("productId", value);
     }
 
     startTransition(() => {
-      push(`/?${url.toString()}#order`);
+      push(`${pathname}/?${url.toString()}#order`);
+    });
+  };
+
+  const handleReset = () => {
+    if (!id) return;
+
+    startTransition(() => {
+      url.delete("productId");
+      push(`${pathname}/?${url.toString()}#order`);
     });
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-xs font-bold uppercase text-gray-500">
-        Select Product
-      </label>
-      <select
-        disabled={isLoading}
-        value={id || ""}
-        onChange={handleChange}
-        className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 sm:py-3 py-2 focus:border-primary-color outline-none text-xs sm:text-sm"
-      >
-        <option disabled value="">
+    <>
+      <div className="space-y-2 flex-1">
+        <label className="text-xs font-bold uppercase text-gray-500">
           Select a product
-        </option>
-        {products.map((p) => (
-          <option key={p._id} value={p._id}>
-            {p.name} {p.stock === 0 ? "(Out of stock)" : ""}
-          </option>
-        ))}
-      </select>
-    </div>
+        </label>
+        <div className="flex items-center justify-center gap-2">
+          <select
+            disabled={isLoading}
+            value={id || ""}
+            onChange={handleChange}
+            className="flex-1 bg-[#1c2128] border border-gray-700 rounded-lg px-4 sm:py-3 py-2 focus:border-primary-color outline-none text-xs sm:text-sm"
+          >
+            <option disabled value="">
+              Select a product
+            </option>
+            {products.map((p) => (
+              <option key={p._id} value={p._id}>
+                {p.name} {p.stock === 0 ? "(Out of stock)" : ""}
+              </option>
+            ))}
+          </select>
+
+          <button
+            disabled={!id}
+            type="button"
+            onClick={handleReset}
+            className="bg-red-400 hover:bg-red-500 text-xs sm:text-sm px-4 py-2 sm:py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed h-full flex items-center justify-center font-semibold text-white"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
