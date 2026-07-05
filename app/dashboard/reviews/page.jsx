@@ -18,7 +18,6 @@ const ReviewsPage = async ({ searchParams }) => {
       reviews={result.data}
       currentPage={result.currentPage}
       totalPages={result.totalPages}
-      total={result.total}
     />
   );
 };

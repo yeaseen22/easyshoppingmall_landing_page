@@ -9,7 +9,6 @@ export default function OrdersComponent({
   orders,
   currentPage,
   totalPages,
-  total,
   activeStatus = "",
   tabs = [],
 }) {
@@ -52,7 +51,8 @@ export default function OrdersComponent({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        total={total}
+        startTransition={startTransition}
+        isLoading={isLoading}
       />
     </section>
   );

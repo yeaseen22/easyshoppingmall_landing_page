@@ -5,14 +5,30 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { Types } from "mongoose";
 
-export const getProducts = async () => {
+export const getProducts = async (page, limit = 10) => {
   try {
     await connectDB();
-    const products = await Product.find({}).sort({ createdAt: -1 }).lean();
-    return products.map((product) => ({
+
+    if (page === undefined) {
+      const products = await Product.find({}).sort({ createdAt: -1 }).lean();
+      return products.map((product) => ({
+        ...product,
+        _id: product._id.toString(),
+      }));
+    }
+
+    const skip = (page - 1) * limit;
+    const [products, total] = await Promise.all([
+      Product.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Product.countDocuments({}),
+    ]);
+
+    const data = products.map((product) => ({
       ...product,
       _id: product._id.toString(),
     }));
+
+    return { data, total, totalPages: Math.ceil(total / limit), currentPage: page };
   } catch (error) {
     console.log(error);
     return [];

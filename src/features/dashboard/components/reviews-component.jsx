@@ -10,19 +10,19 @@ import {
 import { cn } from "@/utils/cn";
 import { Edit, Star, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Swal from "sweetalert2";
 
 export default function ReviewsComponent({
   reviews,
   currentPage,
   totalPages,
-  total,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, startTransition] = useTransition();
 
   const [formData, setFormData] = useState({
     approved: false,
@@ -221,6 +221,7 @@ export default function ReviewsComponent({
         onSearch={setSearchTerm}
         searchPlaceholder="Search reviews by name or content..."
         emptyMessage="No reviews found."
+        isLoading={isLoading}
         renderMobileCard={(review) => (
           <div
             key={review._id}
@@ -273,7 +274,8 @@ export default function ReviewsComponent({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        total={total}
+        startTransition={startTransition}
+        isLoading={isLoading}
       />
 
       {isModalOpen && (

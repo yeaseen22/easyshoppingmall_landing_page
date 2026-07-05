@@ -1,10 +1,19 @@
+"use client";
+
+import { ProductCardSkeleton } from "@/components/skeletons/product-card-skeleton";
 import Container from "@/components/ui/container";
+import Pagination from "@/components/ui/pagination";
 import Section from "@/components/ui/section";
-import { getProducts } from "@/features/products/actions/product";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 import ProductCard from "./product-card";
 
-export default async function FeaturedProducts() {
-  const products = await getProducts();
+export default function FeaturedProducts({ products = [], pagination }) {
+  const [isLoading, startTransition] = useTransition();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams.toString());
 
   return (
     <Section id="products" className="bg-[#080808]">
@@ -22,16 +31,33 @@ export default async function FeaturedProducts() {
           </p>
         </div>
 
-        {products.length === 0 ? (
-          <div className="text-3xl text-center py-10 text-gray-500">
-            No products found!
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-7">
-            {products.map((product) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-7">
+          {isLoading ? (
+            [...Array(10)].map((_, i) => <ProductCardSkeleton key={i} />)
+          ) : products.length === 0 ? (
+            <div className="text-3xl text-center py-10 text-gray-500 col-span-full">
+              No products found!
+            </div>
+          ) : (
+            products.map((product) => (
               <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+            ))
+          )}
+        </div>
+
+        {pagination && (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            isLoading={isLoading}
+            onPageChange={(page) => {
+              params.set("page", page);
+
+              startTransition(() => {
+                router.push(`${pathname}?${params.toString()}#products`);
+              });
+            }}
+          />
         )}
       </Container>
     </Section>

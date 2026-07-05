@@ -20,7 +20,6 @@ const OrdersPage = async ({ searchParams }) => {
         orders={[]}
         currentPage={1}
         totalPages={1}
-        total={0}
         activeStatus={status}
         tabs={orderTabs}
       />
@@ -32,7 +31,6 @@ const OrdersPage = async ({ searchParams }) => {
       orders={result.data}
       currentPage={result.currentPage}
       totalPages={result.totalPages}
-      total={result.total}
       activeStatus={status}
       tabs={orderTabs}
     />

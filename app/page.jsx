@@ -9,19 +9,33 @@ import Testimonial from "@/features/home/components/review/testimonials";
 import SaleCountDown from "@/features/home/components/sale-countdown/sale-countdown";
 import { getProducts } from "@/features/products/actions/product";
 
-const Home = async () => {
-  const [products, settings] = await Promise.all([
-    getProducts(),
+const Home = async ({ searchParams }) => {
+  const params = await searchParams;
+  const page = Number(params?.page) || 1;
+  const [productResult, settings] = await Promise.all([
+    getProducts(page),
     getSiteSettings(),
   ]);
+
+  const allProducts = Array.isArray(productResult)
+    ? productResult
+    : productResult?.data || [];
+  const productPagination =
+    !Array.isArray(productResult) && productResult?.data
+      ? {
+          currentPage: productResult.currentPage,
+          totalPages: productResult.totalPages,
+          total: productResult.total,
+        }
+      : { currentPage: 1, totalPages: 1, total: allProducts.length };
 
   return (
     <>
       <Navbar settings={settings} />
       <Hero />
       <SaleCountDown />
-      <FeaturedProducts />
-      <OrderForm products={products} settings={settings} />
+      <FeaturedProducts products={allProducts} pagination={productPagination} />
+      <OrderForm products={allProducts} settings={settings} />
       <Testimonial />
       <Footer settings={settings} />
     </>

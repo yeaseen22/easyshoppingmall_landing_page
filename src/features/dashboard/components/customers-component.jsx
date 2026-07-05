@@ -3,7 +3,7 @@
 import DataTable from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 export default function CustomersComponent({
   customers = [],
@@ -11,6 +11,7 @@ export default function CustomersComponent({
   totalPages,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, startTransition] = useTransition();
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -29,8 +30,12 @@ export default function CustomersComponent({
             {val ? val.charAt(0).toUpperCase() : "?"}
           </div>
           <div>
-            <div className="text-sm font-bold text-accent-content whitespace-nowrap">{val}</div>
-            <div className="text-[10px] text-gray-500 font-mono">ID: {row._id.slice(0, 8)}</div>
+            <div className="text-sm font-bold text-accent-content whitespace-nowrap">
+              {val}
+            </div>
+            <div className="text-[10px] text-gray-500 font-mono">
+              ID: {row._id.slice(0, 8)}
+            </div>
           </div>
         </div>
       ),
@@ -95,11 +100,17 @@ export default function CustomersComponent({
         data={filteredCustomers}
         search={searchTerm}
         onSearch={setSearchTerm}
+        isLoading={isLoading}
         searchPlaceholder="Search by name, email or phone..."
         emptyMessage="No customers found matching your search."
       />
 
-      <Pagination currentPage={currentPage} totalPages={totalPages} />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startTransition={startTransition}
+        isLoading={isLoading}
+      />
     </section>
   );
 }
