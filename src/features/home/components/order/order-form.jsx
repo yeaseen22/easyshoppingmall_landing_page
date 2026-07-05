@@ -38,7 +38,7 @@ export default function OrderForm({ settings = {} }) {
     handleSubmit,
     reset,
     control,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -361,7 +361,7 @@ export default function OrderForm({ settings = {} }) {
             {id && (
               <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
                 <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-6">
-                  Delivery Details
+                  আপনার তথ্য দিন
                 </h3>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -373,12 +373,12 @@ export default function OrderForm({ settings = {} }) {
                           className="text-xs font-bold uppercase text-accent-content"
                           data-invalid={fieldState.invalid}
                         >
-                          Full Name
+                          সম্পুর্ণ নাম
                           <input
                             {...field}
                             type="text"
                             aria-invalid={fieldState.invalid}
-                            placeholder="Full Name"
+                            placeholder="মোঃ রাকিবুল ইসলাম"
                             className={inputClass}
                           />
                           {fieldState.error && (
@@ -397,12 +397,12 @@ export default function OrderForm({ settings = {} }) {
                           className="text-xs font-bold uppercase text-accent-content"
                           data-invalid={fieldState.invalid}
                         >
-                          Phone Number
+                          ফোন নাম্বার
                           <input
                             {...field}
                             type="tel"
                             aria-invalid={fieldState.invalid}
-                            placeholder="Phone Number"
+                            placeholder="01845167412"
                             className={inputClass}
                           />
                           {fieldState.error && (
@@ -423,12 +423,12 @@ export default function OrderForm({ settings = {} }) {
                           className="text-xs font-bold uppercase text-accent-content"
                           data-invalid={fieldState.invalid}
                         >
-                          Zilla
+                          জেলা
                           <input
                             {...field}
                             type="text"
                             aria-invalid={fieldState.invalid}
-                            placeholder="Zilla (e.g. Dhaka)"
+                            placeholder="রংপুর"
                             className={inputClass}
                           />
                           {fieldState.error && (
@@ -447,12 +447,12 @@ export default function OrderForm({ settings = {} }) {
                           className="text-xs font-bold uppercase text-accent-content"
                           data-invalid={fieldState.invalid}
                         >
-                          Thana
+                          থানা
                           <input
                             {...field}
                             type="text"
                             aria-invalid={fieldState.invalid}
-                            placeholder="Thana (e.g. Mirpur)"
+                            placeholder="তারাগঞ্জ"
                             className={inputClass}
                           />
                           {fieldState.error && (
@@ -472,12 +472,12 @@ export default function OrderForm({ settings = {} }) {
                         className="text-xs font-bold uppercase text-accent-content block"
                         data-invalid={fieldState.invalid}
                       >
-                        Email
+                        ইমেইল
                         <input
                           {...field}
                           type="email"
                           aria-invalid={fieldState.invalid}
-                          placeholder="Email"
+                          placeholder="rakibul.islam@bd.com"
                           className={inputClass}
                         />
                         {fieldState.error && (
@@ -496,12 +496,12 @@ export default function OrderForm({ settings = {} }) {
                         className="text-xs font-bold uppercase text-accent-content block"
                         data-invalid={fieldState.invalid}
                       >
-                        Full Address (Area, Thana, House No)
+                        গ্রাম / মহল্লা
                         <textarea
                           {...field}
                           rows={3}
                           aria-invalid={fieldState.invalid}
-                          placeholder="Full Address (Area, Thana, House No)"
+                          placeholder="কুর্শা কাজী পাড়া"
                           className={`${inputClass} resize-none`}
                         />
                         {fieldState.error && (
@@ -574,7 +574,7 @@ export default function OrderForm({ settings = {} }) {
 
               <button
                 type="submit"
-                disabled={!id || isSubmitting}
+                disabled={!isValid || isSubmitting}
                 className={`w-full py-2.5 px-4 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)] disabled:bg-gray-800 disabled:cursor-not-allowed! disabled:text-gray-500 bg-primary-color hover:bg-primary-color text-black text-sm sm:text-base`}
               >
                 {!id
