@@ -6,10 +6,11 @@ import {
 } from "@/features/products/store/product-store";
 import { useProductStore } from "@/features/products/store/product-store-provider";
 import { productSchema } from "@/features/products/validations/product-schema";
+import { ImageUploader } from "@/features/images/components/image-uploader";
 import { cn } from "@/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Swal from "sweetalert2";
 
 const formFields = [
@@ -48,13 +49,6 @@ const formFields = [
     label: "Stock",
     type: "number",
     placeholder: "E.g. 50",
-    required: true,
-  },
-  {
-    name: "image",
-    label: "Image URL",
-    type: "url",
-    placeholder: "https://example.com/watch.jpg",
     required: true,
   },
   {
@@ -224,6 +218,28 @@ export default function ProductForm() {
             />
           );
         })}
+
+        <Controller
+          name="image"
+          control={control}
+          render={({ field: rhfField, fieldState }) => (
+            <div className="md:col-span-2">
+              <label className={labelClass}>
+                Product Image <span className="text-red-400">*</span>
+              </label>
+              <ImageUploader
+                folder="product"
+                value={rhfField.value}
+                onChange={rhfField.onChange}
+                onRemove={() => rhfField.onChange("")}
+                label="Product"
+              />
+              {fieldState.error && (
+                <p className={errorClass}>{fieldState.error.message}</p>
+              )}
+            </div>
+          )}
+        />
 
         <Controller
           name="productStatus"

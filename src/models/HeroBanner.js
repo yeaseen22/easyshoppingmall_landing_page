@@ -10,22 +10,27 @@ const heroBannerSchema = new mongoose.Schema(
     tagLine: {
       type: String,
       trim: true,
-      default: "",
+      default: "Save up to 50% on your first order",
     },
     title: {
       type: String,
       required: [true, "Banner title is required"],
       trim: true,
+      default: "Shop Smarter, Save Big",
     },
     description: {
       type: String,
       required: [true, "Banner description is required"],
       trim: true,
+      default:
+        "Experience the future of online shopping. Premium products, wholesale prices, and lightning-fast delivery at your doorstep.",
     },
     imageUrl: {
       type: String,
       required: [true, "Banner image URL is required"],
       trim: true,
+      default:
+        "https://res.cloudinary.com/dqh5dajig/image/upload/v1777375085/samples/coffee.jpg",
     },
   },
   {

@@ -81,9 +81,5 @@ function getDefaultSettings() {
       insideDhaka: 60,
       outsideDhaka: 120,
     },
-    paymentMethods: {
-      nagad: { number: "", type: "Send Money" },
-      bKash: { number: "", type: "Send Money" },
-    },
   };
 }

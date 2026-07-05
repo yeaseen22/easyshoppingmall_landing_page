@@ -39,14 +39,26 @@ const siteSettingsSchema = new mongoose.Schema(
         uppercase: true,
         required: [true, "Brand name is required"],
       },
-      tagline: { type: String, trim: true },
+      tagline: { type: String, trim: true, default: "Best deals every day" },
     },
     footer: {
       description: { type: String, default: "", trim: true },
       socialLinks: {
-        facebook: { type: String, default: "", trim: true },
-        twitter: { type: String, default: "", trim: true },
-        instagram: { type: String, default: "", trim: true },
+        facebook: {
+          type: String,
+          default: "https://www.facebook.com",
+          trim: true,
+        },
+        twitter: {
+          type: String,
+          default: "https://www.twitter.com",
+          trim: true,
+        },
+        instagram: {
+          type: String,
+          default: "https://www.instagram.com",
+          trim: true,
+        },
       },
       contactInfo: {
         email: {

@@ -63,7 +63,7 @@ export default function Footer({ settings = {} }) {
           </div>
         </div>
 
-        <div className="border-t border-accent-content/8 px-[4%] py-5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-accent-content/8 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-400">
             {`@ ${new Date().getFullYear()} ${brand.brandName}. All rights reserved.`}
           </p>
