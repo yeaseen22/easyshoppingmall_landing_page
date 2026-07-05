@@ -44,7 +44,7 @@ export default function ProductSelector({ startTransition }) {
             disabled={isLoading}
             value={id || ""}
             onChange={handleChange}
-            className="flex-1 bg-[#1c2128] border border-gray-700 rounded-lg px-4 sm:py-3 py-2 focus:border-primary-color outline-none text-xs sm:text-sm"
+            className="w-4/5 bg-[#1c2128] border border-gray-700 rounded-lg px-4 sm:py-3 py-2 focus:border-primary-color outline-none text-xs sm:text-sm"
           >
             <option disabled value="">
               Select a product
@@ -60,7 +60,7 @@ export default function ProductSelector({ startTransition }) {
             disabled={!id}
             type="button"
             onClick={handleReset}
-            className="bg-red-400 hover:bg-red-500 text-xs sm:text-sm px-4 py-2 sm:py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed h-full flex items-center justify-center font-semibold text-white"
+            className="w-1/5 bg-red-400 hover:bg-red-500 text-xs sm:text-sm px-4 py-2 sm:py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed h-full flex items-center justify-center font-semibold text-white"
           >
             Cancel
           </button>

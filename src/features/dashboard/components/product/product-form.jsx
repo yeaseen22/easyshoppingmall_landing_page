@@ -1,16 +1,16 @@
 "use client";
 
+import { ImageUploader } from "@/features/images/components/image-uploader";
 import {
   createProduct,
   editProduct,
 } from "@/features/products/store/product-store";
 import { useProductStore } from "@/features/products/store/product-store-provider";
 import { productSchema } from "@/features/products/validations/product-schema";
-import { ImageUploader } from "@/features/images/components/image-uploader";
 import { cn } from "@/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 
 const formFields = [
@@ -75,7 +75,7 @@ export default function ProductForm() {
     handleSubmit,
     reset,
     control,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -298,7 +298,7 @@ export default function ProductForm() {
           )}
           <button
             type="submit"
-            disabled={!isValid || isSubmitting}
+            disabled={isSubmitting}
             className="px-8 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
           >
             {isSubmitting

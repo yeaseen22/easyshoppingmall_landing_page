@@ -107,7 +107,7 @@ export default async function Hero() {
                     "https://res.cloudinary.com/dqh5dajig/image/upload/v1777375085/samples/coffee.jpg"
                   }
                   alt="Premium Shopping Experience"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-fill transition-transform duration-700 group-hover:scale-105"
                   width={840}
                   height={600}
                   loading="eager"
@@ -115,25 +115,6 @@ export default async function Hero() {
                 />
 
                 <div className="absolute inset-0 bg-linear-to-t from-[#07070a]/60 via-transparent to-transparent" />
-              </div>
-
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between px-4 py-3 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-lg bg-primary-color/20 flex items-center justify-center">
-                    <Sparkles className="size-4 text-primary-color" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-accent-content">
-                      Premium Collection
-                    </p>
-                    <p className="text-[10px] text-gray-500">
-                      New arrivals dropped
-                    </p>
-                  </div>
-                </div>
-                <span className="text-primary-color text-xs font-bold">
-                  Shop Now &rarr;
-                </span>
               </div>
             </div>
           </div>
