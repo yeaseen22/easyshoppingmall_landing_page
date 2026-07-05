@@ -50,10 +50,10 @@ export const addProduct = async (productData) => {
   try {
     await connectDB();
     const count = await Product.countDocuments();
-    if (count >= 8) {
+    if (count >= 30) {
       return {
         success: false,
-        message: "You can only add 8 featured products.",
+        message: "You can only add 30 featured products.",
       };
     }
     const product = await Product.create(productData);

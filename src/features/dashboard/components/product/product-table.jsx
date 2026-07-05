@@ -17,7 +17,7 @@ const ProductTable = () => {
   const setEditingProduct = useProductStore((s) => s.setEditingProduct);
   const refetch = useProductStore((s) => s.refetch);
   const [page, setPage] = useState(1);
-  const limit = 4;
+  const limit = 10;
   const totalPages = Math.max(1, Math.ceil(products.length / limit));
   const paginatedProducts = products.slice((page - 1) * limit, page * limit);
 
