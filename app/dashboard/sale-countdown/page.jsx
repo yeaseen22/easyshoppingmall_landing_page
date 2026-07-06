@@ -3,7 +3,7 @@
 import {
   getSaleCountDown,
   updateSaleCountDown,
-} from "@/features/home/actions/sale-countdown";
+} from "@/features/sale-countdown/actions/sale-countdown";
 import { isPast, parseISO } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";

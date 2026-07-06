@@ -137,6 +137,7 @@ export default function DataTable({
                         >
                           {columns.map((col, colIndex) => {
                             const value = row[col.accessor];
+                            
                             return (
                               <td
                                 key={colIndex}

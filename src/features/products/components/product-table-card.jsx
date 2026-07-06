@@ -4,7 +4,7 @@ import { ProductStatus } from "@/features/products/validations/product-schema";
 import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
 
-const ProductCard = ({ product, handleEdit, handleDelete }) => {
+const ProductTableCard = ({ product, handleEdit, handleDelete }) => {
   return (
     <>
       <div key={product._id} className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-2">
@@ -38,4 +38,4 @@ const ProductCard = ({ product, handleEdit, handleDelete }) => {
   );
 };
 
-export default ProductCard;
+export default ProductTableCard;

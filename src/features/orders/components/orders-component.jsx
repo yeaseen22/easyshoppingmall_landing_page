@@ -2,8 +2,8 @@
 
 import Pagination from "@/components/ui/pagination";
 import { useState, useTransition } from "react";
-import OrderTable from "../shared/order-table";
 import StatusTab from "./status-tab";
+import OrderTable from "./order-table";
 
 export default function OrdersComponent({
   orders,

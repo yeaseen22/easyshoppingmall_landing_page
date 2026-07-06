@@ -1,7 +1,7 @@
 "use client";
 
 import DataTable from "@/components/ui/data-table";
-import { getStatusStyle } from "@/features/dashboard/utils/utils";
+import { getStatusStyle } from "@/features/dashboard-overview/utils/utils";
 import { deleteOrder } from "@/features/orders/actions/order";
 import { EyeIcon, Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";

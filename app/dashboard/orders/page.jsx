@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
-import OrdersComponent from "@/features/dashboard/components/order/orders-component";
 import { getOrders } from "@/features/orders/actions/order";
+import OrdersComponent from "@/features/orders/components/orders-component";
 import { OrderStatus } from "@/features/orders/validations/order-schema";
 
 const orderTabs = [
