@@ -27,7 +27,7 @@ export default function Footer({ settings = {} }) {
   const businessHours = footer.businessHours || {};
 
   return (
-    <footer className="bg-black/92 backdrop-blur-xl border-t border-accent-content/8 text-accent-content">
+    <footer className="bg-black/92 backdrop-blur-xl text-accent-content footer-section">
       <Container>
         <div className="py-6 flex flex-col sm:flex-row justify-between gap-6">
           <div className="flex flex-col items-start gap-3">

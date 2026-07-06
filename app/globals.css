@@ -146,3 +146,11 @@ label[data-invalid="true"] {
 .animate-glow-pulse {
   animation: glow-pulse 3s ease-in-out infinite;
 }
+
+.hero-banner {
+  background: url(../public/sprinkle.svg) center/cover no-repeat;
+}
+
+.footer-section {
+  background: url(../public/hexagon.svg) center/cover no-repeat;
+}

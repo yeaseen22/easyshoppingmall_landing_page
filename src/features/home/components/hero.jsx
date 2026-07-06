@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function Hero({ banner = {} }) {
   return (
-    <Section className="relative flex items-center bg-[#07070a] overflow-hidden">
+    <Section className="relative flex items-center bg-[#07070a] overflow-hidden hero-banner">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,201,0,0.08)_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(248,113,113,0.05)_0%,transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.04)_0%,transparent_50%)]" />
