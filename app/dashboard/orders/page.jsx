@@ -13,7 +13,7 @@ const OrdersPage = async ({ searchParams }) => {
   const page = Number(params?.page) || 1;
   const status = params?.status || "";
   const search = params?.search || "";
-  const result = await getOrders(page, 10, status || undefined, search);
+  const result = await getOrders({ page, limit: 10, status: status || undefined, search });
 
   if (!result?.data) {
     return (

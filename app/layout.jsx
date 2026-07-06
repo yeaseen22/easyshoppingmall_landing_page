@@ -85,7 +85,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const [products, orders] = await Promise.all([getProducts(), getOrders()]);
+  const [products, orders] = await Promise.all([getProducts({}), getOrders({})]);
 
   return (
     <html lang="en">

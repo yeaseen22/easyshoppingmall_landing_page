@@ -1,7 +1,7 @@
 import { connectDB } from "@/config/db";
 import Order from "@/models/Order";
 
-export const getCustomers = async (page = 1, limit = 10, search = "") => {
+export const getCustomers = async ({ page = 1, limit = 10, search = "" } = {}) => {
   try {
     await connectDB();
 

@@ -26,7 +26,12 @@ export const addReview = async (reviewData) => {
   }
 };
 
-export const getReviews = async (status = "all", page = 1, limit = 10, search = "") => {
+export const getReviews = async ({
+  status = "all",
+  page = 1,
+  limit = 10,
+  search = "",
+} = {}) => {
   try {
     await connectDB();
     const filter = {};
@@ -47,17 +52,13 @@ export const getReviews = async (status = "all", page = 1, limit = 10, search = 
       ];
     }
 
-    if (page === undefined) {
-      const reviews = await Review.find(filter).sort({ createdAt: -1 }).lean();
-      return reviews.map((review) => ({
-        ...review,
-        _id: review._id.toString(),
-      }));
-    }
-
     const skip = (page - 1) * limit;
     const [reviews, total] = await Promise.all([
-      Review.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Review.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
       Review.countDocuments(filter),
     ]);
 
@@ -66,7 +67,12 @@ export const getReviews = async (status = "all", page = 1, limit = 10, search = 
       _id: review._id.toString(),
     }));
 
-    return { data, total, totalPages: Math.ceil(total / limit), currentPage: page };
+    return {
+      data,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    };
   } catch (error) {
     console.log("Failed to get reviews:", error);
     return [];
@@ -74,7 +80,7 @@ export const getReviews = async (status = "all", page = 1, limit = 10, search = 
 };
 
 export const getApprovedReviews = async () => {
-  return getReviews("approved", undefined);
+  return getReviews({ status: "approved" });
 };
 
 export const updateReview = async (id, data) => {

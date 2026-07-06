@@ -14,7 +14,7 @@ const ReviewsPage = async ({ searchParams }) => {
   const page = Number(params?.page) || 1;
   const status = params?.status || "all";
   const search = params?.search || "";
-  const result = await getReviews(status, page, 10, search);
+  const result = await getReviews({ status, page, limit: 10, search });
 
   if (!result?.data) {
     return (

@@ -7,7 +7,7 @@ import {
 import { createStore } from "zustand";
 
 export const fetchProducts = async () => {
-  const data = await getProducts();
+  const data = await getProducts({});
   return data || [];
 };
 
@@ -46,7 +46,7 @@ export const createProductStore = (initialProducts = []) => {
 
     fetchPage: async (page = 1, limit = 10) => {
       set({ isLoading: true });
-      const result = await getProducts(page, limit);
+      const result = await getProducts({ page, limit });
       if (result?.data) {
         set({
           products: result.data,

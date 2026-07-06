@@ -18,11 +18,11 @@ const Home = async ({ searchParams }) => {
   const search = params?.search || "";
   const [productResult, settings, saleCountdown, banner, reviews] =
     await Promise.all([
-      getProducts(page, 10, search),
+      getProducts({ page, limit: 10, search }),
       getSiteSettings(),
       getSaleCountDown(),
       getHeroBanner(),
-      getReviews("approved"),
+      getReviews({ status: "approved" }),
     ]);
 
   const allProducts = Array.isArray(productResult)
@@ -44,7 +44,7 @@ const Home = async ({ searchParams }) => {
       <SaleCountDown saleCountdown={saleCountdown} />
       <FeaturedProducts products={allProducts} pagination={productPagination} />
       <OrderForm products={allProducts} settings={settings} />
-      <Testimonial reviews={reviews} />
+      <Testimonial reviews={reviews.data || []} />
       <Footer settings={settings} />
     </>
   );

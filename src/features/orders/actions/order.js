@@ -39,7 +39,7 @@ export const placeOrder = async (orderData) => {
   }
 };
 
-export const getOrders = async (page, limit = 10, status, search = "") => {
+export const getOrders = async ({ page, limit = 10, status, search = "" } = {}) => {
   try {
     await connectDB();
 
