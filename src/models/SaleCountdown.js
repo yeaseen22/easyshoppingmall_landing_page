@@ -10,21 +10,20 @@ const saleCountdownSchema = new mongoose.Schema(
     },
     title: {
       type: String,
-      required: [true, "Sale title is required"],
       trim: true,
-      default: "Sale Countdown",
     },
     description: {
       type: String,
-      required: [true, "Sale description is required"],
       trim: true,
-      default: "Get discounts on your favorite products",
     },
     targetDate: {
       type: Date,
-      required: [true, "Target date is required"],
       trim: true,
-      default: new Date("2023-12-31T23:59:59.999Z"),
+    },
+    timezone: {
+      type: String,
+      default: "Asia/Dhaka",
+      trim: true,
     },
   },
   {

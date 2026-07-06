@@ -4,88 +4,69 @@ import {
   getSaleCountDown,
   updateSaleCountDown,
 } from "@/features/sale-countdown/actions/sale-countdown";
-import { isPast, parseISO } from "date-fns";
+import { saleCountdownSchema } from "@/features/sale-countdown/validations/sale-countdown-schema";
+import { TIMEZONES, utcToLocal } from "@/utils/timezone";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
+import { useEffect, useTransition } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export default function SaleCountdownDashboard() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [targetDate, setTargetDate] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [dateError, setDateError] = useState("");
+  const [isLoading, startTransition] = useTransition();
+
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(saleCountdownSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      targetDate: "",
+      timezone: "Asia/Dhaka",
+    },
+    mode: "onChange",
+  });
 
   useEffect(() => {
-    async function loadData() {
+    startTransition(async () => {
       const data = await getSaleCountDown();
+
       if (data) {
-        setTitle(data.title || "");
-        setDescription(data.description || "");
+        setValue("title", data.title || "", { shouldValidate: true });
+        setValue("description", data.description || "", {
+          shouldValidate: true,
+        });
+        setValue("timezone", data.timezone || "Asia/Dhaka", {
+          shouldValidate: true,
+        });
+
         if (data.targetDate) {
-          setTargetDate(new Date(data.targetDate).toISOString().slice(0, 16));
+          const tz = data.timezone || "Asia/Dhaka";
+          setValue("targetDate", utcToLocal(data.targetDate, tz), {
+            shouldValidate: true,
+          });
         }
       }
-      setIsLoading(false);
-    }
-    loadData();
-  }, []);
-
-  const validateDate = (value) => {
-    setTargetDate(value);
-    setDateError("");
-    if (!value) {
-      setDateError("Target date is required.");
-      return;
-    }
-    try {
-      const parsed = parseISO(value);
-      if (isNaN(parsed.getTime())) {
-        setDateError("Invalid date format.");
-        return;
-      }
-      if (isPast(parsed)) {
-        setDateError(
-          "Target date must be in the future. Please select a future date and time.",
-        );
-      }
-    } catch {
-      setDateError("Invalid date.");
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!targetDate) {
-      setDateError("Target date is required.");
-      return;
-    }
-
-    const parsed = parseISO(targetDate);
-    if (isNaN(parsed.getTime())) {
-      setDateError("Invalid date format.");
-      return;
-    }
-
-    if (isPast(parsed)) {
-      setDateError("Target date must be in the future.");
-      return;
-    }
-
-    setIsSaving(true);
-
-    const result = await updateSaleCountDown(title, description, targetDate);
-    setIsSaving(false);
-
-    Swal.fire({
-      icon: result.success ? "success" : "error",
-      title: result.success ? "Success" : "Error",
-      text: result.message,
-      background: "#11151c",
-      color: "#fff",
     });
+  }, [setValue]);
+
+  const onSubmit = async (formData) => {
+    const result = await updateSaleCountDown(
+      formData.title,
+      formData.description,
+      formData.targetDate,
+      formData.timezone,
+    );
+
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+    }
   };
 
   if (isLoading) {
@@ -111,56 +92,125 @@ export default function SaleCountdownDashboard() {
           Configure the sale banner countdown timer on the landing page
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className={labelClass}>Section Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={inputClass}
-              placeholder="Limited Time Offer - Up to 40% Off!"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <Controller
+            name="title"
+            control={control}
+            render={({ field, fieldState }) => {
+              const error = fieldState.error?.message;
+              return (
+                <div>
+                  <label className={labelClass} htmlFor="title">
+                    Section Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...field}
+                    id="title"
+                    type="text"
+                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""}`}
+                    placeholder="Limited Time Offer - Up to 40% Off!"
+                  />
+                  {error && (
+                    <p className="text-red-400 text-xs mt-1">{error}</p>
+                  )}
+                </div>
+              );
+            }}
+          />
 
-          <div>
-            <label className={labelClass}>Section Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className={inputClass}
-              placeholder="Don't miss out on this exclusive offer..."
-              required
-            />
-          </div>
+          <Controller
+            name="description"
+            control={control}
+            render={({ field, fieldState }) => {
+              const error = fieldState.error?.message;
+              return (
+                <div>
+                  <label className={labelClass} htmlFor="description">
+                    Section Description <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    {...field}
+                    id="description"
+                    rows={3}
+                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""}`}
+                    placeholder="Don't miss out on this exclusive offer..."
+                  />
+                  {error && (
+                    <p className="text-red-400 text-xs mt-1">{error}</p>
+                  )}
+                </div>
+              );
+            }}
+          />
 
-          <div>
-            <label className={labelClass}>
-              Target End Date/Time (Countdown Deadline)
-            </label>
-            <input
-              type="datetime-local"
-              value={targetDate}
-              onChange={(e) => validateDate(e.target.value)}
-              className={`${inputClass} ${dateError ? "ring-2 ring-red-500" : ""} scheme-dark`}
-              required
-            />
-            {dateError && (
-              <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
-                <span>⚠</span> {dateError}
-              </p>
-            )}
-          </div>
+          <Controller
+            name="timezone"
+            control={control}
+            render={({ field, fieldState }) => {
+              const error = fieldState.error?.message;
+              return (
+                <div>
+                  <label className={labelClass} htmlFor="timezone">
+                    Timezone <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    {...field}
+                    id="timezone"
+                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""} scheme-dark`}
+                  >
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz} value={tz}>
+                        {tz}
+                      </option>
+                    ))}
+                  </select>
+                  {error && (
+                    <p className="text-red-400 text-xs mt-1">{error}</p>
+                  )}
+                  <p className="text-gray-500 text-xs mt-1">
+                    The countdown deadline will be relative to this timezone
+                  </p>
+                </div>
+              );
+            }}
+          />
+
+          <Controller
+            name="targetDate"
+            control={control}
+            render={({ field, fieldState }) => {
+              const error = fieldState.error?.message;
+              return (
+                <div>
+                  <label className={labelClass} htmlFor="targetDate">
+                    Target End Date/Time (Countdown Deadline){" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...field}
+                    id="targetDate"
+                    type="datetime-local"
+                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""} scheme-dark`}
+                  />
+                  {error && (
+                    <p className="text-red-400 text-xs mt-1">{error}</p>
+                  )}
+                </div>
+              );
+            }}
+          />
 
           <div className="flex justify-end pt-4">
             <button
               type="submit"
-              disabled={isSaving || !!dateError}
-              className={`flex items-center gap-2 px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${isSaving || dateError ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5"}`}
+              disabled={isSubmitting}
+              className={`flex items-center gap-2 px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${
+                isSubmitting
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:-translate-y-0.5"
+              }`}
             >
-              {isSaving ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" size={16} /> Saving...
                 </>

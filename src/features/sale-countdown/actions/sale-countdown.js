@@ -2,7 +2,7 @@
 
 import { connectDB } from "@/config/db";
 import SaleCountdown from "@/models/SaleCountdown";
-import { isPast, parseISO } from "date-fns";
+import { localToUtc } from "@/utils/timezone";
 
 export async function getSaleCountDown() {
   try {
@@ -13,6 +13,7 @@ export async function getSaleCountDown() {
         title: data.title,
         description: data.description,
         targetDate: data.targetDate,
+        timezone: data.timezone || "Asia/Dhaka",
       };
     }
     return null;
@@ -22,15 +23,20 @@ export async function getSaleCountDown() {
   }
 }
 
-export async function updateSaleCountDown(title, description, targetDate) {
+export async function updateSaleCountDown(title, description, targetDate, timezone) {
   try {
-    const parsedDate = parseISO(targetDate);
+    if (!targetDate) {
+      return { success: false, message: "Target date is required." };
+    }
+
+    const parsedDate = localToUtc(targetDate, timezone);
 
     if (isNaN(parsedDate.getTime())) {
       return { success: false, message: "Invalid date format." };
     }
 
-    if (isPast(parsedDate)) {
+    const now = new Date();
+    if (parsedDate <= now) {
       return {
         success: false,
         message: "Target date must be in the future. Please select a future date and time.",
@@ -40,8 +46,8 @@ export async function updateSaleCountDown(title, description, targetDate) {
     await connectDB();
     await SaleCountdown.findOneAndUpdate(
       { type: "sale_countdown" },
-      { $set: { title, description, targetDate } },
-      { upsert: true }
+      { $set: { title, description, targetDate: parsedDate, timezone } },
+      { upsert: true },
     );
     return { success: true, message: "Sale countdown updated successfully." };
   } catch (error) {
