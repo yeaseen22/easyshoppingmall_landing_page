@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import ReviewsComponent from "@/features/dashboard/components/reviews-component";
+import ReviewsComponent from "@/features/reviews/components/reviews-component";
 import { getReviews } from "@/features/reviews/actions/review";
 
 const ReviewsPage = async ({ searchParams }) => {

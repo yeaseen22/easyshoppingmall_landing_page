@@ -5,9 +5,9 @@ import Footer from "@/features/home/components/footer/footer";
 import Hero from "@/features/home/components/hero/hero";
 import Navbar from "@/features/home/components/navbar/navbar";
 import OrderForm from "@/features/home/components/order/order-form";
-import Testimonial from "@/features/home/components/review/testimonials";
 import SaleCountDown from "@/features/home/components/sale-countdown/sale-countdown";
 import { getProducts } from "@/features/products/actions/product";
+import Testimonial from "@/features/reviews/components/testimonials";
 
 const Home = async ({ searchParams }) => {
   const params = await searchParams;
