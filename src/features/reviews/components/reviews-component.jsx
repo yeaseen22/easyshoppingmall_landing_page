@@ -3,6 +3,7 @@
 import DataTable from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
 import SearchBar from "@/components/ui/search-bar";
+import StatusTab from "@/components/ui/status-tab";
 import { deleteReview } from "@/features/reviews/actions/review";
 import ReviewModal from "@/features/reviews/components/review-modal";
 import { cn } from "@/utils/cn";
@@ -11,7 +12,13 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import Swal from "sweetalert2";
 
-export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
+export default function ReviewsComponent({
+  reviews,
+  currentPage,
+  totalPages,
+  activeStatus = "all",
+  tabs = [],
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
   const [isLoading, startTransition] = useTransition();
@@ -132,7 +139,7 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
       header: "Actions",
       accessor: "_id",
       className: "text-right",
-      cell: (val, row) => (
+      cell: (_val, row) => (
         <div className="flex justify-end gap-2">
           <button
             onClick={() => handleOpenModal(row)}
@@ -168,6 +175,13 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
         <SearchBar placeholder="Search reviews by name or content..." />
       </div>
 
+      <StatusTab
+        tabs={tabs}
+        activeStatus={activeStatus}
+        startTransition={startTransition}
+        isLoading={isLoading}
+      />
+
       <DataTable
         columns={reviewColumns}
         data={reviews}
@@ -195,8 +209,13 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
               `&quot;`{review.comment}`&quot;`
             </p>
             <div className="flex justify-between items-center text-[10px] font-mono">
-              <span className="text-[#d4af37]">
-                {review.category || "General"}
+              <span
+                className={cn("px-2 py-1 rounded text-xs", {
+                  "bg-green-500/10 text-green-500": review.approved,
+                  "bg-red-500/10 text-red-500": !review.approved,
+                })}
+              >
+                {review.approved ? "Approved" : "Pending"}
               </span>
               {review.featured && (
                 <span className="bg-primary-color/20 text-primary-color px-2 py-0.5 rounded">

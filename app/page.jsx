@@ -22,7 +22,7 @@ const Home = async ({ searchParams }) => {
       getSiteSettings(),
       getSaleCountDown(),
       getHeroBanner(),
-      getReviews(true),
+      getReviews("approved"),
     ]);
 
   const allProducts = Array.isArray(productResult)

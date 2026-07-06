@@ -26,10 +26,18 @@ export const addReview = async (reviewData) => {
   }
 };
 
-export const getReviews = async (onlyApproved = false, page, limit = 10, search = "") => {
+export const getReviews = async (status = "all", page = 1, limit = 10, search = "") => {
   try {
     await connectDB();
-    const filter = onlyApproved ? { approved: true } : {};
+    const filter = {};
+
+    if (status === "approved") {
+      filter.approved = true;
+    } else if (status === "pending") {
+      filter.approved = false;
+    } else if (status === "featured") {
+      filter.featured = true;
+    }
 
     if (search) {
       filter.$or = [
@@ -66,7 +74,7 @@ export const getReviews = async (onlyApproved = false, page, limit = 10, search 
 };
 
 export const getApprovedReviews = async () => {
-  return getReviews(true);
+  return getReviews("approved", undefined);
 };
 
 export const updateReview = async (id, data) => {
