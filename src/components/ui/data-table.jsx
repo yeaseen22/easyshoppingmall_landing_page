@@ -1,7 +1,5 @@
 "use client";
 
-import { Search } from "lucide-react";
-
 function SkeletonRow({ cols }) {
   return (
     <tr className="animate-pulse">
@@ -32,40 +30,15 @@ export default function DataTable({
   columns,
   headers,
   data = [],
-  search = "",
-  onSearch,
-  searchPlaceholder = "Search...",
   emptyMessage = "No data found.",
   renderRow,
   renderMobileCard,
-  headerExtras,
   isLoading,
 }) {
   const colCount = columns?.length || headers?.length || 1;
 
   return (
     <div className="space-y-5">
-      {(onSearch || headerExtras) && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          {onSearch && (
-            <div className="relative w-full md:w-72">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-                size={16}
-              />
-              <input
-                type="text"
-                placeholder={searchPlaceholder}
-                value={search}
-                onChange={(e) => onSearch(e.target.value)}
-                className="w-full bg-[#11151c] border border-accent-content/5 rounded-lg py-2 pl-9 pr-3 text-xs placeholder:text-gray-500 text-accent-content sm:text-sm outline-none focus:border-[#d4af37]/50"
-              />
-            </div>
-          )}
-          {headerExtras}
-        </div>
-      )}
-
       {isLoading ? (
         <>
           {renderMobileCard && (
@@ -137,6 +110,7 @@ export default function DataTable({
                         >
                           {columns.map((col, colIndex) => {
                             const value = row[col.accessor];
+                            
                             return (
                               <td
                                 key={colIndex}

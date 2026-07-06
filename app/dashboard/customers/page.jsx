@@ -1,11 +1,12 @@
 export const dynamic = "force-dynamic";
-import CustomersComponent from "@/features/dashboard/components/customers-component";
-import { getCustomers } from "@/features/orders/actions/order";
+import { getCustomers } from "@/features/customers/actions/customer";
+import CustomersComponent from "@/features/customers/components/customers-component";
 
 const CustomersPage = async ({ searchParams }) => {
   const params = await searchParams;
   const page = Number(params?.page) || 1;
-  const result = await getCustomers(page, 10);
+  const search = params?.search || "";
+  const result = await getCustomers(page, 10, search);
 
   return (
     <CustomersComponent

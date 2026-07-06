@@ -1,8 +1,9 @@
 "use client";
 
 import Pagination from "@/components/ui/pagination";
-import { useState, useTransition } from "react";
-import OrderTable from "../shared/order-table";
+import SearchBar from "@/components/ui/search-bar";
+import { useTransition } from "react";
+import OrderTable from "./order-table";
 import StatusTab from "./status-tab";
 
 export default function OrdersComponent({
@@ -12,16 +13,7 @@ export default function OrdersComponent({
   activeStatus = "",
   tabs = [],
 }) {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, startTransition] = useTransition();
-
-  const filteredOrders = orders.filter(
-    (o) =>
-      (o._id || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (o.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (o.phone || "").includes(searchTerm) ||
-      (o.status || "").toLowerCase().includes(searchTerm.toLowerCase()),
-  );
 
   return (
     <section className="w-full flex-1 min-w-0 overflow-hidden space-y-5 px-3 sm:px-4 md:px-6">
@@ -34,6 +26,10 @@ export default function OrdersComponent({
         </p>
       </div>
 
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <SearchBar placeholder="Search orders by ID, name, phone or status..." />
+      </div>
+
       <StatusTab
         tabs={tabs}
         activeStatus={activeStatus}
@@ -41,12 +37,7 @@ export default function OrdersComponent({
         isLoading={isLoading}
       />
 
-      <OrderTable
-        orders={filteredOrders}
-        search={searchTerm}
-        onSearch={setSearchTerm}
-        isLoading={isLoading}
-      />
+      <OrderTable orders={orders} isLoading={isLoading} />
 
       <Pagination
         currentPage={currentPage}

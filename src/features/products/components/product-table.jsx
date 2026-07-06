@@ -9,7 +9,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
-import ProductCard from "./product-card";
+import ProductTableCard from "./product-table-card";
 
 const ProductTable = () => {
   const products = useProductStore((s) => s.products);
@@ -205,7 +205,8 @@ const ProductTable = () => {
           columns={columns}
           emptyMessage="No featured products found."
           renderMobileCard={(product) => (
-            <ProductCard
+            <ProductTableCard
+              key={product._id}
               product={product}
               handleEdit={() => handleEdit(product)}
               handleDelete={() => handleDelete(product._id)}

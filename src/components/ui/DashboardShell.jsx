@@ -1,6 +1,6 @@
 "use client";
 
-import Sidebar from "@/features/dashboard/components/sidebar";
+import Sidebar from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 

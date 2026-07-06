@@ -3,6 +3,7 @@
 import { connectDB } from "@/config/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import { Types } from "mongoose";
 
 export const placeOrder = async (orderData) => {
   try {
@@ -38,11 +39,24 @@ export const placeOrder = async (orderData) => {
   }
 };
 
-export const getOrders = async (page, limit = 10, status) => {
+export const getOrders = async (page, limit = 10, status, search = "") => {
   try {
     await connectDB();
 
     const filter = status ? { status } : {};
+
+    if (search) {
+      const searchConditions = [
+        { customerName: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+        { status: { $regex: search, $options: "i" } },
+      ];
+      
+      if (Types.ObjectId.isValid(search)) {
+        searchConditions.push({ _id: new Types.ObjectId(search) });
+      }
+      filter.$or = searchConditions;
+    }
 
     if (page === undefined) {
       const orders = await Order.find(filter)
@@ -103,55 +117,7 @@ export const updateOrderStatus = async (id, status) => {
   }
 };
 
-export const getCustomers = async (page = 1, limit = 10) => {
-  try {
-    await connectDB();
-    const orders = await Order.find()
-      .sort({ createdAt: -1 })
-      .lean()
-      .populate("productId", "name description image");
 
-    const customersMap = {};
-    orders.forEach((order) => {
-      const key = order.email;
-      if (!key) return;
-
-      if (!customersMap[key]) {
-        customersMap[key] = {
-          _id: order._id.toString(),
-          name: order.customerName || order.name || "Unknown Customer",
-          email: order.email || "N/A",
-          phone: order.phone,
-          location: order.zilla
-            ? `${order.thana || ""}, ${order.zilla}`
-            : order.address || "Unknown",
-          totalOrders: 0,
-          spent: 0,
-        };
-      }
-
-      customersMap[key].totalOrders += 1;
-      customersMap[key].spent += Number(order.totalPrice) || 0;
-
-      if (customersMap[key].email === "N/A" && order.email) {
-        customersMap[key].email = order.email;
-      }
-    });
-
-    const allCustomers = Object.values(customersMap).sort(
-      (a, b) => b.spent - a.spent,
-    );
-    const total = allCustomers.length;
-    const totalPages = Math.ceil(total / limit);
-    const skip = (page - 1) * limit;
-    const data = allCustomers.slice(skip, skip + limit);
-
-    return { data, total, totalPages, currentPage: page };
-  } catch (error) {
-    console.error("Failed to get customers:", error);
-    return { data: [], total: 0, totalPages: 0, currentPage: 1 };
-  }
-};
 
 export const deleteOrder = async (id) => {
   try {

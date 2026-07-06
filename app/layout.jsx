@@ -4,6 +4,7 @@ import { OrderStoreProvider } from "@/features/orders/store/order-store-provider
 import { getProducts } from "@/features/products/actions/product";
 import { ProductStoreProvider } from "@/features/products/store/product-store-provider";
 import { Poppins, Roboto } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 const roboto = Roboto({
   subsets: ["latin"],
@@ -96,6 +97,7 @@ export default async function RootLayout({ children }) {
             <OrderStoreProvider orders={orders}>{children}</OrderStoreProvider>
           </ProductStoreProvider>
         </AuthProvider>
+        <Toaster richColors closeButton position="top-right" theme="dark" />
       </body>
     </html>
   );

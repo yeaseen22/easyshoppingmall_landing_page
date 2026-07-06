@@ -3,8 +3,8 @@
 import {
   getDashboardStats,
   getRecentActivity,
-} from "@/features/dashboard/actions/dashboard";
-import OrderTable from "@/features/dashboard/components/shared/order-table";
+} from "@/features/dashboard-overview/actions/dashboard";
+import OrderTable from "@/features/orders/components/order-table";
 import {
   CheckCircle2,
   Clock,

@@ -2,7 +2,7 @@
 
 import Container from "@/components/ui/container";
 import Section from "@/components/ui/section";
-import { getSaleCountDown } from "@/features/home/actions/sale-countdown";
+import { getSaleCountDown } from "@/features/sale-countdown/actions/sale-countdown";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
@@ -55,9 +55,7 @@ const SaleCountDown = () => {
       <span className="text-primary-color text-base sm:text-xl">
         {(value ?? 0).toString().padStart(2, "0")}
       </span>
-      <span className="text-[8px] sm:text-xs text-[#AAAAAA] mt-1">
-        {label}
-      </span>
+      <span className="text-[8px] sm:text-xs text-[#AAAAAA] mt-1">{label}</span>
     </div>
   );
 
@@ -71,6 +69,7 @@ const SaleCountDown = () => {
           width={1200}
           height={600}
           sizes="100vw"
+          loading="eager"
           className="w-full h-full object-cover"
         />
       </div>

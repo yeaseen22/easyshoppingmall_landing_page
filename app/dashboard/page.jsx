@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import DashboardOverview from "@/features/dashboard/components/overview/dashboard-overview";
+import DashboardOverview from "@/features/dashboard-overview/components/dashboard-overview";
 import { getOrders } from "@/features/orders/actions/order";
 
 const DashboardPage = async () => {

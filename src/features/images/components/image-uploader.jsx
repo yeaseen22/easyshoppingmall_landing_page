@@ -45,6 +45,23 @@ export const ImageUploader = ({
             clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
             maxFileSize: 2000000,
             multiple: false,
+            styles: {
+              palette: {
+                window: "#000000",
+                sourceBg: "#000000",
+                windowBorder: "#ffc900",
+                tabIcon: "#ffc900",
+                inactiveTabIcon: "#8E9FBF",
+                menuIcons: "#ffc900",
+                link: "#ffc900",
+                action: "#345eda",
+                inProgress: "#00BFFF",
+                complete: "#33ff00",
+                error: "#EA2727",
+                textDark: "#000000",
+                textLight: "#FFFFFF",
+              },
+            },
           }}
           onSuccessAction={handleSuccess}
           className="flex items-center gap-2 px-4 py-2.5 bg-primary-color hover:bg-accent-content text-black font-semibold rounded-xl transition-all hover:-translate-y-0.5 shadow-lg text-sm"

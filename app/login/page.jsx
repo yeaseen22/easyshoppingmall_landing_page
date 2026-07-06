@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -51,37 +51,16 @@ const LoginPage = () => {
       });
 
       if (result.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Signed in successfully",
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-        });
+        toast.success("Signed in successfully");
         router.push("/dashboard");
         router.refresh();
       } else {
-        Swal.fire({
-          title: "Invalid Credentials",
-          text: "The email or password you entered is incorrect.",
-          icon: "error",
-          confirmButtonColor: "#ffc900",
-          confirmButtonText: "Try Again",
-          background: "#1a1a2e",
-          color: "#fff",
-        });
+        throw new Error(
+          "Invalid credentials. Please check your email and password.",
+        );
       }
-    } catch {
-      Swal.fire({
-        title: "Connection Error",
-        text: "Something went wrong. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#ffc900",
-        background: "#1a1a2e",
-        color: "#fff",
-      });
+    } catch (err) {
+      toast.error(err.message || "Something went wrong. Please try again.");
     }
   };
 
