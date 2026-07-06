@@ -1,6 +1,6 @@
 "use client";
 
-import { updateNavbar } from "@/features/home/actions/site-settings";
+import { updateNavbar } from "@/features/site-settings/actions/site-settings";
 import { navbarSchema } from "@/features/site-settings/validations/site-settings-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save } from "lucide-react";
@@ -14,11 +14,7 @@ const inputClass =
 export const NavbarForm = ({ data, onUpdated }) => {
   const [isSaving, setIsSaving] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-  } = useForm({
+  const { control, handleSubmit, reset } = useForm({
     resolver: zodResolver(navbarSchema),
     defaultValues: { brandName: "", tagline: "" },
   });
@@ -51,7 +47,10 @@ export const NavbarForm = ({ data, onUpdated }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8 space-y-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8 space-y-6"
+    >
       <h2 className="text-xl font-bold text-accent-content flex items-center gap-2">
         Navbar Settings
       </h2>
@@ -73,7 +72,9 @@ export const NavbarForm = ({ data, onUpdated }) => {
                 className={inputClass}
               />
               {fieldState.error && (
-                <p className="text-red-400 text-[10px] mt-1">{fieldState.error.message}</p>
+                <p className="text-red-400 text-[10px] mt-1">
+                  {fieldState.error.message}
+                </p>
               )}
             </label>
           )}
@@ -95,7 +96,9 @@ export const NavbarForm = ({ data, onUpdated }) => {
                 className={inputClass}
               />
               {fieldState.error && (
-                <p className="text-red-400 text-[10px] mt-1">{fieldState.error.message}</p>
+                <p className="text-red-400 text-[10px] mt-1">
+                  {fieldState.error.message}
+                </p>
               )}
             </label>
           )}
@@ -108,7 +111,11 @@ export const NavbarForm = ({ data, onUpdated }) => {
           disabled={isSaving}
           className="flex items-center gap-2 px-6 py-3 bg-primary-color text-black font-bold rounded-xl transition-all hover:bg-primary-color/90 disabled:opacity-70"
         >
-          {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+          {isSaving ? (
+            <Loader2 className="animate-spin" size={16} />
+          ) : (
+            <Save size={16} />
+          )}
           Save Navbar
         </button>
       </div>

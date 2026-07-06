@@ -2,30 +2,15 @@
 
 import Container from "@/components/ui/container";
 import Section from "@/components/ui/section";
-import { getSaleCountDown } from "@/features/sale-countdown/actions/sale-countdown";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
-const SaleCountDown = () => {
-  const [targetDate, setTargetDate] = useState(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    async function fetchConfig() {
-      const data = await getSaleCountDown();
-      if (data) {
-        if (data.title) setTitle(data.title);
-        if (data.description) setDescription(data.description);
-        if (data.targetDate) setTargetDate(data.targetDate);
-      }
-    }
-
-    fetchConfig();
-  }, []);
+const SaleCountDown = ({ saleCountdown }) => {
+  const targetDate = saleCountdown.targetDate;
 
   const calculateTimeLeft = useCallback(() => {
     if (!targetDate) return null;
+
     const now = new Date().getTime();
     const target = new Date(targetDate).getTime();
     const diff = target - now;
@@ -44,6 +29,7 @@ const SaleCountDown = () => {
 
   useEffect(() => {
     if (!targetDate) return;
+
     const update = () => setTimeLeft(calculateTimeLeft());
     update();
     const timer = setInterval(update, 1000);
@@ -81,10 +67,10 @@ const SaleCountDown = () => {
             {timeLeft?.expired ? "🎉 Sale Ended" : "🔥 Limited Time Only"}
           </p>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-accent-content">
-            {title}
+            {saleCountdown.title}
           </h1>
           <p className="mb-8 text-[#B0B0B0] text-sm sm:text-base md:text-lg">
-            {description}
+            {saleCountdown.description}
           </p>
 
           {timeLeft && !timeLeft.expired && (
