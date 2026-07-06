@@ -44,9 +44,9 @@ export const createProductStore = (initialProducts = []) => {
       set({ products, isLoading: false });
     },
 
-    fetchPage: async (page = 1) => {
+    fetchPage: async (page = 1, limit = 10) => {
       set({ isLoading: true });
-      const result = await getProducts(page);
+      const result = await getProducts(page, limit);
       if (result?.data) {
         set({
           products: result.data,

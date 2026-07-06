@@ -21,7 +21,7 @@ const ProductTable = () => {
   const fetchPage = useProductStore((s) => s.fetchPage);
 
   useEffect(() => {
-    fetchPage();
+    fetchPage(1, 5);
   }, [fetchPage]);
 
   const handleEdit = (product) => {
@@ -218,7 +218,7 @@ const ProductTable = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           total={total}
-          onPageChange={(p) => fetchPage(p)}
+          onPageChange={(p) => fetchPage(p, 5)}
           isLoading={isLoading}
         />
       </div>
