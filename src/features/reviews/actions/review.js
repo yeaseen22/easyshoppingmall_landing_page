@@ -26,10 +26,18 @@ export const addReview = async (reviewData) => {
   }
 };
 
-export const getReviews = async (onlyApproved = false, page, limit = 10) => {
+export const getReviews = async (onlyApproved = false, page, limit = 10, search = "") => {
   try {
     await connectDB();
     const filter = onlyApproved ? { approved: true } : {};
+
+    if (search) {
+      filter.$or = [
+        { customerName: { $regex: search, $options: "i" } },
+        { comment: { $regex: search, $options: "i" } },
+        { customerEmail: { $regex: search, $options: "i" } },
+      ];
+    }
 
     if (page === undefined) {
       const reviews = await Review.find(filter).sort({ createdAt: -1 }).lean();

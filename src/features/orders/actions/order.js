@@ -3,6 +3,7 @@
 import { connectDB } from "@/config/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import { Types } from "mongoose";
 
 export const placeOrder = async (orderData) => {
   try {
@@ -38,11 +39,24 @@ export const placeOrder = async (orderData) => {
   }
 };
 
-export const getOrders = async (page, limit = 10, status) => {
+export const getOrders = async (page, limit = 10, status, search = "") => {
   try {
     await connectDB();
 
     const filter = status ? { status } : {};
+
+    if (search) {
+      const searchConditions = [
+        { customerName: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+        { status: { $regex: search, $options: "i" } },
+      ];
+      
+      if (Types.ObjectId.isValid(search)) {
+        searchConditions.push({ _id: new Types.ObjectId(search) });
+      }
+      filter.$or = searchConditions;
+    }
 
     if (page === undefined) {
       const orders = await Order.find(filter)

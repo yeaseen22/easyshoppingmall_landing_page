@@ -2,23 +2,16 @@
 
 import DataTable from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
+import SearchBar from "@/components/ui/search-bar";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 
 export default function CustomersComponent({
   customers = [],
   currentPage,
   totalPages,
 }) {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, startTransition] = useTransition();
-
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      (customer.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (customer.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (customer.phone || "").includes(searchTerm),
-  );
 
   const customerColumns = [
     {
@@ -95,13 +88,14 @@ export default function CustomersComponent({
         </div>
       </div>
 
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <SearchBar placeholder="Search by name, email or phone..." />
+      </div>
+
       <DataTable
         columns={customerColumns}
-        data={filteredCustomers}
-        search={searchTerm}
-        onSearch={setSearchTerm}
+        data={customers}
         isLoading={isLoading}
-        searchPlaceholder="Search by name, email or phone..."
         emptyMessage="No customers found matching your search."
       />
 

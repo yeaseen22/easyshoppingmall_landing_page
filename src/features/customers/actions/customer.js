@@ -1,10 +1,21 @@
 import { connectDB } from "@/config/db";
 import Order from "@/models/Order";
 
-export const getCustomers = async (page = 1, limit = 10) => {
+export const getCustomers = async (page = 1, limit = 10, search = "") => {
   try {
     await connectDB();
-    const orders = await Order.find()
+
+    const orderFilter = search
+      ? {
+          $or: [
+            { customerName: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { phone: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const orders = await Order.find(orderFilter)
       .sort({ createdAt: -1 })
       .lean()
       .populate("productId", "name description image");

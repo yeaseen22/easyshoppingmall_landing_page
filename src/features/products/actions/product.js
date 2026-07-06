@@ -5,12 +5,21 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { Types } from "mongoose";
 
-export const getProducts = async (page, limit = 10) => {
+export const getProducts = async (page, limit = 10, search = "") => {
   try {
     await connectDB();
 
+    const filter = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
     if (page === undefined) {
-      const products = await Product.find({}).sort({ createdAt: -1 }).lean();
+      const products = await Product.find(filter).sort({ createdAt: -1 }).lean();
       return products.map((product) => ({
         ...product,
         _id: product._id.toString(),
@@ -19,8 +28,8 @@ export const getProducts = async (page, limit = 10) => {
 
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-      Product.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Product.countDocuments({}),
+      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Product.countDocuments(filter),
     ]);
 
     const data = products.map((product) => ({

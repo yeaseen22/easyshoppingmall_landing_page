@@ -206,6 +206,7 @@ const ProductTable = () => {
           emptyMessage="No featured products found."
           renderMobileCard={(product) => (
             <ProductTableCard
+              key={product._id}
               product={product}
               handleEdit={() => handleEdit(product)}
               handleDelete={() => handleDelete(product._id)}

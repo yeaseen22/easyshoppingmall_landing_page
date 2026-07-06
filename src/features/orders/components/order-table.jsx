@@ -9,7 +9,7 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import OrderDetailsModal from "./order-details-modal";
 
-const OrderTable = ({ orders = [], search, onSearch, isLoading }) => {
+const OrderTable = ({ orders = [], isLoading }) => {
   const router = useRouter();
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -101,8 +101,6 @@ const OrderTable = ({ orders = [], search, onSearch, isLoading }) => {
       <DataTable
         columns={orderColumns}
         data={orders || []}
-        search={search}
-        onSearch={onSearch}
         isLoading={isLoading}
         emptyMessage="No orders yet."
         renderMobileCard={(order) => (

@@ -69,6 +69,7 @@ const SaleCountDown = () => {
           width={1200}
           height={600}
           sizes="100vw"
+          loading="eager"
           className="w-full h-full object-cover"
         />
       </div>

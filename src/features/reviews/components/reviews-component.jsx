@@ -2,6 +2,7 @@
 
 import DataTable from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
+import SearchBar from "@/components/ui/search-bar";
 import { deleteReview } from "@/features/reviews/actions/review";
 import ReviewModal from "@/features/reviews/components/review-modal";
 import { cn } from "@/utils/cn";
@@ -11,7 +12,6 @@ import { useState, useTransition } from "react";
 import Swal from "sweetalert2";
 
 export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
   const [isLoading, startTransition] = useTransition();
@@ -71,12 +71,6 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
     setIsModalOpen(false);
     setEditingReview(null);
   };
-
-  const filteredReviews = reviews.filter(
-    (r) =>
-      (r.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (r.comment || "").toLowerCase().includes(searchTerm.toLowerCase()),
-  );
 
   const reviewColumns = [
     {
@@ -170,12 +164,13 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
         </div>
       </div>
 
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <SearchBar placeholder="Search reviews by name or content..." />
+      </div>
+
       <DataTable
         columns={reviewColumns}
-        data={filteredReviews}
-        search={searchTerm}
-        onSearch={setSearchTerm}
-        searchPlaceholder="Search reviews by name or content..."
+        data={reviews}
         emptyMessage="No reviews found."
         isLoading={isLoading}
         renderMobileCard={(review) => (

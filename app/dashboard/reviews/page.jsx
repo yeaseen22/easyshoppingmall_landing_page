@@ -5,11 +5,12 @@ import { getReviews } from "@/features/reviews/actions/review";
 const ReviewsPage = async ({ searchParams }) => {
   const params = await searchParams;
   const page = Number(params?.page) || 1;
-  const result = await getReviews(false, page, 10);
+  const search = params?.search || "";
+  const result = await getReviews(false, page, 10, search);
 
   if (!result?.data) {
     return (
-      <ReviewsComponent reviews={[]} currentPage={1} totalPages={1} total={0} />
+      <ReviewsComponent reviews={[]} currentPage={1} totalPages={1} />
     );
   }
 

@@ -3,6 +3,7 @@
 import { ProductCardSkeleton } from "@/components/skeletons/product-card-skeleton";
 import Container from "@/components/ui/container";
 import Pagination from "@/components/ui/pagination";
+import SearchBar from "@/components/ui/search-bar";
 import Section from "@/components/ui/section";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
@@ -29,6 +30,10 @@ export default function FeaturedProducts({ products = [], pagination }) {
             Discover our handpicked selection of luxury apparel, each crafted
             with precision and elegance.
           </p>
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <SearchBar placeholder="Search products..." scroll={false} />
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-7">
