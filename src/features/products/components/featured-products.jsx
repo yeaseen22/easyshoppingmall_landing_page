@@ -51,18 +51,20 @@ export default function FeaturedProducts({ products = [], pagination }) {
         </div>
 
         {pagination && (
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            isLoading={isLoading}
-            onPageChange={(page) => {
-              params.set("page", page);
+          <div className="flex justify-center items-center">
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              isLoading={isLoading}
+              onPageChange={(page) => {
+                params.set("page", page);
 
-              startTransition(() => {
-                router.push(`${pathname}?${params.toString()}#products`);
-              });
-            }}
-          />
+                startTransition(() => {
+                  router.push(`${pathname}?${params.toString()}#products`);
+                });
+              }}
+            />
+          </div>
         )}
       </Container>
     </Section>
