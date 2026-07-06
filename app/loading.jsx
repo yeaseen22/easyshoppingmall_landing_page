@@ -25,7 +25,7 @@ export default function RootLoading() {
           <div className="h-14 w-48 bg-gray-700/50 rounded-2xl" />
         </div>
         <div className="relative">
-          <div className="w-full h-[400px] bg-gray-700/50 rounded-2xl" />
+          <div className="w-full h-100 bg-gray-700/50 rounded-2xl" />
         </div>
       </div>
     </div>

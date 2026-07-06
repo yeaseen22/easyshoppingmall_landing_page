@@ -1,6 +1,6 @@
 "use client";
 
-import { updateDeliveryCharge } from "@/features/home/actions/site-settings";
+import { updateDeliveryCharge } from "@/features/site-settings/actions/site-settings";
 import { deliverySchema } from "@/features/site-settings/validations/site-settings-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, MapPin, Save, Truck } from "lucide-react";
@@ -47,13 +47,17 @@ export const DeliveryForm = ({ data, onUpdated }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8 space-y-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8 space-y-6"
+    >
       <h2 className="text-xl font-bold text-accent-content flex items-center gap-2">
         <Truck size={24} />
         Delivery Charge Settings
       </h2>
       <p className="text-sm text-gray-400 -mt-4">
-        Set delivery fees used during checkout. The charge is automatically applied based on the customer&apos;s zilla.
+        Set delivery fees used during checkout. The charge is automatically
+        applied based on the customer&apos;s zilla.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -65,7 +69,8 @@ export const DeliveryForm = ({ data, onUpdated }) => {
               className="block text-sm font-medium text-gray-300 mb-2"
               data-invalid={fieldState.invalid}
             >
-              <MapPin size={16} className="mr-1 inline" /> Inside Dhaka (৳) <span className="text-red-500">*</span>
+              <MapPin size={16} className="mr-1 inline" /> Inside Dhaka (৳){" "}
+              <span className="text-red-500">*</span>
               <input
                 {...field}
                 type="number"
@@ -75,7 +80,9 @@ export const DeliveryForm = ({ data, onUpdated }) => {
                 className={inputClass}
               />
               {fieldState.error && (
-                <p className="text-red-400 text-[10px] mt-1">{fieldState.error.message}</p>
+                <p className="text-red-400 text-[10px] mt-1">
+                  {fieldState.error.message}
+                </p>
               )}
             </label>
           )}
@@ -88,7 +95,8 @@ export const DeliveryForm = ({ data, onUpdated }) => {
               className="block text-sm font-medium text-gray-300 mb-2"
               data-invalid={fieldState.invalid}
             >
-              <Truck size={16} className="mr-1 inline" /> Outside Dhaka (৳) <span className="text-red-500">*</span>
+              <Truck size={16} className="mr-1 inline" /> Outside Dhaka (৳){" "}
+              <span className="text-red-500">*</span>
               <input
                 {...field}
                 type="number"
@@ -98,7 +106,9 @@ export const DeliveryForm = ({ data, onUpdated }) => {
                 className={inputClass}
               />
               {fieldState.error && (
-                <p className="text-red-400 text-[10px] mt-1">{fieldState.error.message}</p>
+                <p className="text-red-400 text-[10px] mt-1">
+                  {fieldState.error.message}
+                </p>
               )}
             </label>
           )}
@@ -111,7 +121,11 @@ export const DeliveryForm = ({ data, onUpdated }) => {
           disabled={isSaving}
           className="flex items-center gap-2 px-6 py-3 bg-primary-color text-black font-bold rounded-xl transition-all hover:bg-primary-color/90 disabled:opacity-70"
         >
-          {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+          {isSaving ? (
+            <Loader2 className="animate-spin" size={16} />
+          ) : (
+            <Save size={16} />
+          )}
           Save Delivery Charges
         </button>
       </div>

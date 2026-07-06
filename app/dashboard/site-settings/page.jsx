@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { getSiteSettings } from "@/features/home/actions/site-settings";
+import { getSiteSettings } from "@/features/site-settings/actions/site-settings";
 import { DeliveryForm } from "@/features/site-settings/components/delivery-form";
 import { FooterForm } from "@/features/site-settings/components/footer-form";
 import { NavbarForm } from "@/features/site-settings/components/navbar-form";

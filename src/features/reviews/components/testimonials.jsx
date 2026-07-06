@@ -1,13 +1,10 @@
 import Container from "@/components/ui/container";
 import Section from "@/components/ui/section";
-import { getReviews } from "@/features/reviews/actions/review";
 import { Star } from "lucide-react";
 import ReviewForm from "./review-form";
 import ReviewSlider from "./review-slider";
 
-export default async function Testimonials() {
-  const reviews = await getReviews(true);
-
+export default function Testimonials({ reviews = [] }) {
   const avgRating =
     reviews.length > 0
       ? (

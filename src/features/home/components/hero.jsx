@@ -1,13 +1,10 @@
 import Container from "@/components/ui/container";
 import Section from "@/components/ui/section";
-import { getHeroBanner } from "@/features/home/actions/hero-banner";
 import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Hero() {
-  const banner = (await getHeroBanner()) || {};
-
+export default function Hero({ banner = {} }) {
   return (
     <Section className="relative flex items-center bg-[#07070a] overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,201,0,0.08)_0%,transparent_60%)]" />
