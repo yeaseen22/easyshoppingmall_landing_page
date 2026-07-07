@@ -1,134 +1,141 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductStatus } from "@/features/products/validations/product-schema";
+import { cn } from "@/utils/utils";
+import { Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import ProductDetailModal from "./product-detail-modal";
+
+const EyeButton = ({ onClick, className, ...props }) => {
+  return (
+    <Button
+      variant="outline"
+      size="icon-xs"
+      onClick={onClick}
+      className={cn(className)}
+      {...props}
+    >
+      <Eye size={14} />
+    </Button>
+  );
+};
 
 const ProductCard = ({ product }) => {
+  const [modalOpen, setModalOpen] = useState(false);
   const hasDiscount = product.discount > 0;
   const displayPrice = hasDiscount ? product.discountedPrice : product.price;
 
   return (
-    <Card className="group bg-card border border-border/50 overflow-hidden transition-all duration-500 hover:border-primary/40 hover:shadow-2xl hover:shadow-black/50 hover:-translate-y-1 flex flex-col gap-0 [--card-spacing:--spacing(0)]">
-      <div className="relative flex-1 flex flex-col">
-        <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-2">
+    <>
+      <Card className="group bg-card border border-border/50 overflow-hidden transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 flex flex-col gap-0 [--card-spacing:--spacing(0)]">
+        <div className="relative aspect-3/2 w-full overflow-hidden bg-muted">
+          <Image
+            src={product.image}
+            alt={product.name}
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          />
+
+          <div className="absolute top-2 right-2 sm:hidden">
+            <EyeButton
+              onClick={() => setModalOpen(true)}
+              className="bg-background/70"
+            />
+          </div>
+
           {hasDiscount && (
             <Badge
               variant="destructive"
-              className="bg-destructive/90 text-destructive-foreground text-[8px] sm:text-[10px] px-2 py-1 shadow-lg backdrop-blur-md rounded-xl"
+              className="absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded-xl shadow-lg"
             >
               -{product.discount}%
             </Badge>
           )}
-        </div>
 
-        <div className="absolute top-2.5 right-2.5 z-20 flex flex-col gap-2">
-          {product.productStatus?.includes(ProductStatus.HOT) && (
-            <Badge className="bg-orange-500 text-white text-[8px] sm:text-[10px] px-2 py-1 shadow-lg backdrop-blur-md tracking-wider rounded-xl">
-              HOT
+          {product.productStatus?.map((status) => (
+            <Badge
+              key={status}
+              className={`absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-xl shadow-lg tracking-wider ${
+                status === ProductStatus.HOT
+                  ? "bg-orange-500 text-white"
+                  : "bg-sky-500 text-white"
+              }`}
+            >
+              {status.toUpperCase()}
             </Badge>
-          )}
-          {product.productStatus?.includes(ProductStatus.COLD) && (
-            <Badge className="bg-sky-500 text-white text-[8px] sm:text-[10px] px-2 py-1 shadow-lg backdrop-blur-md tracking-wider rounded-xl">
-              COLD
-            </Badge>
-          )}
-        </div>
+          ))}
 
-        <div className="relative aspect-3/2 w-full h-28 sm:h-36 md:h-40 overflow-hidden bg-muted">
-          <Image
-            src={product.image}
-            alt={product.name}
-            className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-            width={500}
-            height={500}
-            priority={false}
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-card via-card/60 to-transparent" />
           {product.stock <= 5 && product.stock > 0 && (
-            <Badge className="absolute bottom-2.5 left-2.5 bg-yellow-500/90 text-black text-[8px] sm:text-[10px] px-2 py-0.5 rounded-xl">
+            <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm text-foreground text-[10px] px-2 py-0.5 rounded-xl">
               Only {product.stock} left
-            </Badge>
+            </div>
+          )}
+
+          {product.stock === 0 && (
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center">
+              <span className="text-destructive font-bold text-sm">
+                Out of Stock
+              </span>
+            </div>
           )}
         </div>
 
-        <CardContent className="p-3 md:p-5 space-y-3">
-          <div>
-            <h3 className="text-xs sm:text-sm font-semibold text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-2">
-              {product.name}
-            </h3>
-            <p className="text-muted-foreground text-[10px] sm:text-xs line-clamp-3 mt-1.5 leading-relaxed">
-              {product.description}
-            </p>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xs font-semibold text-foreground tracking-tighter">
+        <CardContent className="p-3 space-y-2 flex-1 flex flex-col">
+          <h3 className="text-sm font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+            {product.name}
+          </h3>
+
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-bold text-foreground">
               ৳{displayPrice}
             </span>
             {hasDiscount && (
-              <span className="text-muted-foreground line-through text-[10px] sm:text-xs">
+              <span className="text-muted-foreground line-through text-xs">
                 ৳{product.price}
               </span>
             )}
           </div>
-          {product.productSizes?.length > 0 && (
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">SIZES</p>
-              <div className="flex flex-wrap gap-1">
-                {product.productSizes.map((size) => (
-                  <span
-                    key={size}
-                    className="text-[8px] sm:text-[10px] font-medium px-2.5 py-0.5 bg-muted border border-border rounded-lg text-muted-foreground hover:bg-accent transition-colors"
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {product.productColors?.length > 0 && (
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-1">COLORS</p>
-              <div className="flex gap-1.5">
-                {product.productColors.slice(0, 3).map((color, index) => (
-                  <div
-                    key={`${color}-${index}`}
-                    className="size-4 rounded-xl border border-card shadow-sm ring-1 ring-border"
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
-                {product.productColors.length > 3 && (
-                  <div className="size-4 rounded-xl bg-accent flex items-center justify-center text-[9px] font-bold text-muted-foreground">
-                    +{product.productColors.length - 3}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          <div className="pt-1">
+
+          <div className="flex-1" />
+
+          <div className="flex items-center gap-1.5 text-[10px] font-medium">
             {product.stock > 0 ? (
-              <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-xs font-medium">
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                {product.stock} in stock
-              </div>
+              <>
+                <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-emerald-500">
+                  {product.stock} in stock
+                </span>
+              </>
             ) : (
-              <div className="flex items-center gap-1.5 text-destructive text-[10px] sm:text-xs font-medium">
-                <span>✕</span>
-                Out of stock
-              </div>
+              <span className="text-destructive">Out of stock</span>
             )}
           </div>
-        </CardContent>
-      </div>
 
-      <div className="p-3 md:p-5 pt-0!">
-        <Button asChild size={"xs"} className="w-full">
-          <Link href={`/?productId=${product._id}#order`}>Order Now</Link>
-        </Button>
-      </div>
-    </Card>
+          <div className="flex gap-2 pt-1">
+            <Button asChild size="xs" className="flex-1">
+              <Link href={`/?productId=${product._id}#order`}>Order Now</Link>
+            </Button>
+
+            <EyeButton
+              onClick={() => setModalOpen(true)}
+              className="hidden sm:inline-flex shrink-0"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <ProductDetailModal
+        product={product}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
+    </>
   );
 };
 
