@@ -1,18 +1,11 @@
-import { cn } from "@/utils/cn";
+import { cn } from "@/utils/utils";
+import { Skeleton as ShadcnSkeleton } from "@/components/ui/skeleton";
 
 export function Skeleton({ className }) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-lg bg-gray-700/50", className)}
-      aria-hidden="true"
-    />
-  );
+  return <ShadcnSkeleton className={cn("rounded-lg", className)} aria-hidden="true" />;
 }
 
-export function PageHeaderSkeleton({
-  titleWidth = "w-56",
-  subtitleWidth = "w-40",
-}) {
+export function PageHeaderSkeleton({ titleWidth = "w-56", subtitleWidth = "w-40" }) {
   return (
     <div className="space-y-2">
       <Skeleton className={cn("h-7 md:h-8", titleWidth)} />
@@ -60,7 +53,7 @@ export function FormSkeleton({ fields = 3 }) {
 
 export function MobileCardSkeleton() {
   return (
-    <div className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-3">
+    <div className="bg-card border border-border rounded-xl p-4 space-y-3">
       <div className="flex justify-between">
         <Skeleton className="h-3 w-20" />
         <Skeleton className="h-5 w-16 rounded-full" />
@@ -79,7 +72,7 @@ export function MobileCardSkeleton() {
 
 export function CardSkeleton() {
   return (
-    <div className="bg-[#11151c] p-7 rounded-2xl border border-accent-content/5 space-y-4">
+    <div className="bg-card p-7 rounded-2xl border border-border space-y-4">
       <Skeleton className="w-10 h-10 rounded-xl" />
       <div className="space-y-2">
         <Skeleton className="h-3 w-24" />
@@ -91,8 +84,8 @@ export function CardSkeleton() {
 
 export function TableSkeleton({ rows = 5, cols = 6 }) {
   return (
-    <div className="bg-[#11151c] border border-accent-content/5 rounded-xl overflow-hidden animate-pulse">
-      <div className="bg-[#0a0c12] border-b border-accent-content/5 px-6 py-4">
+    <div className="bg-card border border-border rounded-xl overflow-hidden animate-pulse">
+      <div className="bg-muted border-b border-border px-6 py-4">
         <div className="flex gap-8">
           {Array.from({ length: cols }).map((_, i) => (
             <Skeleton key={i} className="h-3 w-20" />
@@ -100,7 +93,7 @@ export function TableSkeleton({ rows = 5, cols = 6 }) {
         </div>
       </div>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="border-b border-accent-content/5 px-6 py-4">
+        <div key={i} className="border-b border-border px-6 py-4">
           <div className="flex gap-8 items-center">
             <Skeleton className="h-8 w-8 rounded-lg" />
             <Skeleton className="h-4 w-32" />
@@ -125,7 +118,7 @@ export function StatsGridSkeleton({ count = 4 }) {
 
 export function ChartSkeleton({ height = "h-80" }) {
   return (
-    <div className="bg-[#11151c] border border-accent-content/5 rounded-2xl p-6">
+    <div className="bg-card border border-border rounded-2xl p-6">
       <Skeleton className="h-5 w-40 mb-6" />
       <Skeleton className={cn("w-full", height)} />
     </div>

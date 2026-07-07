@@ -1,5 +1,5 @@
-import { cn } from "@/utils/cn";
 import { Skeleton } from "@/components/ui/skeleton-loader";
+import { cn } from "@/utils/utils";
 
 export default function FeaturedProductsLoading() {
   return (
@@ -11,7 +11,9 @@ export default function FeaturedProductsLoading() {
           {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div key={i} className={i <= 2 ? "md:col-span-2" : "md:col-span-1"}>
               <Skeleton className="h-4 w-28 mb-2" />
-              <Skeleton className={cn("w-full h-11 rounded-xl", i === 2 && "h-24")} />
+              <Skeleton
+                className={cn("w-full h-11 rounded-xl", i === 2 && "h-24")}
+              />
             </div>
           ))}
           <div className="md:col-span-2">

@@ -1,8 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton-loader";
 
 export const ProductCardSkeleton = () => (
-  <div className="bg-[#11151c] border border-white/5 rounded-3xl overflow-hidden flex flex-col">
-    <div className="relative aspect-3/2 w-full h-28 sm:h-36 md:h-40 bg-[#0a0c12]">
+  <div className="bg-card border border-border/50 rounded-3xl overflow-hidden flex flex-col">
+    <div className="relative aspect-3/2 w-full h-28 sm:h-36 md:h-40 bg-muted">
       <Skeleton className="absolute inset-0 rounded-none" />
     </div>
     <div className="p-3 md:p-5 space-y-3">

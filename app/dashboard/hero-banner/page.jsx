@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   getHeroBanner,
   updateHeroBanner,
@@ -8,7 +12,7 @@ import { ImageUploader } from "@/features/images/components/image-uploader";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const heroBannerSchema = z.object({
@@ -94,21 +98,9 @@ export default function HeroBannerDashboard() {
     const result = await updateHeroBanner(data);
 
     if (result.success) {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Hero banner updated successfully!",
-        background: "#11151c",
-        color: "#fff",
-      });
+      toast.success(result.message || "Hero banner updated successfully.");
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to update hero banner.",
-        background: "#11151c",
-        color: "#fff",
-      });
+      toast.error("Failed to update hero banner.");
     }
   };
 
@@ -121,13 +113,11 @@ export default function HeroBannerDashboard() {
     );
   }
 
-  const inputClass =
-    "w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color transition-all";
-  const labelClass = "block text-sm font-medium text-gray-300 mb-2";
+  const inputClass = "w-full px-2";
 
   return (
     <section className="max-w-4xl mx-auto p-4 md:p-8">
-      <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
+      <div className="bg-background shadow-xl border border-accent-content/5 p-6 md:p-8">
         <h1 className="text-xl md:text-2xl font-bold text-accent-content mb-8">
           Manage Hero Banner
         </h1>
@@ -142,9 +132,8 @@ export default function HeroBannerDashboard() {
                 const error = fieldState.error?.message;
 
                 return (
-                  <div>
-                    <label
-                      className={labelClass}
+                  <Field>
+                    <FieldLabel
                       htmlFor={field.name}
                       data-invalid={fieldState.invalid}
                     >
@@ -152,10 +141,10 @@ export default function HeroBannerDashboard() {
                       {field.required && (
                         <span className="text-red-500">*</span>
                       )}
-                    </label>
+                    </FieldLabel>
 
                     {field.component === "textarea" ? (
-                      <textarea
+                      <Textarea
                         {...formField}
                         id={field.name}
                         rows={field.rows}
@@ -164,7 +153,7 @@ export default function HeroBannerDashboard() {
                         placeholder={field.placeholder}
                       />
                     ) : (
-                      <input
+                      <Input
                         {...formField}
                         id={field.name}
                         type={field.type}
@@ -174,10 +163,8 @@ export default function HeroBannerDashboard() {
                       />
                     )}
 
-                    {error && (
-                      <p className="text-red-500 text-sm mt-1">{error}</p>
-                    )}
-                  </div>
+                    {error && <FieldError>{error}</FieldError>}
+                  </Field>
                 );
               }}
             />
@@ -187,10 +174,10 @@ export default function HeroBannerDashboard() {
             name="imageUrl"
             control={control}
             render={({ fieldState }) => (
-              <div>
-                <label className={labelClass}>
+              <Field>
+                <FieldLabel>
                   Banner Image <span className="text-red-500">*</span>
-                </label>
+                </FieldLabel>
                 <ImageUploader
                   folder="hero"
                   value={imageUrl}
@@ -203,26 +190,24 @@ export default function HeroBannerDashboard() {
                   label="Banner"
                 />
                 {fieldState.error && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {fieldState.error.message}
-                  </p>
+                  <FieldError>{fieldState.error.message}</FieldError>
                 )}
-              </div>
+              </Field>
             )}
           />
 
           <div className="flex justify-end pt-4">
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 bg-primary-color hover:bg-accent-content text-black font-semibold text-sm sm:text-base rounded-xl transition-all shadow-lg ${
+              className={`${
                 isSubmitting
                   ? "opacity-70 cursor-not-allowed"
                   : "hover:-translate-y-0.5"
               }`}
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

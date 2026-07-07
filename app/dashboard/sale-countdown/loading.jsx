@@ -1,5 +1,5 @@
-import { cn } from "@/utils/cn";
 import { Skeleton } from "@/components/ui/skeleton-loader";
+import { cn } from "@/utils/utils";
 
 export default function SaleCountdownLoading() {
   return (
@@ -12,7 +12,9 @@ export default function SaleCountdownLoading() {
           {[1, 2, 3, 4].map((i) => (
             <div key={i}>
               <Skeleton className="h-4 w-28 mb-2" />
-              <Skeleton className={cn("w-full h-11 rounded-xl", i === 2 && "h-24")} />
+              <Skeleton
+                className={cn("w-full h-11 rounded-xl", i === 2 && "h-24")}
+              />
             </div>
           ))}
           <div className="flex justify-end pt-4">

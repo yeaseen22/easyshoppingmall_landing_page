@@ -1,64 +1,33 @@
 import Container from "@/components/ui/container";
 import Section from "@/components/ui/section";
-import { Star } from "lucide-react";
+import { MessageSquareQuote } from "lucide-react";
 import ReviewForm from "./review-form";
 import ReviewSlider from "./review-slider";
 
 export default function Testimonials({ reviews = [] }) {
-  const avgRating =
-    reviews.length > 0
-      ? (
-          reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        ).toFixed(1)
-      : 0;
-
   return (
-    <Section className="bg-[#080808]">
+    <Section>
       <Container>
-        <div className="text-center mb-12">
-          <span className="inline-block bg-primary-color/10 border border-primary-color/30 text-primary-color px-4 py-1.5 rounded-full uppercase mb-4 text-xs sm:text-sm">
-            Customer Reviews
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-accent-content mb-4">
-            What Our <span className="text-primary-color">Customers</span> Say
+        <div className="flex flex-col items-start gap-4 mb-12">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2.5 rounded-lg">
+              <MessageSquareQuote className="w-5 h-5 text-primary" />
+            </div>
+            <span className="text-primary font-medium text-sm tracking-widest uppercase bg-primary/10 px-3 py-1 rounded-full">
+              Testimonials
+            </span>
+          </div>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground">
+            What our <span className="text-primary">Customers</span> Say
           </h2>
-          <p className="text-gray-500 text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-            Trusted by
-            {reviews.length > 0
-              ? ` ${reviews.length.toLocaleString()}+`
-              : " 0"}{" "}
-            happy shoppers across Bangladesh
+          <p className="text-muted-foreground max-w-xl">
+            Discover why thousands of customers trust us for their shopping
+            needs
           </p>
         </div>
 
-        <div className="flex justify-center gap-6 bg-accent-content/2 border border-accent-content/7 rounded-2xl px-6 py-4 max-w-xs mx-auto mb-12">
-          <div className="text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-primary-color">
-              {avgRating}★
-            </p>
-            <p className="text-sm text-gray-500 mt-1">Average Rating</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-primary-color">
-              {reviews.length}+
-            </p>
-            <p className="text-sm text-gray-500 mt-1">Verified Reviews</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            {reviews.length === 0 ? (
-              <div className="text-center py-16 text-gray-500 bg-[#11151c] rounded-2xl border border-accent-content/5">
-                <Star className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                <p className="text-lg font-semibold mb-1">No reviews yet</p>
-                <p className="text-sm">Be the first to leave a review!</p>
-              </div>
-            ) : (
-              <ReviewSlider reviews={reviews} />
-            )}
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-center">
+          <ReviewSlider reviews={reviews || []} />
           <ReviewForm />
         </div>
       </Container>

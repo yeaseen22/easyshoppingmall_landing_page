@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table";
 import { getStatusStyle } from "@/features/dashboard-overview/utils/utils";
 import { deleteOrder } from "@/features/orders/actions/order";
@@ -22,8 +23,8 @@ const OrderTable = ({ orders = [], isLoading }) => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      background: "#11151c",
-      color: "#fff",
+      background: "var(--color-card)",
+      color: "var(--color-foreground)",
     });
 
     if (confirm.isConfirmed) {
@@ -36,41 +37,22 @@ const OrderTable = ({ orders = [], isLoading }) => {
     {
       header: "Order ID",
       accessor: "_id",
-      className: "text-xs text-primary-color font-mono",
+      className: "text-xs text-primary font-mono",
       cell: (val) => (val || "").slice(0, 8),
     },
-    {
-      header: "Customer",
-      accessor: "customerName",
-      className: "text-sm text-accent-content",
-    },
+    { header: "Customer", accessor: "customerName", className: "text-sm text-foreground" },
     {
       header: "Date",
       accessor: "createdAt",
-      className: "text-sm text-gray-400",
+      className: "text-sm text-muted-foreground",
       cell: (val) => new Date(val).toLocaleDateString(),
     },
-    {
-      header: "Amount",
-      accessor: "totalPrice",
-      className: "text-sm text-accent-content font-bold",
-      cell: (val) => `৳${val}`,
-    },
-    {
-      header: "Phone",
-      accessor: "phone",
-      className: "text-sm text-gray-400",
-    },
+    { header: "Amount", accessor: "totalPrice", className: "text-sm text-foreground font-bold", cell: (val) => `৳${val}` },
+    { header: "Phone", accessor: "phone", className: "text-sm text-muted-foreground" },
     {
       header: "Status",
       accessor: "status",
-      cell: (val) => (
-        <span
-          className={`px-3 py-1 text-[10px] rounded ${getStatusStyle(val)}`}
-        >
-          {val}
-        </span>
-      ),
+      cell: (val) => <span className={`px-3 py-1 text-[10px] rounded ${getStatusStyle(val)}`}>{val}</span>,
     },
     {
       header: "Action",
@@ -79,18 +61,12 @@ const OrderTable = ({ orders = [], isLoading }) => {
       mobileHidden: true,
       cell: (_val, row) => (
         <div className="flex justify-end gap-2">
-          <button
-            onClick={() => setSelectedOrder(row)}
-            className="p-2 bg-primary-color rounded-lg"
-          >
+          <Button variant="default" size="icon" onClick={() => setSelectedOrder(row)} className="bg-primary text-primary-foreground">
             <EyeIcon size={16} />
-          </button>
-          <button
-            onClick={() => handleDelete(row._id)}
-            className="p-2 bg-secondary rounded-lg"
-          >
+          </Button>
+          <Button variant="secondary" size="icon" onClick={() => handleDelete(row._id)}>
             <Trash2Icon size={16} />
-          </button>
+          </Button>
         </div>
       ),
     },
@@ -104,52 +80,28 @@ const OrderTable = ({ orders = [], isLoading }) => {
         isLoading={isLoading}
         emptyMessage="No orders yet."
         renderMobileCard={(order) => (
-          <div
-            key={order._id}
-            className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-2"
-          >
+          <div key={order._id} className="bg-card border border-border p-4 space-y-2">
             <div className="flex justify-between items-center">
-              <p className="text-xs text-[#d4af37] font-mono">
-                {(order._id || "").slice(0, 8)}
-              </p>
-              <span
-                className={`px-2 py-1 text-[10px] rounded ${getStatusStyle(order.status)}`}
-              >
-                {order.status}
-              </span>
+              <p className="text-xs text-primary font-mono">{(order._id || "").slice(0, 8)}</p>
+              <span className={`px-2 py-1 text-[10px] rounded ${getStatusStyle(order.status)}`}>{order.status}</span>
             </div>
-            <p className="text-accent-content font-semibold text-sm">
-              {order.customerName}
-            </p>
-            <p className="text-xs text-gray-400">📞 {order.phone}</p>
-            <p className="text-xs text-gray-400">
-              📅 {new Date(order.createdAt).toLocaleDateString()}
-            </p>
-            <p className="text-sm text-accent-content font-bold">
-              ৳{order.totalPrice}
-            </p>
+            <p className="text-foreground font-semibold text-sm">{order.customerName}</p>
+            <p className="text-xs text-muted-foreground">📞 {order.phone}</p>
+            <p className="text-xs text-muted-foreground">📅 {new Date(order.createdAt).toLocaleDateString()}</p>
+            <p className="text-sm text-foreground font-bold">৳{order.totalPrice}</p>
             <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setSelectedOrder(order)}
-                className="p-2 bg-primary-color rounded-lg"
-              >
+              <Button variant="default" size="icon" onClick={() => setSelectedOrder(order)} className="bg-primary text-primary-foreground">
                 <EyeIcon size={14} />
-              </button>
-              <button
-                onClick={() => handleDelete(order._id)}
-                className="p-2 bg-secondary rounded-lg"
-              >
+              </Button>
+              <Button variant="secondary" size="icon" onClick={() => handleDelete(order._id)}>
                 <Trash2Icon size={14} />
-              </button>
+              </Button>
             </div>
           </div>
         )}
       />
 
-      <OrderDetailsModal
-        order={selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-      />
+      <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
     </>
   );
 };

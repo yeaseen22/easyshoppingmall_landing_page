@@ -1,4 +1,4 @@
-import { cn } from "@/utils/cn";
+import { cn } from "@/utils/utils";
 
 export function LoadingSpinner({ size = "md", className, text }) {
   const sizes = {
@@ -11,14 +11,11 @@ export function LoadingSpinner({ size = "md", className, text }) {
   return (
     <div className={cn("flex flex-col items-center justify-center gap-3", className)}>
       <div
-        className={cn(
-          "rounded-full border-primary-color/30 border-t-primary-color animate-spin",
-          sizes[size],
-        )}
+        className={cn("rounded-full border-primary/30 border-t-primary animate-spin", sizes[size])}
         role="status"
         aria-label="Loading"
       />
-      {text && <p className="text-sm text-gray-400">{text}</p>}
+      {text && <p className="text-sm text-muted-foreground">{text}</p>}
     </div>
   );
 }

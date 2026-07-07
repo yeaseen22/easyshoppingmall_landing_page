@@ -1,5 +1,6 @@
 "use client";
 
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useOptimistic } from "react";
 
@@ -26,32 +27,24 @@ const StatusTab = ({ tabs, activeStatus, startTransition, isLoading }) => {
     });
   };
 
-  return (
-    <>
-      {tabs.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 bg-[#11151c] border border-accent-content/5 rounded-xl p-1.5 w-fit">
-          {tabs.map((tab) => {
-            const isActive = tab.value === optimisticTab;
+  if (!tabs.length) return null;
 
-            return (
-              <button
-                key={tab.value || "all"}
-                onClick={() => handleTabChange(tab.value)}
-                disabled={isLoading}
-                title={isLoading ? `Loading ${tab.label}...` : tab.label}
-                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? "bg-primary-color text-black shadow-sm"
-                    : "text-gray-500 hover:text-accent-content hover:bg-accent-content/5"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </>
+  return (
+    <Tabs value={optimisticTab} onValueChange={handleTabChange}>
+      <TabsList className="bg-card border border-border rounded-xl p-1.5 h-auto gap-1.5">
+        {tabs.map((tab) => (
+          <TabsTrigger
+            key={tab.value || "all"}
+            value={tab.value}
+            disabled={isLoading}
+            title={isLoading ? `Loading ${tab.label}...` : tab.label}
+            className="px-4 py-2 text-xs font-bold rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-muted-foreground"
+          >
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 };
 

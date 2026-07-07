@@ -1,7 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LayoutDashboardIcon, LogIn } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export const AuthButton = () => {
@@ -9,38 +12,27 @@ export const AuthButton = () => {
   const { push } = useRouter();
 
   if (status === "loading") {
-    return (
-      <>
-        <div className="w-20 h-6 rounded-lg bg-gray-500 animate-pulse"></div>
-      </>
-    );
+    return <Skeleton className="w-20 h-6" />;
   }
 
   if (session) {
     return (
-      <button
-        onClick={() => push("/dashboard")}
-        type="button"
-        aria-label="Dashboard"
-        title="Dashboard"
-        className="flex items-center gap-2 bg-primary-color/80 hover:bg-primary-color text-neutral-900 px-2 md:px-4 py-2 rounded-lg transition-colors"
-      >
-        <LayoutDashboardIcon className="size-4" />
-        <span className="hidden sm:inline-block">Dashboard</span>
-      </button>
+      <Button size="sm" asChild>
+        <Link
+          href="/dashboard"
+          className="flex items-center justify-center gap-1"
+        >
+          <LayoutDashboardIcon className="size-4" />
+          <span className="hidden sm:inline-block">Dashboard</span>
+        </Link>
+      </Button>
     );
   }
 
   return (
-    <button
-      onClick={() => push("/login")}
-      type="button"
-      aria-label="Sign In"
-      title="Sign In"
-      className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-2 md:px-4 py-2 rounded-lg transition-colors"
-    >
+    <Button onClick={() => push("/login")} size="sm" variant="secondary">
       <LogIn className="size-4" />
       <span className="hidden sm:inline-block">Sign In</span>
-    </button>
+    </Button>
   );
 };

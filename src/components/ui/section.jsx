@@ -1,12 +1,12 @@
 "use client";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/utils/utils";
 
 const Section = ({ children, className, ...props }) => {
   return (
     <section
       className={cn(
-        "py-26 md:py-32 min-h-dvh grid place-items-center w-full h-full clear-both",
+        "pt-26 md:pt-32 pb-14 min-h-dvh grid place-items-center w-full h-full clear-both",
         className,
       )}
       {...props}

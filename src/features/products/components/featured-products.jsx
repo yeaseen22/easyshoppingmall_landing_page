@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { ProductCardSkeleton } from "@/components/skeletons/product-card-skeleton";
 import Container from "@/components/ui/container";
 import Pagination from "@/components/ui/pagination";
@@ -17,16 +18,16 @@ export default function FeaturedProducts({ products = [], pagination }) {
   const params = new URLSearchParams(searchParams.toString());
 
   return (
-    <Section id="products" className="bg-[#080808]">
+    <Section id="products" className="bg-background">
       <Container>
         <div className="text-center mb-16">
-          <span className="inline-block bg-primary-color/10 border border-primary-color/30 text-primary-color px-4 py-1.5 rounded-full uppercase mb-4 text-xs sm:text-sm">
+          <Badge variant="outline" className="border-primary/30 text-primary px-4 py-1.5 rounded-full uppercase mb-4 text-xs sm:text-sm bg-primary/10">
             Our Collection
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-accent-content mb-4">
-            Premium <span className="text-primary-color">Timepieces</span>
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Premium <span className="text-primary">Timepieces</span>
           </h2>
-          <p className="text-gray-500 text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed">
             Discover our handpicked selection of luxury apparel, each crafted
             with precision and elegance.
           </p>
@@ -40,7 +41,7 @@ export default function FeaturedProducts({ products = [], pagination }) {
           {isLoading ? (
             [...Array(10)].map((_, i) => <ProductCardSkeleton key={i} />)
           ) : products.length === 0 ? (
-            <div className="text-3xl text-center py-10 text-gray-500 col-span-full">
+            <div className="text-3xl text-center py-10 text-muted-foreground col-span-full">
               No products found!
             </div>
           ) : (

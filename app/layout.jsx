@@ -1,11 +1,17 @@
-import AuthProvider from "@/components/provider/auth-provider";
+import ProviderWrapper from "@/components/provider/provider-wrapper";
 import { getOrders } from "@/features/orders/actions/order";
-import { OrderStoreProvider } from "@/features/orders/store/order-store-provider";
 import { getProducts } from "@/features/products/actions/product";
-import { ProductStoreProvider } from "@/features/products/store/product-store-provider";
-import { Poppins, Roboto } from "next/font/google";
-import { Toaster } from "sonner";
+import { cn } from "@/utils/utils";
+import { Nunito_Sans, Poppins, Raleway, Roboto } from "next/font/google";
 import "./globals.css";
+
+const ralewayHeading = Raleway({
+  subsets: ["latin"],
+  variable: "--font-heading",
+});
+
+const nunitoSans = Nunito_Sans({ subsets: ["latin"], variable: "--font-sans" });
+
 const roboto = Roboto({
   subsets: ["latin"],
   variable: "--font-roboto",
@@ -85,19 +91,31 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const [products, orders] = await Promise.all([getProducts({}), getOrders({})]);
+  const [products, orders] = await Promise.all([
+    getProducts({}),
+    getOrders({}),
+  ]);
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={cn(
+        "font-sans",
+        "dark",
+        nunitoSans.variable,
+        ralewayHeading.variable,
+      )}
+    >
       <body
-        className={`${poppins.variable} ${roboto.variable} font-sans antialiased scroll-smooth`}
+        className={cn(
+          "font-sans antialiased scroll-smooth",
+          poppins.variable,
+          roboto.variable,
+        )}
       >
-        <AuthProvider>
-          <ProductStoreProvider products={products}>
-            <OrderStoreProvider orders={orders}>{children}</OrderStoreProvider>
-          </ProductStoreProvider>
-        </AuthProvider>
-        <Toaster richColors closeButton position="top-right" theme="dark" />
+        <ProviderWrapper products={products} orders={orders}>
+          {children}
+        </ProviderWrapper>
       </body>
     </html>
   );

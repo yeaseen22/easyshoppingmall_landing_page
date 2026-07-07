@@ -1,17 +1,19 @@
-function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null;
+import { Card } from "@/components/ui/card";
+
+export const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
 
   return (
-    <div className="bg-[#1a1f2e] border border-accent-content/10 rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-gray-400 text-xs mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="text-sm font-bold" style={{ color: p.color }}>
-          {p.name}:{" "}
-          {p.name === "Revenue" ? `৳${p.value.toLocaleString()}` : p.value}
+    <Card className="bg-card border border-border p-3 shadow-lg">
+      <p className="text-foreground font-bold text-sm mb-1">{label}</p>
+      {payload.map((entry, index) => (
+        <p key={index} className="text-muted-foreground text-xs">
+          {entry.name}:{" "}
+          <span className="text-primary font-bold">
+            ৳{Number(entry.value).toLocaleString()}
+          </span>
         </p>
       ))}
-    </div>
+    </Card>
   );
-}
-
-export default CustomTooltip;
+};

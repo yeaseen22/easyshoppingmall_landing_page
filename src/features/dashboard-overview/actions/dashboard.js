@@ -4,7 +4,7 @@ import { connectDB } from "@/config/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import Review from "@/models/Review";
-import { subDays, format } from "date-fns";
+import { format, subDays } from "date-fns";
 
 export async function getDashboardStats() {
   try {
@@ -42,9 +42,7 @@ export async function getDashboardStats() {
         },
         { $sort: { _id: 1 } },
       ]),
-      Order.aggregate([
-        { $group: { _id: "$status", count: { $sum: 1 } } },
-      ]),
+      Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
     ]);
 
     const recentOrderCount = recentOrders.length;
@@ -74,12 +72,13 @@ export async function getDashboardStats() {
       if (item) item.value = s.count;
     });
 
-    const avgRating = totalReviews > 0
-      ? await Review.aggregate([
-          { $match: { approved: true } },
-          { $group: { _id: null, avg: { $avg: "$rating" } } },
-        ]).then((r) => (r[0]?.avg || 0).toFixed(1))
-      : "0.0";
+    const avgRating =
+      totalReviews > 0
+        ? await Review.aggregate([
+            { $match: { approved: true } },
+            { $group: { _id: null, avg: { $avg: "$rating" } } },
+          ]).then((r) => (r[0]?.avg || 0).toFixed(1))
+        : "0.0";
 
     return {
       totalOrders,
@@ -107,10 +106,7 @@ export async function getRecentActivity() {
         .limit(10)
         .lean()
         .populate("productId", "name"),
-      Review.find()
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .lean(),
+      Review.find().sort({ createdAt: -1 }).limit(5).lean(),
     ]);
 
     const activities = [];
@@ -143,6 +139,29 @@ export async function getRecentActivity() {
     }));
   } catch (error) {
     console.error("Failed to get recent activity:", error);
+    return [];
+  }
+}
+
+export async function getRecentOrders(limit = 5) {
+  try {
+    await connectDB();
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean()
+      .populate("productId", "name image");
+
+    return orders.map((o) => ({
+      _id: o._id.toString(),
+      customerName: o.customerName,
+      totalPrice: o.totalPrice,
+      status: o.status,
+      createdAt: o.createdAt,
+      phone: o.phone,
+    }));
+  } catch (error) {
+    console.error("Failed to get recent orders:", error);
     return [];
   }
 }

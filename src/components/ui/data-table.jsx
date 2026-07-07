@@ -1,26 +1,36 @@
 "use client";
 
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 function SkeletonRow({ cols }) {
   return (
-    <tr className="animate-pulse">
+    <TableRow>
       {Array.from({ length: cols }).map((_, i) => (
-        <td key={i} className="px-6 py-4">
-          <div className="h-4 bg-accent-content/5 rounded w-3/4" />
-        </td>
+        <TableCell key={i}>
+          <Skeleton className="h-4 w-3/4" />
+        </TableCell>
       ))}
-    </tr>
+    </TableRow>
   );
 }
 
 function SkeletonCard() {
   return (
-    <div className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-3 animate-pulse">
+    <div className="bg-card border border-border p-4 space-y-3 animate-pulse">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-3 bg-accent-content/5 rounded w-3/4" />
+        <Skeleton key={i} className="h-3 w-3/4" />
       ))}
       <div className="flex justify-end gap-2 pt-1">
-        <div className="h-8 w-8 bg-accent-content/5 rounded-lg" />
-        <div className="h-8 w-8 bg-accent-content/5 rounded-lg" />
+        <Skeleton className="h-8 w-8 rounded-lg" />
+        <Skeleton className="h-8 w-8 rounded-lg" />
       </div>
     </div>
   );
@@ -36,6 +46,7 @@ export default function DataTable({
   isLoading,
 }) {
   const colCount = columns?.length || headers?.length || 1;
+  const cols = columns || headers;
 
   return (
     <div className="space-y-5">
@@ -49,33 +60,38 @@ export default function DataTable({
             </div>
           )}
           <div
-            className={`${renderMobileCard ? "hidden xl:block" : ""} bg-[#11151c] border border-accent-content/5 rounded-xl overflow-hidden`}
+            className={`${renderMobileCard ? "hidden xl:block" : ""} bg-card border border-border overflow-hidden`}
           >
-            <div className="w-full overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-[#0a0c12] text-gray-500 text-[10px] uppercase border-b border-accent-content/5">
-                  <tr>
-                    {(columns || headers).map((h, i) => (
-                      <th
-                        key={i}
-                        className={`px-6 py-4 ${h.align === "right" || h.className?.includes("text-right") ? "text-right" : ""}`}
-                      >
-                        {h.header || h.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-accent-content/5">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <SkeletonRow key={i} cols={colCount} />
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted hover:bg-muted border-border">
+                  {cols.map((h, i) => (
+                    <TableHead
+                      key={i}
+                      className={
+                        h.align === "right" ||
+                        h.className?.includes("text-right")
+                          ? "text-right"
+                          : ""
+                      }
+                    >
+                      {h.header || h.label}
+                    </TableHead>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <SkeletonRow key={i} cols={colCount} />
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </>
       ) : data.length === 0 ? (
-        <p className="text-gray-500 text-center py-8 text-sm">{emptyMessage}</p>
+        <p className="text-muted-foreground text-center py-8 text-sm">
+          {emptyMessage}
+        </p>
       ) : (
         <>
           {renderMobileCard && (
@@ -85,49 +101,51 @@ export default function DataTable({
           )}
 
           <div
-            className={`${renderMobileCard ? "hidden xl:block" : ""} bg-[#11151c] border border-accent-content/5 rounded-xl overflow-hidden`}
+            className={`${renderMobileCard ? "hidden xl:block" : ""} bg-card border border-border overflow-hidden`}
           >
-            <div className="w-full overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-[#0a0c12] text-gray-500 text-[10px] uppercase border-b border-accent-content/5">
-                  <tr>
-                    {(columns || headers).map((h, i) => (
-                      <th
-                        key={i}
-                        className={`px-6 py-4 ${h.align === "right" || h.className?.includes("text-right") ? "text-right" : ""}`}
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted hover:bg-muted border-border">
+                  {cols.map((h, i) => (
+                    <TableHead
+                      key={i}
+                      className={
+                        h.align === "right" ||
+                        h.className?.includes("text-right")
+                          ? "text-right"
+                          : ""
+                      }
+                    >
+                      {h.header || h.label}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {columns
+                  ? data.map((row, rowIndex) => (
+                      <TableRow
+                        key={row._id || rowIndex}
+                        className="hover:bg-accent/50 border-border"
                       >
-                        {h.header || h.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-accent-content/5">
-                  {columns
-                    ? data.map((row, rowIndex) => (
-                        <tr
-                          key={row._id || rowIndex}
-                          className="hover:bg-accent-content/5"
-                        >
-                          {columns.map((col, colIndex) => {
-                            const value = row[col.accessor];
-                            
-                            return (
-                              <td
-                                key={colIndex}
-                                className={`px-6 py-4 ${col.className || ""}`}
-                              >
-                                {col.cell
-                                  ? col.cell(value, row)
-                                  : String(value ?? "")}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))
-                    : data.map(renderRow)}
-                </tbody>
-              </table>
-            </div>
+                        {columns.map((col, colIndex) => {
+                          const value = row[col.accessor];
+                          return (
+                            <TableCell
+                              key={colIndex}
+                              className={col.className || ""}
+                            >
+                              {col.cell
+                                ? col.cell(value, row)
+                                : String(value ?? "")}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))
+                  : data.map(renderRow)}
+              </TableBody>
+            </Table>
           </div>
         </>
       )}

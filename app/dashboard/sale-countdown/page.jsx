@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   getSaleCountDown,
   updateSaleCountDown,
@@ -78,13 +82,9 @@ export default function SaleCountdownDashboard() {
     );
   }
 
-  const inputClass =
-    "w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color transition-all";
-  const labelClass = "block text-sm font-medium text-gray-300 mb-2";
-
   return (
     <section className="max-w-4xl mx-auto p-4 md:p-8">
-      <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
+      <div className="bg-background shadow-xl border border-accent-content/5 p-6 md:p-8">
         <h1 className="text-xl md:text-2xl font-bold text-accent-content mb-2">
           Manage Sale Countdown
         </h1>
@@ -99,21 +99,19 @@ export default function SaleCountdownDashboard() {
             render={({ field, fieldState }) => {
               const error = fieldState.error?.message;
               return (
-                <div>
-                  <label className={labelClass} htmlFor="title">
+                <Field>
+                  <FieldLabel htmlFor="title">
                     Section Title <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                  </FieldLabel>
+                  <Input
                     {...field}
                     id="title"
                     type="text"
-                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""}`}
                     placeholder="Limited Time Offer - Up to 40% Off!"
+                    className="px-2"
                   />
-                  {error && (
-                    <p className="text-red-400 text-xs mt-1">{error}</p>
-                  )}
-                </div>
+                  {error && <FieldError>{error}</FieldError>}
+                </Field>
               );
             }}
           />
@@ -124,21 +122,21 @@ export default function SaleCountdownDashboard() {
             render={({ field, fieldState }) => {
               const error = fieldState.error?.message;
               return (
-                <div>
-                  <label className={labelClass} htmlFor="description">
+                <Field>
+                  <FieldLabel htmlFor="description">
                     Section Description <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
+                  </FieldLabel>
+                  <Textarea
                     {...field}
                     id="description"
                     rows={3}
-                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""}`}
                     placeholder="Don't miss out on this exclusive offer..."
+                    className="px-2"
                   />
                   {error && (
                     <p className="text-red-400 text-xs mt-1">{error}</p>
                   )}
-                </div>
+                </Field>
               );
             }}
           />
@@ -149,28 +147,22 @@ export default function SaleCountdownDashboard() {
             render={({ field, fieldState }) => {
               const error = fieldState.error?.message;
               return (
-                <div>
-                  <label className={labelClass} htmlFor="timezone">
+                <Field>
+                  <FieldLabel htmlFor="timezone">
                     Timezone <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    {...field}
-                    id="timezone"
-                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""} scheme-dark`}
-                  >
+                  </FieldLabel>
+                  <select {...field} id="timezone" className="px-2 text-foreground bg-background">
                     {TIMEZONES.map((tz) => (
                       <option key={tz} value={tz}>
                         {tz}
                       </option>
                     ))}
                   </select>
-                  {error && (
-                    <p className="text-red-400 text-xs mt-1">{error}</p>
-                  )}
+                  {error && <FieldError>{error}</FieldError>}
                   <p className="text-gray-500 text-xs mt-1">
                     The countdown deadline will be relative to this timezone
                   </p>
-                </div>
+                </Field>
               );
             }}
           />
@@ -181,30 +173,28 @@ export default function SaleCountdownDashboard() {
             render={({ field, fieldState }) => {
               const error = fieldState.error?.message;
               return (
-                <div>
-                  <label className={labelClass} htmlFor="targetDate">
+                <Field>
+                  <FieldLabel htmlFor="targetDate">
                     Target End Date/Time (Countdown Deadline){" "}
                     <span className="text-red-500">*</span>
-                  </label>
-                  <input
+                  </FieldLabel>
+                  <Input
                     {...field}
                     id="targetDate"
                     type="datetime-local"
-                    className={`${inputClass} ${error ? "ring-2 ring-red-500" : ""} scheme-dark`}
+                    className="px-2"
                   />
-                  {error && (
-                    <p className="text-red-400 text-xs mt-1">{error}</p>
-                  )}
-                </div>
+                  {error && <FieldError>{error}</FieldError>}
+                </Field>
               );
             }}
           />
 
           <div className="flex justify-end pt-4">
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className={`flex items-center gap-2 px-6 py-3 bg-primary-color hover:bg-accent-content text-black font-bold rounded-xl transition-all shadow-lg ${
+              className={`shadow-lg ${
                 isSubmitting
                   ? "opacity-70 cursor-not-allowed"
                   : "hover:-translate-y-0.5"
@@ -217,7 +207,7 @@ export default function SaleCountdownDashboard() {
               ) : (
                 "Save Changes"
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

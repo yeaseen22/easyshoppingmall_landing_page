@@ -1,5 +1,7 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import Container from "@/components/ui/container";
 import Section from "@/components/ui/section";
 import { format } from "date-fns";
@@ -45,16 +47,16 @@ const SaleCountDown = ({ saleCountdown }) => {
     targetDate && timezone ? toZonedTime(new Date(targetDate), timezone) : null;
 
   const timeBlock = (value, label) => (
-    <div className="bg-[#2C2B30] size-12.5 sm:size-18 p-1.5 rounded-lg shadow-md flex justify-center flex-col items-center">
-      <span className="text-primary-color text-base sm:text-xl">
+    <div className="bg-muted/40 backdrop-blur-md size-12.5 sm:size-18 p-1.5 rounded-lg shadow-md flex justify-center flex-col items-center">
+      <span className="text-primary text-base sm:text-xl">
         {(value ?? 0).toString().padStart(2, "0")}
       </span>
-      <span className="text-[8px] sm:text-xs text-[#AAAAAA] mt-1">{label}</span>
+      <span className="text-[8px] sm:text-xs text-muted-foreground mt-1">{label}</span>
     </div>
   );
 
   return (
-    <Section className="text-center min-h-auto py-10 md:py-16 relative">
+    <Section className="text-center min-h-auto py-10 md:py-16 relative bg-background">
       <div className="absolute w-full h-full top-0 left-0">
         <Image
           src={"/glowing_stars.svg"}
@@ -68,14 +70,14 @@ const SaleCountDown = ({ saleCountdown }) => {
       </div>
 
       <Container className="max-w-2xl z-1">
-        <div className="rounded-xl bg-white/7 backdrop-blur-md shadow-3xl shadow-primary-color/40 p-5">
-          <p className="inline-block px-3 py-1 rounded-full text-xs sm:text-sm mb-3 bg-[#622c1c] text-primary-color">
-            {timeLeft?.expired ? "🎉 Sale Ended" : "🔥 Limited Time Only"}
-          </p>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-accent-content">
+        <Card className="bg-card/15 backdrop-blur-md shadow-2xl shadow-primary/10 p-5 border-0">
+          <Badge className="inline-flex px-3 py-1 rounded-full text-xs sm:text-sm mb-3 bg-[#622c1c] text-primary hover:bg-[#622c1c] border-0">
+            {timeLeft?.expired ? "Sale Ended" : "Limited Time Only"}
+          </Badge>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-foreground">
             {saleCountdown.title}
           </h1>
-          <p className="mb-6 text-[#B0B0B0] text-sm sm:text-base md:text-lg">
+          <p className="mb-6 text-muted-foreground text-sm sm:text-base md:text-lg">
             {saleCountdown.description}
           </p>
 
@@ -83,34 +85,27 @@ const SaleCountDown = ({ saleCountdown }) => {
             <>
               <div className="grid grid-cols-7 place-items-center gap-1 mb-4 max-w-xs mx-auto">
                 {timeBlock(timeLeft.days, "DAYS")}
-                <span className="text-xl font-bold text-[#AAAAAA] flex items-center">
-                  :
-                </span>
+                <span className="text-xl font-bold text-muted-foreground flex items-center">:</span>
                 {timeBlock(timeLeft.hours, "HOURS")}
-                <span className="text-xl font-bold text-[#AAAAAA] flex items-center">
-                  :
-                </span>
+                <span className="text-xl font-bold text-muted-foreground flex items-center">:</span>
                 {timeBlock(timeLeft.minutes, "MINUTES")}
-                <span className="text-xl font-bold text-[#AAAAAA] flex items-center">
-                  :
-                </span>
+                <span className="text-xl font-bold text-muted-foreground flex items-center">:</span>
                 {timeBlock(timeLeft.seconds, "SECONDS")}
               </div>
               {zonedDate && (
-                <p className="text-[10px] text-gray-500">
-                  Ends {format(zonedDate, "MMM d, yyyy 'at' h:mm a")} (
-                  {timezone})
+                <p className="text-[10px] text-muted-foreground">
+                  Ends {format(zonedDate, "MMM d, yyyy 'at' h:mm a")} ({timezone})
                 </p>
               )}
             </>
           )}
 
           {timeLeft?.expired && (
-            <div className="text-xl text-gray-500 font-bold py-6">
+            <div className="text-xl text-muted-foreground font-bold py-6">
               This sale has ended. Stay tuned for new offers!
             </div>
           )}
-        </div>
+        </Card>
       </Container>
     </Section>
   );
