@@ -74,7 +74,7 @@ export default function Footer({ settings = {} }) {
             {defaultPaymentMethods.map((method) => (
               <span
                 key={method}
-                className="text-xs bg-muted border border-border px-3 py-1 rounded-lg text-muted-foreground hover:border-primary hover:text-primary transition"
+                className="text-xs bg-muted border border-border px-3 py-1 text-muted-foreground hover:border-primary hover:text-primary transition"
               >
                 {method}
               </span>

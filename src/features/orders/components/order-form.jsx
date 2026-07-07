@@ -425,7 +425,7 @@ export default function OrderForm({ settings = {} }) {
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={!id || isSubmitting}
                   className="w-full mt-8"
                 >
                   {!id
