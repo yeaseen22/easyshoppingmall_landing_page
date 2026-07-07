@@ -7,7 +7,7 @@ import {
 import { createStore } from "zustand";
 
 export const fetchOrders = async () => {
-  const data = await getOrders();
+  const data = await getOrders({});
   return data || [];
 };
 

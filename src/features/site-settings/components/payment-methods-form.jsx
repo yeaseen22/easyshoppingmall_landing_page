@@ -1,18 +1,23 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { updatePaymentMethods } from "@/features/site-settings/actions/site-settings";
 import { paymentMethodsSchema } from "@/features/site-settings/validations/site-settings-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Banknote, Loader2, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import Swal from "sweetalert2";
-
-const inputClass =
-  "w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color transition-all";
-
-const selectClass =
-  "w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-primary-color transition-all appearance-none";
+import { toast } from "sonner";
 
 export const PaymentMethodsForm = ({ data, onUpdated }) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -26,7 +31,7 @@ export const PaymentMethodsForm = ({ data, onUpdated }) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data)
       reset({
         nagad: {
           number: data.nagad?.number || "",
@@ -37,7 +42,6 @@ export const PaymentMethodsForm = ({ data, onUpdated }) => {
           type: data.bKash?.type || "Send Money",
         },
       });
-    }
   }, [data, reset]);
 
   const onSubmit = async (values) => {
@@ -45,165 +49,152 @@ export const PaymentMethodsForm = ({ data, onUpdated }) => {
     const result = await updatePaymentMethods(values);
     setIsSaving(false);
 
-    Swal.fire({
-      icon: result.success ? "success" : "error",
-      title: result.success ? "Success" : "Error",
-      text: result.message,
-      background: "#11151c",
-      color: "#fff",
-      timer: 2000,
-      showConfirmButton: false,
-    });
+    toast.success(result.message || "Payment methods updated successfully.");
 
     if (result.success && onUpdated) onUpdated();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8 space-y-6"
-    >
-      <h2 className="text-xl font-bold text-accent-content flex items-center gap-2">
-        <Banknote size={24} className="text-primary-color" />
-        Payment Methods
-      </h2>
-      <p className="text-sm text-gray-400 -mt-4">
-        Configure mobile financial service (MFS) accounts for receiving customer
-        payments.
-      </p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Payment Methods</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Configure mobile financial service (MFS) accounts for receiving
+          customer payments.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4 p-5 bg-muted rounded-xl border border-border">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-[#d4af37]" />
+                <h3 className="text-lg font-bold text-foreground">Nagad</h3>
+              </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-4 p-5 bg-[#0a0c12] rounded-xl border border-accent-content/5">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#d4af37]" />
-            <h3 className="text-lg font-bold text-accent-content">Nagad</h3>
+              <Controller
+                name="nagad.number"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="nagadNumber">
+                      Account Number <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="nagadNumber"
+                      {...field}
+                      type="tel"
+                      placeholder="01XXXXXXXXX"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="nagad.type"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label>
+                      Transaction Type{" "}
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder="Select transaction type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Send Money">Send Money</SelectItem>
+                        <SelectItem value="Cash Out">Cash Out</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="space-y-4 p-5 bg-muted rounded-xl border border-border">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-[#e2136e]" />
+                <h3 className="text-lg font-bold text-foreground">bKash</h3>
+              </div>
+
+              <Controller
+                name="bKash.number"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="bkashNumber">
+                      Account Number <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="bkashNumber"
+                      {...field}
+                      type="tel"
+                      placeholder="01XXXXXXXXX"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="bKash.type"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label>
+                      Transaction Type{" "}
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder="Select transaction type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Send Money">Send Money</SelectItem>
+                        <SelectItem value="Cash Out">Cash Out</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
           </div>
 
-          <Controller
-            name="nagad.number"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                Account Number <span className="text-red-500">*</span>
-                <input
-                  {...field}
-                  type="tel"
-                  placeholder="01XXXXXXXXX"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-
-          <Controller
-            name="nagad.type"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                Transaction Type <span className="text-red-500">*</span>
-                <select
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  className={selectClass}
-                >
-                  <option value="Send Money">Send Money</option>
-                  <option value="Cash Out">Cash Out</option>
-                </select>
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4 p-5 bg-[#0a0c12] rounded-xl border border-accent-content/5">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#e2136e]" />
-            <h3 className="text-lg font-bold text-accent-content">bKash</h3>
+          <div className="flex justify-end pt-4">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : (
+                <Save size={16} />
+              )}
+              Save Payment Methods
+            </Button>
           </div>
-
-          <Controller
-            name="bKash.number"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                Account Number <span className="text-red-500">*</span>
-                <input
-                  {...field}
-                  type="tel"
-                  placeholder="01XXXXXXXXX"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-
-          <Controller
-            name="bKash.type"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                Transaction Type <span className="text-red-500">*</span>
-                <select
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  className={selectClass}
-                >
-                  <option value="Send Money">Send Money</option>
-                  <option value="Cash Out">Cash Out</option>
-                </select>
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end pt-4">
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-3 bg-primary-color text-black font-bold rounded-xl transition-all hover:bg-primary-color/90 disabled:opacity-70"
-        >
-          {isSaving ? (
-            <Loader2 className="animate-spin" size={16} />
-          ) : (
-            <Save size={16} />
-          )}
-          Save Payment Methods
-        </button>
-      </div>
-    </form>
+        </form>
+      </CardContent>
+    </Card>
   );
 };

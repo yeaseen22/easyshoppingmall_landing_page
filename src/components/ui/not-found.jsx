@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
-import { cn } from "@/utils/cn";
+import Link from "next/link";
 
 export function NotFound({
   title = "Page Not Found",
@@ -13,32 +13,25 @@ export function NotFound({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
       <div className="mb-6">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary-color/10">
-          <span className="text-5xl font-black text-primary-color">404</span>
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+          <span className="text-5xl font-black text-primary">404</span>
         </div>
       </div>
-      <h1 className="mb-3 text-3xl font-bold text-accent-content">{title}</h1>
-      <p className="mb-8 max-w-md text-gray-400">{description}</p>
+      <h1 className="mb-3 text-3xl font-bold text-foreground">{title}</h1>
+      <p className="mb-8 max-w-md text-muted-foreground">{description}</p>
       <div className="flex flex-wrap gap-4">
         {showBack && (
-          <button
-            onClick={() => window.history.back()}
-            className={cn(
-              "flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all",
-              "border border-accent-content/10 text-gray-300 hover:bg-accent-content/5",
-            )}
-          >
+          <Button variant="outline" onClick={() => window.history.back()}>
             <ArrowLeft size={16} />
             Go Back
-          </button>
+          </Button>
         )}
         {showHome && (
-          <Link
-            href="/"
-            className="flex items-center gap-2 rounded-xl bg-primary-color px-6 py-3 text-sm font-bold text-black transition-all hover:bg-primary-color/90"
-          >
-            <Home size={16} />
-            Back to Home
+          <Link href="/">
+            <Button>
+              <Home size={16} />
+              Back to Home
+            </Button>
           </Link>
         )}
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Component } from "react";
 
@@ -19,9 +20,7 @@ export class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
+      if (this.props.fallback) return this.props.fallback;
 
       return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
@@ -30,20 +29,14 @@ export class ErrorBoundary extends Component {
               <AlertTriangle className="h-10 w-10 text-secondary" />
             </div>
           </div>
-          <h2 className="mb-2 text-2xl font-bold text-accent-content">
-            Something went wrong
-          </h2>
-          <p className="mb-8 max-w-md text-gray-400">
-            An unexpected error occurred. Please try again or contact support if
-            the issue persists.
+          <h2 className="mb-2 text-2xl font-bold text-foreground">Something went wrong</h2>
+          <p className="mb-8 max-w-md text-muted-foreground">
+            An unexpected error occurred. Please try again or contact support if the issue persists.
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="flex items-center gap-2 rounded-xl bg-primary-color px-6 py-3 text-sm font-bold text-black transition-all hover:bg-primary-color/90"
-          >
+          <Button onClick={() => window.location.reload()}>
             <RefreshCw size={16} />
             Try Again
-          </button>
+          </Button>
         </div>
       );
     }
@@ -60,20 +53,15 @@ export function ErrorFallback({ error, reset }) {
           <AlertTriangle className="h-10 w-10 text-secondary" />
         </div>
       </div>
-      <h2 className="mb-2 text-2xl font-bold text-accent-content">
-        Failed to load section
-      </h2>
-      <p className="mb-8 max-w-md text-gray-400">
+      <h2 className="mb-2 text-2xl font-bold text-foreground">Failed to load section</h2>
+      <p className="mb-8 max-w-md text-muted-foreground">
         {error?.message || "An unexpected error occurred."}
       </p>
       {reset && (
-        <button
-          onClick={reset}
-          className="flex items-center gap-2 rounded-xl bg-primary-color px-6 py-3 text-sm font-bold text-black transition-all hover:bg-primary-color/90"
-        >
+        <Button onClick={reset}>
           <RefreshCw size={16} />
           Retry
-        </button>
+        </Button>
       )}
     </div>
   );

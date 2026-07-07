@@ -1,5 +1,18 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { updateOrderStatus } from "@/features/orders/actions/order";
 import { OrderStatus } from "@/features/orders/validations/order-schema";
 import {
@@ -12,12 +25,10 @@ import {
   ShoppingBag,
   Truck,
   User,
-  X,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { BiCube } from "react-icons/bi";
 
 const paymentLabels = {
   cod: "Cash on Delivery",
@@ -25,15 +36,17 @@ const paymentLabels = {
   nagad: "Nagad",
 };
 
+const sectionClass = "bg-muted border border-border overflow-hidden";
+
 const OrderDetailsModal = ({ order, onClose }) => {
   const router = useRouter();
   const [isUpdating, startUpdateTransition] = useTransition();
 
   if (!order) return null;
 
-  const handleStatusUpdate = (id, newStatus) => {
+  const handleStatusUpdate = (newStatus) => {
     startUpdateTransition(async () => {
-      const result = await updateOrderStatus(id, newStatus);
+      const result = await updateOrderStatus(order._id, newStatus);
       if (result.success) {
         router.refresh();
         onClose();
@@ -48,7 +61,6 @@ const OrderDetailsModal = ({ order, onClose }) => {
         day: "numeric",
       })
     : "—";
-
   const time = order.createdAt
     ? new Date(order.createdAt).toLocaleTimeString("en-US", {
         hour: "2-digit",
@@ -56,54 +68,46 @@ const OrderDetailsModal = ({ order, onClose }) => {
       })
     : "";
 
-  const labelClass =
-    "text-[10px] text-gray-500 uppercase tracking-wider mb-1.5";
-  const valueClass = "text-sm text-accent-content font-medium";
-  const sectionClass =
-    "bg-[#080808] rounded-xl border border-accent-content/5 overflow-hidden";
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg sm:max-w-2xl bg-[#11151c] border border-accent-content/10 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-accent-content/10 sticky top-0 bg-[#11151c] z-10">
-          <div>
-            <h3 className="text-lg sm:text-xl font-bold text-accent-content">
-              Order Details
-            </h3>
-            <p className="text-[10px] sm:text-xs font-mono text-gray-400 mt-1 break-all">
-              ID: {order._id}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-accent-content bg-accent-content/5 rounded-full transition-colors shrink-0"
-            aria-label="Close"
-          >
-            <X size={18} />
-          </button>
-        </div>
+    <Dialog open={!!order} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-lg sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg sm:text-xl">
+            Order Details
+          </DialogTitle>
+          <p className="text-[10px] sm:text-xs font-mono text-muted-foreground mt-1 break-all">
+            ID: {order._id}
+          </p>
+        </DialogHeader>
 
-        <div className="p-4 sm:p-6 space-y-5">
-          <div className={`${sectionClass} divide-y divide-accent-content/5`}>
+        <div className="space-y-5">
+          <div className={`${sectionClass}`}>
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-3">
-                <ShoppingBag size={14} className="text-primary-color" />
-                <h4 className="text-xs font-bold text-accent-content uppercase tracking-wider">
+                <ShoppingBag size={14} className="text-primary" />
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                   Order Info
                 </h4>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className={labelClass}>Date</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Date
+                  </p>
                   <div className="flex items-center gap-1.5">
-                    <Calendar size={12} className="text-gray-500 shrink-0" />
-                    <p className={valueClass}>
+                    <Calendar
+                      size={12}
+                      className="text-muted-foreground shrink-0"
+                    />
+                    <p className="text-sm text-foreground font-medium">
                       {date} {time && `at ${time}`}
                     </p>
                   </div>
                 </div>
                 <div>
-                  <p className={labelClass}>Status</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Status
+                  </p>
                   <span
                     className={`inline-block text-[11px] font-bold px-2.5 py-1 rounded-lg ${
                       order.status === OrderStatus.DELIVERED
@@ -111,7 +115,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
                         : order.status === OrderStatus.PROCESSING
                           ? "bg-blue-500/15 text-blue-400"
                           : order.status === OrderStatus.CANCELLED
-                            ? "bg-red-500/15 text-red-400"
+                            ? "bg-destructive/15 text-destructive"
                             : "bg-yellow-500/15 text-yellow-400"
                     }`}
                   >
@@ -119,10 +123,15 @@ const OrderDetailsModal = ({ order, onClose }) => {
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <p className={labelClass}>Payment Method</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Payment Method
+                  </p>
                   <div className="flex items-center gap-1.5">
-                    <CreditCard size={12} className="text-gray-500 shrink-0" />
-                    <p className={valueClass}>
+                    <CreditCard
+                      size={12}
+                      className="text-muted-foreground shrink-0"
+                    />
+                    <p className="text-sm text-foreground font-medium">
                       {paymentLabels[order.paymentMethod] ||
                         order.paymentMethod ||
                         "—"}
@@ -133,75 +142,98 @@ const OrderDetailsModal = ({ order, onClose }) => {
             </div>
           </div>
 
-          <div className={`${sectionClass} divide-y divide-accent-content/5`}>
+          <div className={`${sectionClass}`}>
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-3">
-                <User size={14} className="text-primary-color" />
-                <h4 className="text-xs font-bold text-accent-content uppercase tracking-wider">
+                <User size={14} className="text-primary" />
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                   Customer
                 </h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <p className={labelClass}>Name</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Name
+                  </p>
                   <div className="flex items-center gap-1.5">
-                    <User size={12} className="text-gray-500 shrink-0" />
-                    <p className={valueClass}>{order.customerName}</p>
+                    <User
+                      size={12}
+                      className="text-muted-foreground shrink-0"
+                    />
+                    <p className="text-sm text-foreground font-medium">
+                      {order.customerName}
+                    </p>
                   </div>
                 </div>
                 <div>
-                  <p className={labelClass}>Email</p>
-                  <p className={valueClass}>{order.email || "—"}</p>
-                </div>
-                <div>
-                  <p className={labelClass}>Phone</p>
-                  <div className="flex items-center gap-1.5">
-                    <Phone size={12} className="text-gray-500 shrink-0" />
-                    <p className={valueClass}>{order.phone}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={`${sectionClass} divide-y divide-accent-content/5`}>
-            <div className="p-4 sm:p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <MapPin size={14} className="text-primary-color" />
-                <h4 className="text-xs font-bold text-accent-content uppercase tracking-wider">
-                  Delivery Address
-                </h4>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-3">
-                  <p className={labelClass}>Full Address</p>
-                  <p className={valueClass}>
-                    {order.address}, {order.thana}, {order.zilla}
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Email
+                  </p>
+                  <p className="text-sm text-foreground font-medium">
+                    {order.email || "—"}
                   </p>
                 </div>
                 <div>
-                  <p className={labelClass}>Thana</p>
-                  <p className={valueClass}>{order.thana}</p>
-                </div>
-                <div>
-                  <p className={labelClass}>Zilla</p>
-                  <p className={valueClass}>{order.zilla}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Phone
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <Phone
+                      size={12}
+                      className="text-muted-foreground shrink-0"
+                    />
+                    <p className="text-sm text-foreground font-medium">
+                      {order.phone}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className={`${sectionClass} divide-y divide-accent-content/5`}>
+          <div className={`${sectionClass}`}>
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Package size={14} className="text-primary-color" />
-                <h4 className="text-xs font-bold text-accent-content uppercase tracking-wider">
+                <MapPin size={14} className="text-primary" />
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  Delivery Address
+                </h4>
+              </div>
+              <p className="text-sm text-foreground font-medium mb-2">
+                {order.address}, {order.thana}, {order.zilla}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Thana
+                  </p>
+                  <p className="text-sm text-foreground font-medium">
+                    {order.thana}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">
+                    Zilla
+                  </p>
+                  <p className="text-sm text-foreground font-medium">
+                    {order.zilla}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className={`${sectionClass}`}>
+            <div className="p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Package size={14} className="text-primary" />
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                   Product Details
                 </h4>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 sm:items-start">
                 {order.productId?.image && (
-                  <div className="relative w-full sm:w-20 h-48 sm:h-20 rounded-lg overflow-hidden shrink-0 bg-[#0c0c12] border border-accent-content/5">
+                  <div className="relative w-full sm:w-20 h-48 sm:h-20 rounded-lg overflow-hidden shrink-0 bg-muted border border-border">
                     <Image
                       src={order.productId.image}
                       alt={order.productId.name}
@@ -213,26 +245,26 @@ const OrderDetailsModal = ({ order, onClose }) => {
                 )}
                 <div className="flex-1 space-y-2.5">
                   <div>
-                    <p className={valueClass}>
+                    <p className="text-sm text-foreground font-medium">
                       {order.productId?.name || "Unknown Product"}
                     </p>
                     {order.productId?.description && (
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                         {order.productId.description}
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-gray-400">
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
                     <p>
                       Qty:{" "}
-                      <span className="text-accent-content font-semibold">
+                      <span className="text-foreground font-semibold">
                         {order.quantity}
                       </span>
                     </p>
                     {order.selectedSize && (
                       <p>
                         Size:{" "}
-                        <span className="text-accent-content font-semibold">
+                        <span className="text-foreground font-semibold">
                           {order.selectedSize}
                         </span>
                       </p>
@@ -240,7 +272,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
                     {order.selectedColor && (
                       <p>
                         Color:{" "}
-                        <span className="text-accent-content font-semibold">
+                        <span className="text-foreground font-semibold">
                           {order.selectedColor}
                         </span>
                       </p>
@@ -251,47 +283,51 @@ const OrderDetailsModal = ({ order, onClose }) => {
             </div>
           </div>
 
-          <div className={`${sectionClass} divide-y divide-accent-content/5`}>
+          <div className={`${sectionClass}`}>
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-3">
-                <DollarSign size={14} className="text-primary-color" />
-                <h4 className="text-xs font-bold text-accent-content uppercase tracking-wider">
+                <DollarSign size={14} className="text-primary" />
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                   Payment Summary
                 </h4>
               </div>
               <div className="space-y-3">
                 {order.transactionId && (
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-500">Transaction ID</p>
-                    <p className="text-xs text-[#d4af37] font-mono max-w-50 truncate">
+                    <p className="text-xs text-muted-foreground">
+                      Transaction ID
+                    </p>
+                    <p className="text-xs text-primary font-mono max-w-50 truncate">
                       {order.transactionId}
                     </p>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <BiCube size={12} className="text-gray-500" />
-                    <p className="text-xs text-gray-500">
+                    <Package size={12} className="text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
                       Subtotal ({order.quantity} item
                       {order.quantity > 1 ? "s" : ""})
                     </p>
                   </div>
-                  <p className="text-xs text-accent-content">
+                  <p className="text-xs text-foreground">
                     ৳{order.totalPrice - order.deliveryCharge}
                   </p>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <Truck size={12} className="text-gray-500" />
-                    <p className="text-xs text-gray-500">Delivery Charge</p>
+                    <Truck size={12} className="text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
+                      Delivery Charge
+                    </p>
                   </div>
-                  <p className="text-xs text-accent-content">
+                  <p className="text-xs text-foreground">
                     ৳{order.deliveryCharge}
                   </p>
                 </div>
-                <div className="pt-3 border-t border-accent-content/5 flex items-center justify-between">
-                  <p className="text-sm font-bold text-accent-content">Total</p>
-                  <p className="text-lg font-bold text-primary-color">
+                <div className="pt-3 border-t border-border flex items-center justify-between">
+                  <p className="text-sm font-bold text-foreground">Total</p>
+                  <p className="text-lg font-bold text-primary">
                     ৳{order.totalPrice}
                   </p>
                 </div>
@@ -302,12 +338,12 @@ const OrderDetailsModal = ({ order, onClose }) => {
           <div className={`${sectionClass}`}>
             <div className="p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-3">
-                <ShoppingBag size={14} className="text-primary-color" />
-                <h4 className="text-xs font-bold text-accent-content uppercase tracking-wider">
+                <ShoppingBag size={14} className="text-primary" />
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                   Update Status
                 </h4>
               </div>
-              <p className="text-[10px] text-gray-500 mb-3">
+              <p className="text-[10px] text-muted-foreground mb-3">
                 Change the order status to track fulfillment progress.
                 {order.status === OrderStatus.DELIVERED && (
                   <span className="text-green-500 ml-1">
@@ -315,32 +351,36 @@ const OrderDetailsModal = ({ order, onClose }) => {
                   </span>
                 )}
                 {order.status === OrderStatus.CANCELLED && (
-                  <span className="text-red-500 ml-1">
+                  <span className="text-destructive ml-1">
                     Order has been cancelled.
                   </span>
                 )}
               </p>
-              <select
+              <Select
                 value={order.status}
-                onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                onValueChange={handleStatusUpdate}
                 disabled={
                   isUpdating ||
                   order.status === OrderStatus.DELIVERED ||
                   order.status === OrderStatus.CANCELLED
                 }
-                className="w-full bg-[#080808] border border-accent-content/10 rounded-lg px-3.5 py-2.5 text-sm text-accent-content outline-none focus:border-primary-color/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {Object.values(OrderStatus).map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full bg-muted border-border px-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(OrderStatus).map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

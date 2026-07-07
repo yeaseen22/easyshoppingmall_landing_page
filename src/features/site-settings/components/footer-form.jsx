@@ -1,5 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { updateFooter } from "@/features/site-settings/actions/site-settings";
 import { footerSchema } from "@/features/site-settings/validations/site-settings-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,9 +24,6 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 
-const inputClass =
-  "w-full bg-[#080808] border border-accent-content/10 rounded-xl px-4 py-3 text-accent-content placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color transition-all";
-
 export const FooterForm = ({ data, onUpdated }) => {
   const [isSaving, setIsSaving] = useState(false);
 
@@ -36,7 +38,7 @@ export const FooterForm = ({ data, onUpdated }) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data)
       reset({
         description: data.description || "",
         socialLinks: {
@@ -56,7 +58,6 @@ export const FooterForm = ({ data, onUpdated }) => {
           endTime: data.businessHours?.endTime || "",
         },
       });
-    }
   }, [data, reset]);
 
   const onSubmit = async (values) => {
@@ -68,8 +69,8 @@ export const FooterForm = ({ data, onUpdated }) => {
       icon: result.success ? "success" : "error",
       title: result.success ? "Success" : "Error",
       text: result.message,
-      background: "#11151c",
-      color: "#fff",
+      background: "var(--color-card)",
+      color: "var(--color-foreground)",
       timer: 2000,
       showConfirmButton: false,
     });
@@ -78,319 +79,289 @@ export const FooterForm = ({ data, onUpdated }) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8 space-y-6"
-    >
-      <h2 className="text-xl font-bold text-accent-content flex items-center gap-2">
-        Footer Settings
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Footer Settings</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <Controller
+            name="description"
+            control={control}
+            render={({ field, fieldState }) => (
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  {...field}
+                  rows={3}
+                  aria-invalid={fieldState.invalid}
+                />
+                {fieldState.error && (
+                  <p className="text-destructive text-xs mt-1">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
 
-      <Controller
-        name="description"
-        control={control}
-        render={({ field, fieldState }) => (
-          <label
-            className="block text-sm font-medium text-gray-300 mb-2"
-            data-invalid={fieldState.invalid}
-          >
-            Description
-            <textarea
-              {...field}
-              rows={3}
-              aria-invalid={fieldState.invalid}
-              className={inputClass}
-            />
-            {fieldState.error && (
-              <p className="text-red-400 text-[10px] mt-1">
-                {fieldState.error.message}
-              </p>
-            )}
-          </label>
-        )}
-      />
+          <div>
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+              <Share2 size={18} className="text-primary" /> Social Links
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Controller
+                name="socialLinks.facebook"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="facebook">
+                      <Facebook size={16} className="mr-1 inline" /> Facebook
+                      URL
+                    </Label>
+                    <Input
+                      id="facebook"
+                      {...field}
+                      type="url"
+                      placeholder="https://facebook.com/your-page"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+              <Controller
+                name="socialLinks.twitter"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="twitter">
+                      <Twitter size={16} className="mr-1 inline" /> Twitter URL
+                    </Label>
+                    <Input
+                      id="twitter"
+                      {...field}
+                      type="url"
+                      placeholder="https://twitter.com/your-handle"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+              <Controller
+                name="socialLinks.instagram"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="instagram">
+                      <Instagram size={16} className="mr-1 inline" /> Instagram
+                      URL
+                    </Label>
+                    <Input
+                      id="instagram"
+                      {...field}
+                      type="url"
+                      placeholder="https://instagram.com/your-profile"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+          </div>
 
-      <div>
-        <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-accent-content">
-          <Share2 size={18} className="text-primary-color" />
-          Social Links
-        </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Controller
-            name="socialLinks.facebook"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                <Facebook size={16} className="mr-1 inline" /> Facebook URL
-                <input
-                  {...field}
-                  type="url"
-                  placeholder="https://facebook.com/your-page"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
+          <div>
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+              <MapPin size={18} className="text-primary" /> Contact Info
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Controller
+                name="contactInfo.email"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="email">
+                      <Mail size={16} className="mr-1 inline" /> Email
+                    </Label>
+                    <Input
+                      id="email"
+                      {...field}
+                      type="email"
+                      placeholder="info@example.com"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </label>
-            )}
-          />
-          <Controller
-            name="socialLinks.twitter"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                <Twitter size={16} className="mr-1 inline" /> Twitter URL
-                <input
-                  {...field}
-                  type="url"
-                  placeholder="https://twitter.com/your-handle"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
+              />
+              <Controller
+                name="contactInfo.phone"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="phone">
+                      <Phone size={16} className="mr-1 inline" /> Phone
+                    </Label>
+                    <Input
+                      id="phone"
+                      {...field}
+                      type="text"
+                      placeholder="+880 1234 567890"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </label>
-            )}
-          />
-          <Controller
-            name="socialLinks.instagram"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                <Instagram size={16} className="mr-1 inline" /> Instagram URL
-                <input
-                  {...field}
-                  type="url"
-                  placeholder="https://instagram.com/your-profile"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
+              />
+              <Controller
+                name="contactInfo.address"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="address">
+                      <MapPin size={16} className="mr-1 inline" /> Address
+                    </Label>
+                    <Input
+                      id="address"
+                      {...field}
+                      type="text"
+                      placeholder="Dhaka, Bangladesh"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </label>
-            )}
-          />
-        </div>
-      </div>
+              />
+            </div>
+          </div>
 
-      <div>
-        <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-accent-content">
-          <MapPin size={18} className="text-primary-color" />
-          Contact Info
-        </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Controller
-            name="contactInfo.email"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                <Mail size={16} className="mr-1 inline" /> Email
-                <input
-                  {...field}
-                  type="email"
-                  placeholder="info@example.com"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
+          <div>
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+              <Clock size={18} className="text-primary" /> Business Hours
+            </h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Controller
+                name="businessHours.startDate"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="startDate">Start Day</Label>
+                    <Input
+                      id="startDate"
+                      {...field}
+                      placeholder="Monday"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </label>
-            )}
-          />
-          <Controller
-            name="contactInfo.phone"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                <Phone size={16} className="mr-1 inline" /> Phone
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="+880 1234 567890"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
+              />
+              <Controller
+                name="businessHours.endDate"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="endDate">End Day</Label>
+                    <Input
+                      id="endDate"
+                      {...field}
+                      placeholder="Friday"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </label>
-            )}
-          />
-          <Controller
-            name="contactInfo.address"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                <MapPin size={16} className="mr-1 inline" /> Address
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="Dhaka, Bangladesh"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
+              />
+              <Controller
+                name="businessHours.startTime"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="startTime">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      {...field}
+                      placeholder="9:00 AM"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
                 )}
-              </label>
-            )}
-          />
-        </div>
-      </div>
+              />
+              <Controller
+                name="businessHours.endTime"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Label htmlFor="endTime">End Time</Label>
+                    <Input
+                      id="endTime"
+                      {...field}
+                      placeholder="5:00 PM"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.error && (
+                      <p className="text-destructive text-xs mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+          </div>
 
-      <div>
-        <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-accent-content">
-          <Clock size={18} className="text-primary-color" />
-          Business Hours
-        </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Controller
-            name="businessHours.startDate"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                Start Day
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="Monday"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-          <Controller
-            name="businessHours.endDate"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                End Day
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="Friday"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-          <Controller
-            name="businessHours.startTime"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                Start Time
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="9:00 AM"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-          <Controller
-            name="businessHours.endTime"
-            control={control}
-            render={({ field, fieldState }) => (
-              <label
-                className="block text-sm font-medium text-gray-300 mb-2"
-                data-invalid={fieldState.invalid}
-              >
-                End Time
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="5:00 PM"
-                  aria-invalid={fieldState.invalid}
-                  className={inputClass}
-                />
-                {fieldState.error && (
-                  <p className="text-red-400 text-[10px] mt-1">
-                    {fieldState.error.message}
-                  </p>
-                )}
-              </label>
-            )}
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end pt-4">
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-3 bg-primary-color text-black font-bold rounded-xl transition-all hover:bg-primary-color/90 disabled:opacity-70"
-        >
-          {isSaving ? (
-            <Loader2 className="animate-spin" size={16} />
-          ) : (
-            <Save size={16} />
-          )}
-          Save Footer
-        </button>
-      </div>
-    </form>
+          <div className="flex justify-end pt-4">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? (
+                <Loader2 className="animate-spin" size={16} />
+              ) : (
+                <Save size={16} />
+              )}
+              Save Footer
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };

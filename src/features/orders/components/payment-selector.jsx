@@ -1,4 +1,7 @@
-export default function PaymentSelector({ value, onChange, paymentMethods }) {
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+const PaymentSelector = ({ value, onChange, paymentMethods }) => {
   const methods = [
     { id: "cod", label: "Cash on Delivery", sub: "পণ্য হাতে পেয়ে টাকা দিন" },
   ];
@@ -20,20 +23,34 @@ export default function PaymentSelector({ value, onChange, paymentMethods }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 mb-8">
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      className="grid grid-cols-1 gap-3 mb-8"
+    >
       {methods.map((method) => (
-        <label key={method.id} className={`flex items-center justify-between p-4 py-2 sm:py-4 rounded-xl border cursor-pointer transition-all ${
-          value === method.id ? "border-primary-color bg-primary-color/10" : "border-gray-800 bg-[#0a0c12]"
-        }`}>
+        <Label
+          key={method.id}
+          htmlFor={method.id}
+          className={`flex items-center justify-between p-4 py-2 sm:py-4 border cursor-pointer transition-all ${
+            value === method.id
+              ? "border-primary bg-primary/10"
+              : "border-border bg-muted"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <input type="radio" name="payment" value={method.id} checked={value === method.id} onChange={(e) => onChange(e.target.value)} className="accent-primary-color w-4 h-4" />
+            <RadioGroupItem value={method.id} id={method.id} />
             <div>
-              <p className="font-bold text-sm">{method.label}</p>
-              <p className="text-[10px] text-gray-500">{method.sub}</p>
+              <p className="font-bold text-sm text-foreground">
+                {method.label}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{method.sub}</p>
             </div>
           </div>
-        </label>
+        </Label>
       ))}
-    </div>
+    </RadioGroup>
   );
-}
+};
+
+export default PaymentSelector;

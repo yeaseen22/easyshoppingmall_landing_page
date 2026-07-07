@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import { Loader2, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -43,20 +44,21 @@ const SearchBar = ({
   return (
     <div className="relative w-full md:w-72">
       <Search
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         size={16}
       />
-      <input
+      <Input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="w-full bg-[#11151c] border border-accent-content/5 rounded-lg py-2 pl-9 pr-10 text-xs placeholder:text-gray-500 text-accent-content sm:text-sm outline-none focus:border-[#d4af37]/50"
+        className="pl-9 pr-10 border-border"
       />
+
       {isLoading && (
         <Loader2
           size={16}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#d4af37] animate-spin"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin"
         />
       )}
     </div>

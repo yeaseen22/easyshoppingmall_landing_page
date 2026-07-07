@@ -1,3 +1,5 @@
+import { Skeleton } from "@/components/ui/skeleton-loader";
+
 export default function RootLoading() {
   return (
     <div className="w-full min-h-screen bg-[#080808]">
@@ -16,16 +18,16 @@ export default function RootLoading() {
 
       <div className="px-[6%] pt-20 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center animate-pulse">
         <div className="space-y-6">
-          <div className="h-5 w-44 bg-gray-700/50 rounded-full" />
+          <Skeleton className="h-5 w-44 rounded-full" />
           <div className="space-y-3">
-            <div className="h-12 w-80 bg-gray-700/50 rounded" />
-            <div className="h-12 w-64 bg-gray-700/50 rounded" />
+            <Skeleton className="h-12 w-80" />
+            <Skeleton className="h-12 w-64" />
           </div>
-          <div className="h-4 w-96 bg-gray-700/50 rounded" />
-          <div className="h-14 w-48 bg-gray-700/50 rounded-2xl" />
+          <Skeleton className="h-4 w-96" />
+          <Skeleton className="h-14 w-48 rounded-2xl" />
         </div>
         <div className="relative">
-          <div className="w-full h-100 bg-gray-700/50 rounded-2xl" />
+          <Skeleton className="w-full h-100 rounded-2xl" />
         </div>
       </div>
     </div>

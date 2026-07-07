@@ -1,26 +1,66 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import DataTable from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
-import SearchBar from "@/components/ui/search-bar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { deleteReview } from "@/features/reviews/actions/review";
-import ReviewModal from "@/features/reviews/components/review-modal";
-import { cn } from "@/utils/cn";
-import { Edit, Star, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { format } from "date-fns";
+import { PencilIcon, Star, Trash2Icon } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useOptimistic, useState, useTransition } from "react";
 import Swal from "sweetalert2";
+import ReviewModal from "./review-modal";
 
-export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function ReviewsComponent({
+  reviews = [],
+  isLoading,
+  tabs = [],
+  activeStatus = "all",
+  currentPage,
+  totalPages,
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [dataLoading, startTransition] = useTransition();
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(activeStatus);
   const [editingReview, setEditingReview] = useState(null);
-  const [isLoading, startTransition] = useTransition();
+  const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     approved: false,
     featured: false,
   });
 
-  const router = useRouter();
+  const handleEdit = (review) => {
+    setFormData({
+      approved: review.approved || false,
+      featured: review.featured || false,
+    });
+    setEditingReview(review);
+    setModalOpen(true);
+  };
+
+  const handleTabChange = (value) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "all") params.set("status", value);
+    else params.delete("status");
+
+    params.delete("page");
+
+    startTransition(() => {
+      setOptimisticStatus(value);
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
@@ -31,192 +71,219 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      background: "#11151c",
-      color: "#fff",
+      background: "var(--color-card)",
+      color: "var(--color-foreground)",
     });
-
     if (confirm.isConfirmed) {
       const result = await deleteReview(id);
-      if (result.success) {
-        router.refresh();
-        Swal.fire({
-          title: "Deleted!",
-          text: "Review has been deleted.",
-          icon: "success",
-          background: "#11151c",
-          color: "#fff",
-        });
-      }
+      if (result.success) router.refresh();
     }
   };
 
-  const handleOpenModal = (review = null) => {
-    if (review) {
-      setEditingReview(review._id);
-      setFormData({
-        approved: review.approved || false,
-        featured: review.featured || false,
-      });
-    } else {
-      setEditingReview(null);
-      setFormData({
-        approved: false,
-        featured: false,
-      });
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingReview(null);
-  };
-
-  const reviewColumns = [
+  const columns = [
     {
-      header: "Customer",
+      header: "Name",
       accessor: "customerName",
-      cell: (val, row) => (
-        <>
-          <p className="text-sm text-accent-content font-semibold">{val}</p>
-          <p className="text-xs text-gray-400">{row.customerEmail}</p>
-        </>
+      className: "text-sm text-foreground",
+      cell: (val) => (
+        <div className="flex items-center gap-2">
+          <div className="bg-primary/15 text-primary size-8 rounded-full flex items-center justify-center text-sm font-bold">
+            {val.slice(0, 2).toUpperCase()}
+          </div>
+          <span className="font-bold truncate max-w-30">{val}</span>
+        </div>
       ),
+    },
+    {
+      header: "Email",
+      accessor: "customerEmail",
+      className: "text-sm text-muted-foreground truncate max-w-40",
     },
     {
       header: "Rating",
       accessor: "rating",
       cell: (val) => (
-        <div className="flex text-[#d4af37]">
-          {[...Array(val || 5)].map((_, i) => (
-            <Star key={i} size={14} fill="currentColor" />
+        <div className="flex gap-0.5">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <Star
+              key={s}
+              size={14}
+              className={s <= val ? "text-primary" : "text-muted"}
+              fill={s <= val ? "currentColor" : "none"}
+            />
           ))}
         </div>
       ),
     },
     {
-      header: "Review",
-      accessor: "comment",
-      className: "text-sm text-gray-300",
-      cell: (val) => <p className="line-clamp-2">{val}</p>,
-    },
-    {
       header: "Approved",
       accessor: "approved",
       cell: (val) => (
-        <span
-          className={cn("px-2 py-1 rounded text-xs", {
-            "bg-green-500/10 text-green-500": val,
-            "bg-red-500/10 text-red-500": !val,
-          })}
-        >
-          {val ? "Approved" : "Pending"}
-        </span>
+        <Checkbox
+          checked={val}
+          disabled
+          className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+        />
       ),
     },
     {
       header: "Featured",
       accessor: "featured",
-      cell: (val) =>
-        val ? (
-          <span className="bg-green-500/10 text-green-500 px-2 py-1 text-[10px] font-bold rounded uppercase">
-            Yes
-          </span>
-        ) : (
-          <span className="bg-gray-500/10 text-gray-500 px-2 py-1 text-[10px] font-bold rounded uppercase">
-            No
-          </span>
-        ),
+      cell: (val) => (
+        <Checkbox
+          checked={val}
+          disabled
+          className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+        />
+      ),
+    },
+    {
+      header: "Date",
+      accessor: "createdAt",
+      className: "text-sm text-muted-foreground",
+      cell: (val) => format(new Date(val), "MMM dd, yyyy"),
+    },
+    {
+      header: "Comment",
+      accessor: "comment",
+      mobileHidden: true,
+      className: "text-sm text-muted-foreground max-w-50",
+      cell: (val) => <span className="truncate block">{val}</span>,
     },
     {
       header: "Actions",
       accessor: "_id",
-      className: "text-right",
-      cell: (val, row) => (
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={() => handleOpenModal(row)}
-            className="p-2 bg-blue-500/10 text-blue-500 rounded-lg hover:bg-blue-500/20"
-          >
-            <Edit size={16} />
-          </button>
-          <button
+      mobileHidden: true,
+      cell: (_val, row) => (
+        <div className="flex gap-2 justify-end">
+          <Button variant="secondary" size="icon" onClick={() => handleEdit(row)}>
+            <PencilIcon size={14} />
+          </Button>
+          <Button
+            variant="destructive"
+            size="icon"
             onClick={() => handleDelete(row._id)}
-            className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
           >
-            <Trash2 size={16} />
-          </button>
+            <Trash2Icon size={14} />
+          </Button>
         </div>
       ),
     },
   ];
 
   return (
-    <section className="w-full flex-1 min-w-0 overflow-hidden space-y-5 px-3 sm:px-4 md:px-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <section className="bg-card border border-border p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-content">
-            Review <span className="text-primary-color">Management</span>
-          </h2>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1">
-            Moderate customer reviews - approve, edit, or remove
+          <h2 className="text-lg font-bold text-foreground">Manage Reviews</h2>
+          <p className="text-xs text-muted-foreground">
+            Approve or feature customer reviews
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <SearchBar placeholder="Search reviews by name or content..." />
-      </div>
+      {tabs.length > 0 && (
+        <>
+          <div className="sm:hidden mb-4">
+            <Select value={optimisticStatus} onValueChange={handleTabChange}>
+              <SelectTrigger className="w-full bg-card border border-border px-4 py-2 h-auto text-sm font-bold text-foreground">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent className="bg-card border border-border">
+                {tabs.map((tab) => (
+                  <SelectItem
+                    key={tab.value}
+                    value={tab.value}
+                    className="text-sm font-bold text-foreground data-[state=checked]:text-primary"
+                  >
+                    {tab.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="hidden sm:block mb-4">
+            <Tabs value={optimisticStatus} onValueChange={handleTabChange}>
+              <TabsList className="bg-card border border-border p-1.5 h-auto gap-0">
+                {tabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="px-4 py-2 text-xs font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm text-muted-foreground"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        </>
+      )}
 
       <DataTable
-        columns={reviewColumns}
-        data={reviews}
-        emptyMessage="No reviews found."
-        isLoading={isLoading}
+        columns={columns}
+        data={reviews || []}
+        isLoading={dataLoading || isLoading}
+        emptyMessage="No reviews yet."
         renderMobileCard={(review) => (
           <div
             key={review._id}
-            className="bg-[#11151c] border border-accent-content/5 rounded-xl p-4 space-y-2"
+            className="bg-card border border-border p-4 space-y-2"
           >
-            <div className="flex justify-between items-start text-accent-content">
-              <div>
-                <p className="font-semibold text-sm">{review.customerName}</p>
-                <p className="text-[10px] text-gray-400">
-                  {review.customerEmail}
-                </p>
+            <div className="flex items-center gap-2">
+              <div className="bg-primary/15 text-primary size-8 rounded-full flex items-center justify-center text-sm font-bold">
+                {review.customerName.slice(0, 2).toUpperCase()}
               </div>
-              <div className="flex text-[#d4af37]">
-                {[...Array(review.rating || 5)].map((_, i) => (
-                  <Star key={i} size={12} fill="currentColor" />
-                ))}
-              </div>
+              <p className="text-foreground font-bold text-sm truncate">
+                {review.customerName}
+              </p>
             </div>
-            <p className="text-xs text-gray-400 line-clamp-2 italic">
-              `&quot;`{review.comment}`&quot;`
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  size={12}
+                  className={s <= review.rating ? "text-primary" : "text-muted"}
+                  fill={s <= review.rating ? "currentColor" : "none"}
+                />
+              ))}
+            </div>
+            <p className="text-muted-foreground text-xs line-clamp-2">
+              {review.comment}
             </p>
-            <div className="flex justify-between items-center text-[10px] font-mono">
-              <span className="text-[#d4af37]">
-                {review.category || "General"}
-              </span>
-              {review.featured && (
-                <span className="bg-primary-color/20 text-primary-color px-2 py-0.5 rounded">
-                  Featured
-                </span>
-              )}
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={review.approved}
+                disabled
+                className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+              />
+              <span className="text-xs text-muted-foreground">Approved</span>
+              <Checkbox
+                checked={review.featured}
+                disabled
+                className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+              />
+              <span className="text-xs text-muted-foreground">Featured</span>
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-accent-content/5">
-              <button
-                onClick={() => handleOpenModal(review)}
-                className="p-2 bg-accent-content/5 rounded-lg hover:bg-accent-content/10 text-accent-content"
+            <p className="text-xs text-muted-foreground">
+              {format(new Date(review.createdAt), "MMM dd, yyyy")}
+            </p>
+            <div className="flex gap-2 justify-end pt-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEdit(review)}
               >
-                <Edit size={14} />
-              </button>
-              <button
+                <PencilIcon size={14} />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
                 onClick={() => handleDelete(review._id)}
-                className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
               >
-                <Trash2 size={14} />
-              </button>
+                <Trash2Icon size={14} />
+              </Button>
             </div>
           </div>
         )}
@@ -225,13 +292,13 @@ export default function ReviewsComponent({ reviews, currentPage, totalPages }) {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
+        isLoading={isLoading || dataLoading}
         startTransition={startTransition}
-        isLoading={isLoading}
       />
 
       <ReviewModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
         editingReview={editingReview}
         formData={formData}
         setFormData={setFormData}

@@ -19,14 +19,14 @@ export default function CustomersComponent({
       accessor: "name",
       cell: (val, row) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#d4af37]/20 to-transparent flex items-center justify-center text-primary-color font-bold border border-[#d4af37]/20">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary/20 to-transparent flex items-center justify-center text-primary font-bold border border-primary/20">
             {val ? val.charAt(0).toUpperCase() : "?"}
           </div>
           <div>
-            <div className="text-sm font-bold text-accent-content whitespace-nowrap">
+            <div className="text-sm font-bold text-foreground whitespace-nowrap">
               {val}
             </div>
-            <div className="text-[10px] text-gray-500 font-mono">
+            <div className="text-[10px] text-muted-foreground font-mono">
               ID: {row._id.slice(0, 8)}
             </div>
           </div>
@@ -38,11 +38,11 @@ export default function CustomersComponent({
       accessor: "email",
       cell: (val, row) => (
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <Mail size={12} className="text-[#d4af37]" /> {val}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Mail size={12} className="text-primary" /> {val}
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <Phone size={12} className="text-[#d4af37]" /> {row.phone}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Phone size={12} className="text-primary" /> {row.phone}
           </div>
         </div>
       ),
@@ -50,7 +50,7 @@ export default function CustomersComponent({
     {
       header: "Location",
       accessor: "location",
-      className: "text-sm text-gray-400 whitespace-nowrap",
+      className: "text-sm text-muted-foreground whitespace-nowrap",
       cell: (val) => (
         <div className="flex items-center gap-2">
           <MapPin size={14} /> {val}
@@ -62,7 +62,7 @@ export default function CustomersComponent({
       accessor: "totalOrders",
       className: "text-right",
       cell: (val) => (
-        <span className="bg-accent-content/5 px-3 py-1 rounded-lg text-xs font-bold text-accent-content">
+        <span className="bg-muted px-3 py-1 rounded-lg text-xs font-bold text-foreground">
           {val}
         </span>
       ),
@@ -70,7 +70,7 @@ export default function CustomersComponent({
     {
       header: "Total Spent",
       accessor: "spent",
-      className: "text-sm font-bold text-primary-color",
+      className: "text-sm font-bold text-primary",
       cell: (val) => `৳${val}`,
     },
   ];
@@ -79,10 +79,10 @@ export default function CustomersComponent({
     <section className="w-full space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-accent-content">
-            Customer <span className="text-[#d4af37]">Directory</span>
+          <h2 className="text-3xl font-bold text-foreground">
+            Customer <span className="text-primary">Directory</span>
           </h2>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             আপনার রেজিস্ট্রিকৃত কাস্টমারদের তালিকা এবং তাদের কেনাকাটার ইতিহাস।
           </p>
         </div>
@@ -98,7 +98,6 @@ export default function CustomersComponent({
         isLoading={isLoading}
         emptyMessage="No customers found matching your search."
       />
-
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

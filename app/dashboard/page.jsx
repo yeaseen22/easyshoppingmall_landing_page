@@ -1,15 +1,15 @@
 export const dynamic = "force-dynamic";
+import { getDashboardStats, getRecentActivity, getRecentOrders } from "@/features/dashboard-overview/actions/dashboard";
 import DashboardOverview from "@/features/dashboard-overview/components/dashboard-overview";
-import { getOrders } from "@/features/orders/actions/order";
 
 const DashboardPage = async () => {
-  const data = await getOrders();
-  const orders = data?.map((order) => ({
-    ...order,
-    _id: order._id.toString(),
-  }));
+  const [stats, activities, recentOrders] = await Promise.all([
+    getDashboardStats(),
+    getRecentActivity(),
+    getRecentOrders(5),
+  ]);
 
-  return <DashboardOverview orders={orders} />;
+  return <DashboardOverview stats={stats} activities={activities} recentOrders={recentOrders} />;
 };
 
 export default DashboardPage;

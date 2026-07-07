@@ -5,7 +5,7 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { Types } from "mongoose";
 
-export const getProducts = async (page, limit = 10, search = "") => {
+export const getProducts = async ({ page, limit = 10, search = "" } = {}) => {
   try {
     await connectDB();
 

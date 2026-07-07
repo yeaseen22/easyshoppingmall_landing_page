@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table";
 import Pagination from "@/components/ui/pagination";
 import { removeProduct } from "@/features/products/store/product-store";
@@ -21,7 +22,7 @@ const ProductTable = () => {
   const fetchPage = useProductStore((s) => s.fetchPage);
 
   useEffect(() => {
-    fetchPage();
+    fetchPage(1, 5);
   }, [fetchPage]);
 
   const handleEdit = (product) => {
@@ -38,8 +39,8 @@ const ProductTable = () => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-      background: "#11151c",
-      color: "#fff",
+      background: "var(--color-card)",
+      color: "var(--color-foreground)",
     });
 
     if (swal.isConfirmed) {
@@ -50,16 +51,16 @@ const ProductTable = () => {
           title: "Deleted!",
           text: "Product has been deleted.",
           icon: "success",
-          background: "#11151c",
-          color: "#fff",
+          background: "var(--color-card)",
+          color: "var(--color-foreground)",
         });
       } else {
         Swal.fire({
           icon: "error",
           title: "Error",
           text: result.message,
-          background: "#11151c",
-          color: "#fff",
+          background: "var(--color-card)",
+          color: "var(--color-foreground)",
         });
       }
     }
@@ -72,19 +73,11 @@ const ProductTable = () => {
       cell: (val, row) => (
         <div className="flex items-center gap-4">
           <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
-            <Image
-              src={row.image}
-              alt={val}
-              fill
-              className="object-cover"
-              sizes="48px"
-            />
+            <Image src={row.image} alt={val} fill className="object-cover" sizes="48px" />
           </div>
           <div>
-            <p className="text-accent-content font-semibold text-sm">{val}</p>
-            <p className="text-gray-500 text-xs">
-              {row.description?.slice(0, 60)}
-            </p>
+            <p className="text-foreground font-semibold text-sm">{val}</p>
+            <p className="text-muted-foreground text-xs">{row.description?.slice(0, 60)}</p>
           </div>
         </div>
       ),
@@ -92,33 +85,25 @@ const ProductTable = () => {
     {
       header: "Price",
       accessor: "discountedPrice",
-      className: "text-accent-content font-bold text-sm",
+      className: "text-foreground font-bold text-sm",
       cell: (val, row) => (
         <>
           <p>৳{val || row.price}</p>
-          {row.discount > 0 && (
-            <p className="text-gray-500 text-xs line-through">৳{row.price}</p>
-          )}
+          {row.discount > 0 && <p className="text-muted-foreground text-xs line-through">৳{row.price}</p>}
         </>
       ),
     },
     {
       header: "Discount",
       accessor: "discount",
-      className: "text-sm text-primary-color font-bold",
+      className: "text-sm text-primary font-bold",
       cell: (val) => (val > 0 ? `${val}%` : "—"),
     },
     {
       header: "Stock",
       accessor: "stock",
       cell: (val) => (
-        <span
-          className={`text-xs font-bold px-2 py-1 rounded ${
-            val > 0
-              ? "bg-green-500/10 text-green-500"
-              : "bg-red-500/10 text-red-500"
-          }`}
-        >
+        <span className={`text-xs font-bold px-2 py-1 rounded ${val > 0 ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"}`}>
           {val}
         </span>
       ),
@@ -129,17 +114,10 @@ const ProductTable = () => {
       cell: (val) => (
         <div className="flex gap-1">
           {val.length === 0 ? (
-            <span className="text-slate-300 text-[10px] font-bold">—</span>
+            <span className="text-muted-foreground text-[10px] font-bold">—</span>
           ) : (
             val.map((s) => (
-              <span
-                key={s}
-                className={`uppercase text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  s === ProductStatus.HOT
-                    ? "bg-red-500/20 text-red-400"
-                    : "bg-blue-500/20 text-blue-400"
-                }`}
-              >
+              <span key={s} className={`uppercase text-[10px] font-bold px-2 py-0.5 rounded-full ${s === ProductStatus.HOT ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400"}`}>
                 {s}
               </span>
             ))
@@ -153,15 +131,10 @@ const ProductTable = () => {
       cell: (val) => (
         <div className="flex gap-1">
           {val.length === 0 ? (
-            <span className="text-slate-300 text-[10px] font-bold">—</span>
+            <span className="text-muted-foreground text-[10px] font-bold">—</span>
           ) : (
             val.map((c) => (
-              <span
-                key={c}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 uppercase"
-              >
-                {c}
-              </span>
+              <span key={c} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 uppercase">{c}</span>
             ))
           )}
         </div>
@@ -173,56 +146,39 @@ const ProductTable = () => {
       className: "text-right",
       cell: (val, row) => (
         <div className="flex justify-end gap-2">
-          <button
-            onClick={() => handleEdit(row)}
-            className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all"
-            title="Edit Product"
-          >
+          <Button variant="ghost" size="icon" onClick={() => handleEdit(row)} className="text-muted-foreground hover:text-blue-500">
             <Pencil size={16} />
-          </button>
-          <button
-            onClick={() => handleDelete(row._id)}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
-            title="Delete Product"
-          >
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => handleDelete(row._id)} className="text-muted-foreground hover:text-destructive">
             <Trash2 size={16} />
-          </button>
+          </Button>
         </div>
       ),
     },
   ];
 
   return (
-    <>
-      <div className="bg-[#11151c] rounded-2xl shadow-xl border border-accent-content/5 p-6 md:p-8">
-        <h2 className="text-xl md:text-2xl font-bold text-accent-content mb-6">
-          Manage Existing Products
-        </h2>
+    <div className="bg-card rounded-2xl shadow-xl border border-border p-6 md:p-8">
+      <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Manage Existing Products</h2>
 
-        <DataTable
-          data={products}
-          isLoading={isLoading}
-          columns={columns}
-          emptyMessage="No featured products found."
-          renderMobileCard={(product) => (
-            <ProductTableCard
-              key={product._id}
-              product={product}
-              handleEdit={() => handleEdit(product)}
-              handleDelete={() => handleDelete(product._id)}
-            />
-          )}
-        />
+      <DataTable
+        data={products}
+        isLoading={isLoading}
+        columns={columns}
+        emptyMessage="No featured products found."
+        renderMobileCard={(product) => (
+          <ProductTableCard key={product._id} product={product} handleEdit={() => handleEdit(product)} handleDelete={() => handleDelete(product._id)} />
+        )}
+      />
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          total={total}
-          onPageChange={(p) => fetchPage(p)}
-          isLoading={isLoading}
-        />
-      </div>
-    </>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        total={total}
+        onPageChange={(p) => fetchPage(p, 5)}
+        isLoading={isLoading}
+      />
+    </div>
   );
 };
 

@@ -1,7 +1,15 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Container from "@/components/ui/container";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import Section from "@/components/ui/section";
+import { Skeleton } from "@/components/ui/skeleton";
 import { placeNewOrder } from "@/features/orders/store/order-store";
 import { createOrderSchema } from "@/features/orders/validations/order-schema";
 import { getProductById } from "@/features/products/actions/product";
@@ -12,13 +20,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import Swal from "sweetalert2";
+import CustomerDetailsForm from "./customer-details-form";
 import PaymentSelector from "./payment-selector";
 import PriceSummary from "./price-summary";
 import ProductSelector from "./product-selector";
 import VariantSelector from "./variant-selector";
-
-const inputClass =
-  "w-full mt-2 bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-4 focus:border-primary-color outline-none text-xs sm:text-sm";
 
 export default function OrderForm({ settings = {} }) {
   const params = useSearchParams();
@@ -38,7 +44,7 @@ export default function OrderForm({ settings = {} }) {
     handleSubmit,
     reset,
     control,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -66,10 +72,8 @@ export default function OrderForm({ settings = {} }) {
       startTransition(async () => {
         try {
           const res = await getProductById(id);
-
-          if (!res.success) {
+          if (!res.success)
             throw new Error(res.message || "Failed to fetch product details.");
-          }
           setProduct(res.product || {});
         } catch (error) {
           console.error("Error fetching product:", error);
@@ -77,10 +81,9 @@ export default function OrderForm({ settings = {} }) {
             icon: "error",
             title: "Error",
             text: "Failed to fetch product details.",
-            background: "#11151c",
-            color: "#fff",
+            background: "var(--color-card)",
+            color: "var(--color-foreground)",
           });
-
           setProduct({});
         }
       });
@@ -138,10 +141,9 @@ export default function OrderForm({ settings = {} }) {
         icon: "success",
         title: "Success",
         text: "অর্ডার সফলভাবে গ্রহণ করা হয়েছে!",
-        background: "#11151c",
-        color: "#fff",
+        background: "var(--color-card)",
+        color: "var(--color-foreground)",
       });
-
       reset();
       setProduct({});
       const url = new URLSearchParams(searchParams.toString());
@@ -152,23 +154,26 @@ export default function OrderForm({ settings = {} }) {
         icon: "error",
         title: "Error",
         text: res.message,
-        background: "#11151c",
-        color: "#fff",
+        background: "var(--color-card)",
+        color: "var(--color-foreground)",
       });
     }
   };
 
   return (
-    <Section id="order" className="bg-[#0a0c12] text-accent-content">
+    <Section id="order" className="bg-background text-foreground">
       <Container>
         <div className="w-full text-center mb-12">
-          <span className="inline-block bg-primary-color/10 border border-primary-color/30 text-primary-color px-4 py-1.5 rounded-full uppercase mb-4 text-xs sm:text-sm">
+          <Badge
+            variant="outline"
+            className="border-primary/30 text-primary px-4 py-1.5 rounded-full uppercase mb-4 text-xs sm:text-sm bg-primary/10"
+          >
             Premium Checkout
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-accent-content mb-4">
-            Complete Your <span className="text-primary-color">Purchase</span>
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Complete Your <span className="text-primary">Purchase</span>
           </h2>
-          <p className="text-gray-500 text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl mx-auto leading-relaxed">
             আপনার পছন্দের ঘড়িটি অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ
             করুন।
           </p>
@@ -180,413 +185,257 @@ export default function OrderForm({ settings = {} }) {
           noValidate
         >
           <div className="lg:col-span-7 space-y-8">
-            <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
-              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
-                <ImageIcon className="text-primary-color w-5 h-5" /> Product
-                Settings
-              </h3>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+                  <ImageIcon className="text-primary w-5 h-5" /> Product
+                  Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProductSelector startTransition={startTransition} />
 
-              <ProductSelector startTransition={startTransition} />
-
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">
-                    Image URL
-                  </label>
-                  <input
-                    type="text"
-                    disabled
-                    value={isLoading ? "Loading..." : product.image || ""}
-                    className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-gray-400 outline-none text-xs sm:text-sm truncate"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-gray-500">
-                    Unit Price (৳)
-                  </label>
-                  <div className="w-full bg-[#1c2128] border border-gray-700 rounded-lg px-4 py-3 text-primary-color font-bold text-sm sm:text-base">
-                    {isLoading ? (
-                      <span className="animate-pulse text-gray-400 text-sm font-normal">
-                        Loading...
-                      </span>
-                    ) : (
-                      <>
-                        ৳{unitPrice}
-                        {product?.discount > 0 && (
-                          <span className="ml-2 text-xs text-gray-500 line-through font-normal">
-                            ৳{product.price}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {!isLoading && (
-                  <Controller
-                    name="selectedSize"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <VariantSelector
-                        label="Sizes"
-                        options={product?.productSizes}
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                )}
-
-                {!isLoading && (
-                  <Controller
-                    name="selectedColor"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <VariantSelector
-                        label="Colors"
-                        options={product?.productColors}
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        error={fieldState.error?.message}
-                        colorPicker
-                      />
-                    )}
-                  />
-                )}
-
-                {!isLoading && (
-                  <Controller
-                    name="selectedStatus"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <VariantSelector
-                        label="Product Status"
-                        options={product?.productStatus}
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        error={fieldState.error?.message}
-                        badge
-                      />
-                    )}
-                  />
-                )}
-
-                {product.stock && (
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase text-gray-500">
-                      Stock
-                    </label>
-                    <p
-                      className={`text-sm font-bold ${product.stock > 0 ? "text-green-400" : "text-red-400"}`}
-                    >
-                      {product.stock > 0
-                        ? `✓ ${product.stock} available`
-                        : "✕ Out of stock"}
-                    </p>
+                    <Label>Image URL</Label>
+                    <Input
+                      type="text"
+                      disabled
+                      value={isLoading ? "Loading..." : product.image || ""}
+                      className="bg-muted border-border truncate px-2"
+                    />
                   </div>
-                )}
-              </div>
 
-              <Controller
-                name="quantity"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
-                    <div className="aspect-square w-32 sm:w-40 bg-[#0a0c12] rounded-xl border border-dashed border-gray-700 flex items-center justify-center overflow-hidden">
+                  <div className="space-y-2">
+                    <Label>Unit Price (৳)</Label>
+                    <div className="w-full bg-muted border border-border p-2 text-primary font-semibold text-sm">
                       {isLoading ? (
-                        <>
-                          <div className="w-12 h-12 border-4 border-gray-700 border-t-primary-color rounded-full animate-spin"></div>
-                        </>
-                      ) : product.image ? (
-                        <Image
-                          src={product.image}
-                          alt="Preview"
-                          width={100}
-                          height={100}
-                          className="w-full h-full object-cover"
-                        />
+                        <Skeleton className="h-4 w-16" />
                       ) : (
-                        <div className="text-gray-600 text-xs text-center p-4">
-                          No image available
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold uppercase text-gray-500">
-                        Quantity
-                      </label>
-                      <div className="flex items-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            field.onChange(Math.max(1, (field.value || 1) - 1))
-                          }
-                          className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed!"
-                          disabled={!id || (field.value || 1) <= 1}
-                        >
-                          <Minus size={18} />
-                        </button>
-                        <span className="text-2xl sm:text-3xl font-bold w-12 text-center">
-                          {field.value || 1}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            field.onChange(
-                              Math.min(
-                                product?.stock || 99,
-                                (field.value || 1) + 1,
-                              ),
-                            )
-                          }
-                          className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition disabled:opacity-40"
-                          disabled={
-                            !id || (field.value || 1) >= (product?.stock || 99)
-                          }
-                        >
-                          <Plus size={18} />
-                        </button>
-                      </div>
-                      {fieldState.error && (
-                        <p className="text-red-400 text-xs">
-                          {fieldState.error.message}
-                        </p>
+                        <>
+                          ৳{unitPrice}
+                          {product?.discount > 0 && (
+                            <span className="ml-2 text-xs text-muted-foreground line-through font-normal">
+                              ৳{product.price}
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
-                )}
-              />
-            </div>
 
-            {id && (
-              <div className="bg-[#11151c] border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
-                <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-6">
-                  আপনার তথ্য দিন
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {!isLoading && (
                     <Controller
-                      name="customerName"
+                      name="selectedSize"
                       control={control}
                       render={({ field, fieldState }) => (
-                        <label
-                          className="text-xs font-bold uppercase text-accent-content"
-                          data-invalid={fieldState.invalid}
-                        >
-                          সম্পুর্ণ নাম
-                          <input
-                            {...field}
-                            type="text"
-                            aria-invalid={fieldState.invalid}
-                            placeholder="মোঃ রাকিবুল ইসলাম"
-                            className={inputClass}
-                          />
-                          {fieldState.error && (
-                            <p className="text-red-400 text-[10px] mt-1">
-                              {fieldState.error.message}
-                            </p>
-                          )}
-                        </label>
-                      )}
-                    />
-                    <Controller
-                      name="phone"
-                      control={control}
-                      render={({ field, fieldState }) => (
-                        <label
-                          className="text-xs font-bold uppercase text-accent-content"
-                          data-invalid={fieldState.invalid}
-                        >
-                          ফোন নাম্বার
-                          <input
-                            {...field}
-                            type="tel"
-                            aria-invalid={fieldState.invalid}
-                            placeholder="01845167412"
-                            className={inputClass}
-                          />
-                          {fieldState.error && (
-                            <p className="text-red-400 text-[10px] mt-1">
-                              {fieldState.error.message}
-                            </p>
-                          )}
-                        </label>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Controller
-                      name="zilla"
-                      control={control}
-                      render={({ field, fieldState }) => (
-                        <label
-                          className="text-xs font-bold uppercase text-accent-content"
-                          data-invalid={fieldState.invalid}
-                        >
-                          জেলা
-                          <input
-                            {...field}
-                            type="text"
-                            aria-invalid={fieldState.invalid}
-                            placeholder="রংপুর"
-                            className={inputClass}
-                          />
-                          {fieldState.error && (
-                            <p className="text-red-400 text-[10px] mt-1">
-                              {fieldState.error.message}
-                            </p>
-                          )}
-                        </label>
-                      )}
-                    />
-                    <Controller
-                      name="thana"
-                      control={control}
-                      render={({ field, fieldState }) => (
-                        <label
-                          className="text-xs font-bold uppercase text-accent-content"
-                          data-invalid={fieldState.invalid}
-                        >
-                          থানা
-                          <input
-                            {...field}
-                            type="text"
-                            aria-invalid={fieldState.invalid}
-                            placeholder="তারাগঞ্জ"
-                            className={inputClass}
-                          />
-                          {fieldState.error && (
-                            <p className="text-red-400 text-[10px] mt-1">
-                              {fieldState.error.message}
-                            </p>
-                          )}
-                        </label>
-                      )}
-                    />
-                  </div>
-                  <Controller
-                    name="email"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <label
-                        className="text-xs font-bold uppercase text-accent-content block"
-                        data-invalid={fieldState.invalid}
-                      >
-                        ইমেইল
-                        <input
-                          {...field}
-                          type="email"
-                          aria-invalid={fieldState.invalid}
-                          placeholder="rakibul.islam@bd.com"
-                          className={inputClass}
+                        <VariantSelector
+                          label="Sizes"
+                          options={product?.productSizes}
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          error={fieldState.error?.message}
                         />
-                        {fieldState.error && (
-                          <p className="text-red-400 text-[10px] mt-1">
-                            {fieldState.error.message}
-                          </p>
-                        )}
-                      </label>
-                    )}
-                  />
-                  <Controller
-                    name="address"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <label
-                        className="text-xs font-bold uppercase text-accent-content block"
-                        data-invalid={fieldState.invalid}
-                      >
-                        গ্রাম / মহল্লা
-                        <textarea
-                          {...field}
-                          rows={3}
-                          aria-invalid={fieldState.invalid}
-                          placeholder="কুর্শা কাজী পাড়া"
-                          className={`${inputClass} resize-none`}
+                      )}
+                    />
+                  )}
+
+                  {!isLoading && (
+                    <Controller
+                      name="selectedColor"
+                      control={control}
+                      render={({ field, fieldState }) => (
+                        <VariantSelector
+                          label="Colors"
+                          options={product?.productColors}
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          error={fieldState.error?.message}
+                          colorPicker
                         />
-                        {fieldState.error && (
-                          <p className="text-red-400 text-[10px] mt-1">
-                            {fieldState.error.message}
-                          </p>
-                        )}
-                      </label>
-                    )}
-                  />
+                      )}
+                    />
+                  )}
+
+                  {!isLoading && (
+                    <Controller
+                      name="selectedStatus"
+                      control={control}
+                      render={({ field, fieldState }) => (
+                        <VariantSelector
+                          label="Product Status"
+                          options={product?.productStatus}
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          error={fieldState.error?.message}
+                          badge
+                        />
+                      )}
+                    />
+                  )}
+
+                  {product.stock && (
+                    <div className="space-y-2">
+                      <Label>Stock</Label>
+                      <p
+                        className={`text-sm font-bold ${product.stock > 0 ? "text-green-400" : "text-destructive"}`}
+                      >
+                        {product.stock > 0
+                          ? `✓ ${product.stock} available`
+                          : "✕ Out of stock"}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
 
-          <div className="lg:col-span-5 space-y-8">
-            <div className="bg-[#11151c] border border-primary-color/30 rounded-2xl p-6 md:p-8 shadow-2xl sticky top-8">
-              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-6 flex items-center gap-2">
-                <CreditCard className="text-primary-color w-5 h-5" /> Payment
-                Method
-              </h3>
-
-              <Controller
-                name="paymentMethod"
-                control={control}
-                render={({ field }) => (
-                  <PaymentSelector
-                    value={field.value}
-                    onChange={field.onChange}
-                    paymentMethods={settings?.paymentMethods}
-                  />
-                )}
-              />
-
-              {watchedPaymentMethod !== "cod" && (
                 <Controller
-                  name="transactionId"
+                  name="quantity"
                   control={control}
                   render={({ field, fieldState }) => (
-                    <div className="mb-6">
-                      <label
-                        className="text-xs font-bold uppercase text-primary-color block mb-2"
-                        data-invalid={fieldState.invalid}
-                      >
-                        Transaction ID *
-                      </label>
-                      <input
-                        {...field}
-                        type="text"
-                        aria-invalid={fieldState.invalid}
-                        placeholder="Enter TrxID (e.g. 8N7X6W5Q)"
-                        className="w-full bg-[#0a0c12] border border-primary-color/50 rounded-lg px-4 py-3 focus:ring-1 focus:ring-primary-color outline-none text-accent-content font-mono"
-                      />
-                      {fieldState.error && (
-                        <p className="text-red-400 text-xs mt-1">
-                          {fieldState.error.message}
-                        </p>
-                      )}
+                    <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+                      <div className="aspect-square w-32 sm:w-40 bg-muted rounded-xl border border-dashed border-border flex items-center justify-center overflow-hidden">
+                        {isLoading ? (
+                          <LoadingSpinner className="w-10 h-10" />
+                        ) : product.image ? (
+                          <Image
+                            src={product.image}
+                            alt="Preview"
+                            width={100}
+                            height={100}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-muted-foreground text-xs text-center p-4">
+                            No image available
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-3">
+                        <Label>Quantity</Label>
+                        <div className="flex items-center gap-4">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            onClick={() =>
+                              field.onChange(
+                                Math.max(1, (field.value || 1) - 1),
+                              )
+                            }
+                            disabled={!id || (field.value || 1) <= 1}
+                            className="rounded-full"
+                          >
+                            <Minus size={18} />
+                          </Button>
+                          <span className="text-2xl sm:text-3xl font-bold w-12 text-center text-foreground">
+                            {field.value || 1}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            onClick={() =>
+                              field.onChange(
+                                Math.min(
+                                  product?.stock || 99,
+                                  (field.value || 1) + 1,
+                                ),
+                              )
+                            }
+                            disabled={
+                              !id ||
+                              (field.value || 1) >= (product?.stock || 99)
+                            }
+                            className="rounded-full"
+                          >
+                            <Plus size={18} />
+                          </Button>
+                        </div>
+                        {fieldState.error && (
+                          <p className="text-destructive text-xs">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
                 />
-              )}
+              </CardContent>
+            </Card>
 
-              <PriceSummary
-                unitPrice={unitPrice}
-                quantity={watchedQuantity || 1}
-                deliveryCharge={deliveryCharge}
-                zilla={watchedZilla}
-                isLoading={isLoading}
-              />
+            {id && <CustomerDetailsForm control={control} />}
+          </div>
 
-              <button
-                type="submit"
-                disabled={!isValid || isSubmitting}
-                className={`w-full py-2.5 px-4 font-bold rounded-xl mt-8 transition-transform active:scale-95 shadow-[0_10px_30px_rgba(212,175,55,0.2)] disabled:bg-gray-800 disabled:cursor-not-allowed! disabled:text-gray-500 bg-primary-color hover:bg-primary-color text-black text-sm sm:text-base`}
-              >
-                {!id
-                  ? "SELECT A PRODUCT FIRST"
-                  : isSubmitting
-                    ? "PROCESSING..."
-                    : "CONFIRM ORDER NOW"}
-              </button>
-            </div>
+          <div className="lg:col-span-5 space-y-8">
+            <Card className="border-primary/30 sticky top-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+                  <CreditCard className="text-primary w-5 h-5" /> Payment Method
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Controller
+                  name="paymentMethod"
+                  control={control}
+                  render={({ field }) => (
+                    <PaymentSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                      paymentMethods={settings?.paymentMethods}
+                    />
+                  )}
+                />
+
+                {watchedPaymentMethod !== "cod" && (
+                  <Controller
+                    name="transactionId"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <Field className="mb-6">
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-primary"
+                          data-invalid={fieldState.invalid}
+                        >
+                          Transaction ID *
+                        </FieldLabel>
+                        <Input
+                          {...field}
+                          type="text"
+                          id={field.name}
+                          aria-invalid={fieldState.invalid}
+                          placeholder="Enter TrxID (e.g. 8N7X6W5Q)"
+                          className="bg-muted px-2"
+                        />
+                        {fieldState.error && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                )}
+
+                <PriceSummary
+                  unitPrice={unitPrice}
+                  quantity={watchedQuantity || 1}
+                  deliveryCharge={deliveryCharge}
+                  zilla={watchedZilla}
+                  isLoading={isLoading}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={!id || isSubmitting}
+                  className="w-full mt-8"
+                >
+                  {!id
+                    ? "SELECT A PRODUCT FIRST"
+                    : isSubmitting
+                      ? "PROCESSING..."
+                      : "CONFIRM ORDER NOW"}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </form>
       </Container>

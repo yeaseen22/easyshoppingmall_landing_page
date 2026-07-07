@@ -1,25 +1,46 @@
-import { Loader2Icon } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
-function StatCard({ icon, label, value, color, isLoading }) {
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  change,
+  prefix = "",
+  suffix = "",
+}) => {
+  const isPositive = change >= 0;
+
   return (
-    <div className="bg-[#11151c] p-7 rounded-2xl border border-accent-content/5 shadow-xl hover:border-[#d4af37]/30 transition-all group">
-      <div
-        className={`mb-5 p-3 bg-accent-content/5 w-fit rounded-xl group-hover:scale-110 transition-transform ${color}`}
-      >
-        {icon}
-      </div>
-      <p className="text-gray-500 text-[10px] uppercase font-bold tracking-[0.2em]">
-        {label}
-      </p>
-      {isLoading ? (
-        <span className="flex">
-          <Loader2Icon className="animate-spin w-6 h-6 text-accent-content mt-2" />
+    <Card className="bg-card border border-border p-3 sm:p-5 transition-all duration-300 hover:border-primary/30">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <span className="text-muted-foreground text-[10px] sm:text-xs font-bold tracking-tight truncate">
+          {title}
         </span>
-      ) : (
-        <h3 className="text-3xl font-bold mt-2 text-accent-content">{value}</h3>
-      )}
-    </div>
+        <div className="bg-primary/10 p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl shrink-0">
+          <Icon className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-primary" />
+        </div>
+      </div>
+      <div className="flex items-end justify-between gap-1">
+        <p className="text-lg sm:text-2xl xl:text-3xl font-black text-foreground tracking-tight truncate">
+          {prefix}
+          {typeof value === "number" ? value.toLocaleString() : value}
+          {suffix}
+        </p>
+        {change !== 0 && (
+          <span
+            className={`text-[9px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg shrink-0 ${
+              isPositive
+                ? "bg-green-500/15 text-green-400"
+                : "bg-red-500/15 text-red-400"
+            }`}
+          >
+            {isPositive ? "+" : ""}
+            {change}%
+          </span>
+        )}
+      </div>
+    </Card>
   );
-}
+};
 
 export default StatCard;
