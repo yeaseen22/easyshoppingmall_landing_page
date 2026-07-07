@@ -51,7 +51,7 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex items-center justify-end pt-6 border-t border-border">
+    <div className="flex items-center justify-end pt-8">
       <div className="flex items-center gap-1.5">
         <Button
           variant="ghost"

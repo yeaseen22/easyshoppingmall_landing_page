@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import dns from "node:dns";
+// import dns from "node:dns";
 import { validateEnv } from "./env-server";
 
-dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+// dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1"]);
 
 const { MONGODB_URI, DB_NAME } = validateEnv();
 

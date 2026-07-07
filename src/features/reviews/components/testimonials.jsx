@@ -5,8 +5,6 @@ import ReviewForm from "./review-form";
 import ReviewSlider from "./review-slider";
 
 export default function Testimonials({ reviews = [] }) {
-  console.log(reviews.length);
-
   return (
     <Section>
       <Container>
